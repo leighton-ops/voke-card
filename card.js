@@ -27,8 +27,15 @@
     '.vk-i{flex-shrink:0;font-size:15px;line-height:1;color:var(--text-muted);cursor:default}',
     '.vk-i:hover{color:var(--text-secondary)}',
     '.vk-d{font-size:12px;line-height:17px;color:var(--text-secondary);margin:4px 10px 8px 36px}',
-    '.vk-m{font-size:12px;color:var(--text-muted);margin:8px 10px}'
+    '.vk-m{font-size:12px;color:var(--text-muted);margin:8px 10px}',
+    '.vk-k{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px}',
+    '.vk-k>b{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--border) 25%,var(--border-strong) 50%,var(--border) 75%);background-size:200% 100%;animation:vk-sh 1.2s ease-in-out infinite}',
+    '.vk-k>b:first-child{width:16px;height:16px;border-radius:4px;flex-shrink:0}',
+    '@keyframes vk-sh{from{background-position:100% 0}to{background-position:-100% 0}}'
   ].join('');
+  // Library index is loaded separately so this file can be pinned and cached forever,
+  // while library.js (regenerated on every skill change) stays on @main.
+  var LIB_URL = 'https://cdn.jsdelivr.net/gh/leighton-ops/voke-card@main/library.min.js';
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
@@ -54,7 +61,14 @@
       var st = el('style'); st.id = 'vk-css'; st.textContent = CSS; document.head.appendChild(st);
     }
     var lib = (window.VOKE_LIBRARY || []).slice();
+    var loading = !window.VOKE_LIBRARY;
     var sel = 0;
+    if (loading) {
+      var s = document.createElement('script');
+      s.src = LIB_URL; s.async = true;
+      s.onload = s.onerror = function () { lib = (window.VOKE_LIBRARY || []).slice(); loading = false; draw(); };
+      document.head.appendChild(s);
+    }
 
     // Recent first, then the rest in popularity order.
     function ordered() {
@@ -152,7 +166,11 @@
       list.innerHTML = '';
       list.scrollTop = 0;
       var shown = matches();
-      if (!lib.length) {
+      if (loading) {
+        [62, 48, 70, 55, 66, 44, 58, 51, 64].forEach(function (w) {
+          list.appendChild(el('div', 'vk-k', '<b></b><b style="width:' + w + '%"></b>'));
+        });
+      } else if (!lib.length) {
         var e1 = el('p', 'vk-m'); e1.textContent = 'Library didn’t load. Press enter to search Voke.'; list.appendChild(e1);
       } else if (!shown.length) {
         var e2 = el('p', 'vk-m'); e2.textContent = 'No match. Press enter to ask Voke.'; list.appendChild(e2);
@@ -193,4 +211,8 @@
   }
 
   window.Voke = { mount: mount };
+  // Auto-mount: a single script tag for card.min.js renders the card on its own.
+  var host = document.getElementById('voke');
+  if (!host) { host = document.createElement('div'); host.id = 'voke'; (document.body || document.documentElement).appendChild(host); }
+  if (!host.firstChild) mount(host, host.getAttribute('data-q') || '');
 })();
