@@ -3,7 +3,7 @@
    Reads the library from window.VOKE_LIBRARY (library.js), ordered most popular first.
    Recently run skills (kept in this browser when storage is available) are listed first. */
 (function () {
-  var ROW = 34, VISIBLE = 10.5, RECENT_KEY = 'voke-recent', RECENT_MAX = 10;
+  var ROW = 34, VISIBLE = 8.5, RECENT_KEY = 'voke-recent', RECENT_MAX = 10;
   var CSS = [
     '.vk{background:var(--surface-3);border:1px solid var(--border-strong);border-radius:12px;padding:6px;width:272px;margin:8px 0 16px;font-size:14px;line-height:20px;box-sizing:border-box}',
     '.vk-s{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-bottom:0.5px solid var(--border);margin-bottom:4px}',
