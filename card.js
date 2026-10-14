@@ -21,7 +21,9 @@
     '.vk-fade{position:absolute;left:0;right:0;bottom:0;height:44px;pointer-events:none;background:linear-gradient(to bottom,transparent,var(--surface-3));transition:opacity .15s}',
     '.vk-w.vk-end .vk-fade{opacity:0}',
     '.vk-r{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:8px;cursor:pointer;color:var(--text-primary)}',
-    '.vk-r.on{background:var(--fill-ghost-hover)}',
+    '.vk-r.on{background:color-mix(in srgb,var(--text-primary) 8%,transparent)}',
+    '.vk-e{flex-shrink:0;font-size:15px;line-height:1;color:var(--text-muted);display:none}',
+    '.vk-r.on .vk-e{display:block}',
     '.vk-r>i{font-size:16px;color:var(--text-secondary);flex-shrink:0}',
     '.vk-r>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
     '.vk-i{flex-shrink:0;font-size:15px;line-height:1;color:var(--text-muted);cursor:default}',
@@ -74,7 +76,7 @@
     }
     var lib = (window.VOKE_LIBRARY || []).slice();
     var loading = !window.VOKE_LIBRARY;
-    var sel = 0;
+    var sel = 0, mouseMoved = false;
     // Carry over anything typed into the inline shell before this script arrived.
     var pre = root.querySelector('input');
     if (pre && pre.value) query = pre.value;
@@ -154,7 +156,9 @@
     function row(k, i) {
       var r = el('div', 'vk-r' + (i === sel ? ' on' : ''), '<i class="ti ti-script" aria-hidden="true"></i><span></span>');
       r.querySelector('span').textContent = k.n;
-      r.onmouseenter = function () { highlight(i, false); };
+      r.appendChild(el('i', 'ti ti-corner-down-left vk-e', null)).setAttribute('aria-hidden', 'true');
+      r.onmouseenter = function () { if (mouseMoved) highlight(i, false); };
+      r.onmousemove = function () { mouseMoved = true; if (sel !== i) highlight(i, false); };
       r.onclick = function () { remember(k.n); send('/voke run ' + k.n); };
       list.appendChild(r);
       if (k.d) {
@@ -189,21 +193,26 @@
     }
 
     q.addEventListener('input', draw);
-    q.addEventListener('keydown', function (e) {
+    function onKey(e) {
       var rows = list.querySelectorAll('.vk-r'), n = rows.length;
       var atEnd = q.selectionStart === q.value.length;
       if ((e.key === 'Tab' || e.key === 'ArrowRight') && ghost.textContent && atEnd) {
         e.preventDefault(); q.value = ghost.textContent; draw();
-      } else if (e.key === 'ArrowDown' && n) {
-        e.preventDefault(); highlight((sel + 1) % n, true);
-      } else if (e.key === 'ArrowUp' && n) {
-        e.preventDefault(); highlight((sel - 1 + n) % n, true);
+      } else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && n) {
+        // Scrolling moves rows under a resting pointer; don't let that steal the selection.
+        e.preventDefault(); mouseMoved = false;
+        highlight(e.key === 'ArrowDown' ? (sel + 1) % n : (sel - 1 + n) % n, true);
       } else if (e.key === 'Enter') {
         e.preventDefault();
         var typed = q.value.trim();
         if (rows[sel]) rows[sel].click();
         else if (typed) send('/voke find ' + typed);
       }
+    }
+    q.addEventListener('keydown', onKey);
+    document.addEventListener('keydown', function (e) {
+      if (e.target === q || e.defaultPrevented) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') { onKey(e); grab(); }
     });
 
     draw(); place();
