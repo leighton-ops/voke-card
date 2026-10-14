@@ -33,9 +33,21 @@
     '.vk-k>b:first-child{width:16px;height:16px;border-radius:4px;flex-shrink:0}',
     '@keyframes vk-sh{from{background-position:100% 0}to{background-position:-100% 0}}'
   ].join('');
-  // Library index is loaded separately so this file can be pinned and cached forever,
+  // Library index is loaded separately so this file can be pinned to a commit and cached forever,
   // while library.js (regenerated on every skill change) stays on @main.
-  var LIB_URL = 'https://cdn.jsdelivr.net/gh/leighton-ops/voke-card@main/library.min.js';
+  var LIB_URL = 'https://cdn.jsdelivr.net/gh/leighton-ops/voke-card@main/library.js';
+  var libWaiters = [], libDone = !!window.VOKE_LIBRARY;
+  // Start the library request the moment this file runs, before mount, so the two downloads overlap.
+  function loadLib(cb) {
+    if (libDone) return cb();
+    libWaiters.push(cb);
+    if (libWaiters.length > 1) return;
+    var s = document.createElement('script');
+    s.src = LIB_URL; s.async = true;
+    s.onload = s.onerror = function () { libDone = true; libWaiters.splice(0).forEach(function (f) { f(); }); };
+    document.head.appendChild(s);
+  }
+  loadLib(function () {});
 
   function el(tag, cls, html) {
     var e = document.createElement(tag);
@@ -63,12 +75,9 @@
     var lib = (window.VOKE_LIBRARY || []).slice();
     var loading = !window.VOKE_LIBRARY;
     var sel = 0;
-    if (loading) {
-      var s = document.createElement('script');
-      s.src = LIB_URL; s.async = true;
-      s.onload = s.onerror = function () { lib = (window.VOKE_LIBRARY || []).slice(); loading = false; draw(); };
-      document.head.appendChild(s);
-    }
+    // Carry over anything typed into the inline shell before this script arrived.
+    var pre = root.querySelector('input');
+    if (pre && pre.value) query = pre.value;
 
     // Recent first, then the rest in popularity order.
     function ordered() {
@@ -198,6 +207,7 @@
     });
 
     draw(); place();
+    if (loading) loadLib(function () { lib = (window.VOKE_LIBRARY || []).slice(); loading = false; draw(); });
     function grab() {
       try { window.focus(); } catch (e) {}
       try { q.focus({ preventScroll: true }); q.setSelectionRange(q.value.length, q.value.length); } catch (e) {}
@@ -211,8 +221,8 @@
   }
 
   window.Voke = { mount: mount };
-  // Auto-mount: a single script tag for card.min.js renders the card on its own.
+  // Auto-mount: one script tag renders the card on its own, replacing the inline shell if present.
   var host = document.getElementById('voke');
   if (!host) { host = document.createElement('div'); host.id = 'voke'; (document.body || document.documentElement).appendChild(host); }
-  if (!host.firstChild) mount(host, host.getAttribute('data-q') || '');
+  if (!host.querySelector('.vk')) mount(host, host.getAttribute('data-q') || '');
 })();
