@@ -114,7 +114,11 @@
       try { ctx.font = getComputedStyle(q).font; caret.style.left = Math.min(ctx.measureText(q.value).width, field.clientWidth - 1) + 'px'; } catch (e) {}
     }
     function edge() { wrap.classList.toggle('vk-end', list.scrollTop + list.clientHeight >= list.scrollHeight - 2); }
-    list.addEventListener('scroll', edge);
+    // Scroll events only schedule the end-of-list check; it reads layout once per frame at most.
+    var edgeRaf = 0;
+    list.addEventListener('scroll', function () {
+      if (!edgeRaf) edgeRaf = requestAnimationFrame(function () { edgeRaf = 0; edge(); });
+    }, { passive: true });
     q.addEventListener('focus', function () { card.classList.add('vk-on'); });
     q.addEventListener('blur', function () { card.classList.remove('vk-on'); place(); });
 
