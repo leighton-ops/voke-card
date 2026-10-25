@@ -1596,4 +1596,10 @@ body.vk-hidden{display:none}
 #voke-v2 .v-header .v-handoff .v-handoff-close,#voke-v2[data-theme] .v-header .v-handoff .v-handoff-close{color:#212121}
 #voke-v2 .v-header .v-handoff .v-handoff-close:hover{background:rgba(33,33,33,.08)}
 #voke-v2 .v-header .v-handoff .v-handoff-text{background:#fff;color:#212121;border-color:rgba(33,33,33,.2)}
+/* Banner drops straight down from the top, like a system notification: centered with auto margins
+   (no sideways transform for the animation to fight), short ease-out with a hint of settle. */
+#voke-v2 .v-header .v-handoff{left:0!important;right:0!important;margin:0 auto!important;transform:none!important;animation:v4-drop .34s cubic-bezier(.2,.9,.25,1.08) both!important}
+@keyframes v4-drop{from{translate:0 -18px;opacity:0}to{translate:0 0;opacity:1}}
+@media (prefers-reduced-motion:reduce){#voke-v2 .v-header .v-handoff{animation:v4-fade .2s ease both!important}}
+@keyframes v4-fade{from{opacity:0}to{opacity:1}}
 </style>
