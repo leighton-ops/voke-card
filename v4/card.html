@@ -1505,4 +1505,30 @@ body.vk-hidden{display:none}
 #voke-v2 .v-product .v-card-info h2{font-size:17px!important}
 #voke-v2 .v-product .v-description,#voke-v2 .v-product .v-mobile-summary{font-size:15px!important;line-height:1.4!important}
 @container vpreview (width < 688px){#voke-v2 .v-product .v-card-info h2{font-size:16px!important}#voke-v2 .v-product .v-mobile-summary,#voke-v2 .v-product .v-description{font-size:14px!important}}
+/* ---- Light mode in Voke's current (V3) colors; the V4 yellow stays. ---- */
+#voke-v2[data-theme=light]{--v-bg:#ffffff;--v-panel:#f0f0ef;--v-text:#212121;--v-muted:#4a5568;--v-line:#e2e8f0;--v-soft:#f0f0ef;--v-input:#f0f0ef;--v-active:#212121;--v-active-text:#ffffff;--v-brand:#f4ff71;--v-brand-ink:#212121;--v-hover-muted:#e9e7e4;--v-hover-ink:#212121;--v-control-border:rgba(33,33,33,.14);--v-focus:#212121;--v-frame:#ffffff;background:#ffffff}
+#voke-v2[data-theme=light] .v-header{background:#ffffff}
+#voke-v2[data-theme=light] .v-search,#voke-v2[data-theme=light] .v-search:hover{background:#f0f0ef;border-color:transparent;color:#4a5568}
+#voke-v2[data-theme=light] .v-search:hover{background:#e9e7e4}
+#voke-v2[data-theme=light] .v-search input::placeholder{color:#4a5568}
+#voke-v2[data-theme=light] .v-search:hover input::placeholder{color:#212121}
+#voke-v2[data-theme=light] .v-categories{background:transparent}
+#voke-v2[data-theme=light] .v-categories .v-chip{background:#ffffff;color:#212121;box-shadow:inset 0 0 0 1px #a0aec0}
+#voke-v2[data-theme=light] .v-categories .v-chip:not([aria-pressed=true]):hover{background:rgba(33,33,33,.05);color:#212121}
+#voke-v2[data-theme=light] .v-categories .v-chip[aria-pressed=true],#voke-v2[data-theme=light] .v-categories .v-chip[aria-pressed=true]:hover{background:#212121;color:#ffffff;box-shadow:none}
+#voke-v2[data-theme=light] .v3-circle:not(.v3-plus){background:#ffffff;color:#212121;border-color:rgba(33,33,33,.14)}
+#voke-v2[data-theme=light] .v3-circle:not(.v3-plus):hover,#voke-v2[data-theme=light] .v-secondary:hover,#voke-v2[data-theme=light] .v-button:hover{background:#e9e7e4;color:#212121;border-color:rgba(33,33,33,.14)}
+#voke-v2[data-theme=light] .v-product .v-description,#voke-v2[data-theme=light] .v-product .v-mobile-summary,#voke-v2[data-theme=light] .v-summary-description{color:#2d3748}
+#voke-v2[data-theme=light] .v-product .v-price-run .v-run{border-color:rgba(33,33,33,.14);background:#ffffff;color:#212121}
+#voke-v2[data-theme=light] .v-product .v-price-run .v-run:not(:disabled):hover{background:#212121;color:#ffffff;border-color:#212121}
+#voke-v2[data-theme=light] .v-primary{background:#212121;border-color:#212121;color:#ffffff}
+#voke-v2[data-theme=light] .v-primary:not(:disabled):hover{background:#3a3a3a;border-color:#3a3a3a}
+#voke-v2[data-theme=light] .v-badge,#voke-v2[data-theme=light] .v-status{color:#4a5568}
+#voke-v2[data-theme=light] .v-card-stars,#voke-v2[data-theme=light] .v-price{color:#4a5568}
+#voke-v2[data-theme=light] button.v-card-stars[aria-pressed=true]{color:#b7791f}
+#voke-v2[data-theme=light] .v-detail-tabs .v-tab[aria-selected=true]{border-bottom-color:#212121;color:#212121}
+#voke-v2[data-theme=light] .create-steps{background:#f0f0ef}
+#voke-v2[data-theme=light] .create-steps button[aria-current=step]{background:#212121;color:#ffffff}
+#voke-v2[data-theme=light] .create-upload:hover,#voke-v2[data-theme=light] .create-upload.dragging{border-color:#212121;background:rgba(33,33,33,.04)}
+#voke-v2[data-theme=light] .v-handoff{background:#ffffff;color:#212121;border-color:#e2e8f0}
 </style>
