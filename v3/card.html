@@ -428,7 +428,10 @@
   try { userTheme = localStorage.getItem("voke-theme"); } catch (e) {}
   function setTheme() {
     var t = userTheme === "light" || userTheme === "dark" ? userTheme : hostTheme;
-    document.documentElement.style.colorScheme = t;
+    // The page root keeps the host's scheme: a root scheme that differs from the chat makes the browser paint an
+    // opaque square behind the card's rounded corners. The viewer's choice applies from the body down instead.
+    document.documentElement.style.colorScheme = hostTheme;
+    document.body.style.colorScheme = t;
     document.documentElement.dataset.theme = t;
     var b = document.getElementById("theme");
     if (b) b.setAttribute("aria-label", "Switch to " + (t === "dark" ? "light" : "dark") + " mode");
