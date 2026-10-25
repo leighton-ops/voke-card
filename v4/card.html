@@ -924,7 +924,7 @@ function detailTabs(p){
     `<div class="v-inline-creator"><span class="v-avatar">${esc(p.creator.slice(0,2).toUpperCase())}</span><a href="#creator-${esc(p.creator)}" data-action="creator" data-creator="${esc(p.creator)}">@${esc(p.creator)}</a></div><p>${esc(p.creatorName||'')}${p.creatorName?' · ':''}Explore more skills from this creator.</p><button class="v-button cursor-interaction" style="margin-top:12px" data-action="creator" data-creator="${esc(p.creator)}">View skills</button>`];
   return `<section class="v-detail-tabs"><nav class="v-tab-nav" role="tablist" aria-label="Skill information">${['Overview','How to use','Details','Creator'].map((t,i)=>`<button class="v-tab cursor-interaction" role="tab" id="v-tab-${i}" aria-controls="v-panel-${i}" aria-selected="${state.tab===i}" tabindex="${state.tab===i?0:-1}" data-action="tab" data-tab="${i}">${t}</button>`).join('')}</nav><div class="v-tab-rail" id="v-tab-rail">${panels.map((x,i)=>`<section class="v-tab-pane" role="tabpanel" id="v-panel-${i}" aria-labelledby="v-tab-${i}">${x}</section>`).join('')}</div></section>`;
 }
-function productDetail(p,review=false){return `<div class="v-product-layout ${review?'create-product-review':''}"><div class="v-product-media">${cover(p,false)}</div><aside class="v-summary"><span class="v-badge">${esc(p.category)} / ${p.visibility==='private'?'Private skill':'Skill'}</span><h1>${esc(p.name)}</h1>${meta(p,!review)}<p class="v-summary-description">${esc(p.desc)}</p>${review?`<div class="create-review-price"><span>${access(p)}</span><small>${p.visibility==='private'?'Only you can see and run it':'Anyone can find and run it'}</small></div>`:runBlock(p)}${specs(p)}</aside>${review?'':detailTabs(p)}</div>`;}
+function productDetail(p,review=false){return `<div class="v-product-layout ${review?'create-product-review':''}"><div class="v-product-media">${cover(p,false)}</div><aside class="v-summary"><span class="v-badge">${esc(p.category)} / ${p.visibility==='private'?'Private skill':'Skill'}</span><h1>${esc(p.name)}</h1>${meta(p,!review)}<div class="v4-desc"><p class="v-summary-description v4-clamp">${esc(p.desc)}</p><button type="button" class="v4-more" data-action="more-desc" aria-expanded="false" hidden>…more</button></div>${review?`<div class="create-review-price"><span>${access(p)}</span><small>${p.visibility==='private'?'Only you can see and run it':'Anyone can find and run it'}</small></div>`:runBlock(p)}${specs(p)}</aside>${review?'':detailTabs(p)}</div>`;}
 function detail(p){
   if(!detailCache[p.id])loadDetail(p.id);
   const e=detailCache[p.id]||{};
@@ -1028,7 +1028,7 @@ function render(){
   icons();syncPager();
   bindRail('#v-pages','page',()=>{syncPager();const need=(state.page+2)*perPage();if(state.view==='market'&&state.results.length<need&&state.next!=null&&!state.loading)fetchPage(true).then(()=>requestAnimationFrame(()=>{railTo(root.querySelector('#v-pages'),state.page,false);syncPager();}));});
   bindRail('#v-tab-rail','tab',()=>root.querySelectorAll('[data-action="tab"]').forEach((b,i)=>b.setAttribute('aria-selected',i===state.tab)));
-  requestAnimationFrame(()=>{railTo(root.querySelector('#v-pages'),state.page,false);railTo(root.querySelector('#v-tab-rail'),state.tab,false);root.style.setProperty('--v-nav',root.querySelector('.v-header').getBoundingClientRect().height+'px');creatorBind();});
+  requestAnimationFrame(()=>{root.querySelectorAll('.v4-desc').forEach(d=>{const t=d.querySelector('.v4-clamp');d.querySelector('.v4-more').hidden=t.scrollHeight<=t.clientHeight+1;});railTo(root.querySelector('#v-pages'),state.page,false);railTo(root.querySelector('#v-tab-rail'),state.tab,false);root.style.setProperty('--v-nav',root.querySelector('.v-header').getBoundingClientRect().height+'px');creatorBind();});
 }
 
 /* Wide layouts show every loaded skill in one grid (the pager is for phones): load the next page near the end. */
@@ -1073,6 +1073,7 @@ root.addEventListener('click',e=>{
     case 'next':setPage(state.page+1);break;
     case 'page':setPage(Number(b.dataset.page));break;
     case 'tab':setTab(Number(b.dataset.tab));break;
+    case 'more-desc':{const box=b.closest('.v4-desc'),open=box.classList.toggle('open');b.textContent=open?'Show less':'…more';b.setAttribute('aria-expanded',String(open));break;}
     case 'dismiss-handoff':dismissHandoff();break;
     case 'copy-again':{const h=b.closest('.v-handoff');copyText(h.dataset.text).then(ok=>{if(ok)handoffBanner(h.dataset.title,h.dataset.text,'copied',`Paste <strong>${esc(h.dataset.title)}</strong> into your chat bar below to continue.`);});break;}
   }
@@ -1569,4 +1570,11 @@ body.vk-hidden{display:none}
 #voke-v2 .v4-back{background:var(--v-panel)}
 #voke-v2[data-view=detail] .v-main,#voke-v2[data-view=creator] .v-main,#voke-v2[data-view=saved] .v-main{padding-top:8px!important}
 #voke-v2[data-back] .v4-head-back{margin-right:auto}
+/* Skill page description: five lines, then "…more" expands it. */
+#voke-v2 .v4-desc .v4-clamp{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:5!important;line-clamp:5;overflow:hidden!important;white-space:normal!important}
+#voke-v2 .v4-desc.open .v4-clamp{display:block!important;-webkit-line-clamp:unset!important;overflow:visible!important}
+#voke-v2 .v4-more{display:inline-block;margin:2px 0 0;padding:0;border:0;background:none;font:inherit;font-size:14px;font-weight:600;color:var(--v-text);cursor:pointer}
+#voke-v2 .v4-more[hidden]{display:none}
+#voke-v2 .v4-more:hover{text-decoration:underline}
+#voke-v2 .v4-more:focus-visible{outline:2px solid var(--v-text);outline-offset:2px;border-radius:4px}
 </style>
