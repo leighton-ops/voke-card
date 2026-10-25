@@ -312,11 +312,8 @@
   .skill .save:hover{background:var(--vk-search)}
   .runb{height:36px;padding:0 14px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--vk-ring);background:var(--vk-bg);display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--vk-name);white-space:nowrap}
   .runb svg{width:12px;height:12px;fill:currentColor;stroke:none}
-  /* Paid skills: the price beside the star, one free try, then Buy. */
+  /* Paid skills: the price sits just left of the star count. */
   .price{font-size:14px;font-weight:600;color:var(--vk-name);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .price small{font-size:12px;font-weight:500;color:var(--vk-meta)}
-  .runb.buy,.dt-run.buy{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
-  .ptag{font-size:12px;color:var(--vk-meta);white-space:nowrap}
   .l2 .pr-sm{display:none;font-weight:600;color:var(--vk-name)}
   @media (hover:hover){.runb:hover{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}}
   .skill:has(+ .picked) .runb{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
@@ -345,7 +342,7 @@
     .skill .si{width:36px;height:36px}
     .l2 .sm{display:inline}.l2 .dsc,.racts .star,.ctag{display:none}.dm{display:block}
     .runb span{display:none}.runb{width:36px;padding:0;justify-content:center}.racts{gap:6px}
-    .racts .price{display:none}.l2 .pr-sm{display:inline}.runb.buy span,.runb.try span{display:inline}.runb.buy,.runb.try{width:auto;padding:0 10px}
+    .racts .price{display:none}.l2 .pr-sm{display:inline}
   }
   /* Touch: tabs over sideways pages, all the same height so nothing jumps */
   .dt-tabs{display:flex;gap:4px;border-top:1px solid var(--vk-line);padding-top:10px}
@@ -520,20 +517,8 @@
     return i < 0;
   }
 
-  // Paid skills (design version): a card may carry price {amount, billing: "once"|"month"}. Each viewer gets one
-  // free try, then Buy. Trials are remembered in this browser only; real enforcement and checkout belong on the server.
+  // A card may carry price {amount, billing: "once"|"month"}; free skills have none.
   function priceText(k) { var p = k.price; if (!p || !p.amount) return ""; var a = "$" + (Math.round(p.amount * 100) / 100).toString().replace(/\.(\d)$/, ".$10"); return p.billing === "month" ? a + "/mo" : a; }
-  var TRIAL_KEY = "voke-trials", memTrials = null;
-  function trials() { if (memTrials) return memTrials.slice(); try { var v = JSON.parse(localStorage.getItem(TRIAL_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
-  function trialUsed(n) { return trials().indexOf(n) > -1; }
-  function useTrial(n) { var v = trials(); if (v.indexOf(n) < 0) v.push(n); try { localStorage.setItem(TRIAL_KEY, JSON.stringify(v)); memTrials = null; } catch (e) { memTrials = v; } }
-  // Run button content for any skill: Run skill, Try free (paid, trial left) or Buy $X (paid, trial used).
-  function runState(k) { var pt = priceText(k); if (!pt) return { cls: "", label: "Run skill", aria: "Run " }; return trialUsed(k.name) ? { cls: "buy", label: "Buy " + pt, aria: "Buy for " + pt + ": " } : { cls: "try", label: "Try free", aria: "Try free once: " }; }
-  function buyNote(k, after) {
-    var n = h("p", "note picked");
-    n.innerHTML = "<b>" + esc(k.title || k.name) + "</b> is " + esc(priceText(k)) + ". Checkout isn’t connected yet: paying needs Voke accounts and Stripe on the server.";
-    after.after(n); size(); return n;
-  }
 
   // Stars are shared across everyone: the server counts one per voter, and every skill starts at 1.
   // The voter is an anonymous id kept in this browser so a star can be taken back.
@@ -1071,24 +1056,23 @@
     var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle;
     cb.setAttribute("aria-label", "Show skills by @" + handle);
     who.appendChild(cb); l2.appendChild(who);
-    var sm = h("span", "sm"); sm.appendChild(document.createTextNode(" · ")); sm.appendChild(starButton(k, label, "s-sm")); l2.appendChild(sm);
     if (priceText(k)) { var ps = h("span", "pr-sm"); ps.textContent = " · " + priceText(k); l2.appendChild(ps); }
+    var sm = h("span", "sm"); sm.appendChild(document.createTextNode(" · ")); sm.appendChild(starButton(k, label, "s-sm")); l2.appendChild(sm);
     var d = k.blurb || k.description;
     if (d) { var ds = h("span", "dsc"); ds.textContent = " · " + d; l2.appendChild(ds); }
     body.appendChild(l2);
     r.appendChild(body);
     var acts = h("div", "racts");
+    if (priceText(k)) acts.appendChild(h("span", "price", priceText(k)));
     acts.appendChild(starButton(k, label, "s-lg"));
     var b = h("button", "save" + (saved ? " saved" : "")); b.type = "button"; b.innerHTML = svg(P.bookmark);
     b.dataset.save = k.name;
     b.setAttribute("aria-label", (saved ? "Unsave " : "Save ") + label);
     b.setAttribute("aria-pressed", saved ? "true" : "false");
     acts.appendChild(b);
-    var rs = runState(k), pt = priceText(k);
-    if (pt && rs.cls === "try") { var pr = h("span", "price"); pr.innerHTML = esc(pt) + " <small>· 1 free try</small>"; acts.insertBefore(pr, b); }
-    var rb = h("button", "runb" + (rs.cls ? " " + rs.cls : "")); rb.type = "button"; rb.dataset.run = k.name;
-    rb.innerHTML = (rs.cls === "buy" ? "" : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>') + "<span>" + esc(rs.label) + "</span>";
-    rb.setAttribute("aria-label", rs.aria + label);
+    var rb = h("button", "runb"); rb.type = "button"; rb.dataset.run = k.name;
+    rb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run skill</span>';
+    rb.setAttribute("aria-label", "Run " + label);
     acts.appendChild(rb);
     r.appendChild(acts);
     return r;
@@ -1135,17 +1119,14 @@
   }
   function run(k, el) {
     if (el.dataset.busy) return;
-    if (priceText(k) && trialUsed(k.name)) { list.querySelectorAll(".picked").forEach(function (x) { x.remove(); }); buyNote(k, el); return; }
-    var trial = !!priceText(k);
     el.dataset.busy = "1";
     var text = "/voke " + String(k.title || k.name).toLowerCase();
     copyText(text).then(function (ok) {
       delete el.dataset.busy;
-      if (ok && trial) { useTrial(k.name); var rb2 = el.querySelector(".runb"); if (rb2) { var st2 = runState(k); rb2.className = "runb " + st2.cls; rb2.innerHTML = "<span>" + esc(st2.label) + "</span>"; rb2.setAttribute("aria-label", st2.aria + (k.title || k.name)); } var pr2 = el.querySelector(".racts .price"); if (pr2) pr2.remove(); }
       list.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
       var n = h("p", "note picked" + (ok ? " ok" : ""));
       n.innerHTML = ok
-        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">Copied!</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter." + (trial ? " This is your free try." : "") + "</span>"
+        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">Copied!</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
         : "Copy is blocked here. Copy this, then paste it into the message box below and send: " +
           "<input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
       el.after(n);
@@ -1204,12 +1185,6 @@
 
   function runCommand(k) { return "/voke " + String(k.title || k.name).toLowerCase(); }
   function copyFrom(k, after, key) {
-    if (key === "run" && priceText(k)) {
-      if (trialUsed(k.name)) { dt.querySelectorAll(".picked").forEach(function (x) { x.remove(); }); buyNote(k, after); fitPages(); return; }
-      useTrial(k.name);
-      var dr = $("dtRun"), ns = runState(k);
-      if (dr) { dr.className = "dt-run " + ns.cls; dr.innerHTML = "<span>" + esc(ns.label) + "</span>"; }
-    }
     dt.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
     dt.querySelectorAll(".skill.on").forEach(function (x) { x.classList.remove("on"); });
     if (PG.picked === key) { PG.picked = null; fitPages(); size(); return; }
@@ -1339,14 +1314,15 @@
     var by = h("div", "by"), who = h("span");
     var handle = k.creator ? k.creator.handle : "voke";
     var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle; who.appendChild(cb); by.appendChild(who);
+    if (priceText(k)) by.appendChild(h("span", "price", priceText(k)));
     var st = h("button", "star" + (k.starred ? " starred" : "")); st.type = "button"; st.dataset.star = k.name;
     st.innerHTML = svg(P.star) + "<span>" + fmtStars(k.stars) + "</span>"; by.appendChild(st);
     mid.appendChild(by); hero.appendChild(mid);
     var acts = h("div", "dt-acts");
     var saved = isSaved(k.name), sb = h("button", "save" + (saved ? " saved" : "")); sb.type = "button"; sb.dataset.save = k.name;
     sb.innerHTML = svg(P.bookmark); sb.setAttribute("aria-label", (saved ? "Unsave " : "Save ") + label); acts.appendChild(sb);
-    var drs = runState(k), run = h("button", "dt-run" + (drs.cls ? " " + drs.cls : "")); run.type = "button"; run.id = "dtRun";
-    run.innerHTML = (drs.cls === "buy" ? "" : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>') + "<span>" + esc(drs.label) + "</span>";
+    var run = h("button", "dt-run"); run.type = "button"; run.id = "dtRun";
+    run.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run skill</span>';
     if (wide) acts.appendChild(run);
     hero.appendChild(acts);
     top.appendChild(hero);
@@ -1354,7 +1330,7 @@
     if (desc) top.appendChild(h("p", "dt-d", desc));
     if (d) {
       var tags = [d.runs || "Runs in chat"];
-      if (d.cost === "$0") tags.push("Free");
+      if (d.cost === "$0" && !priceText(k)) tags.push("Free");
       if (PG.data.license) tags.push(PG.data.license);
       pills(top, tags);
     }
@@ -1454,8 +1430,7 @@
     if (cr) { q.value = ""; S.view = ""; setFilter("creator", { key: cr.dataset.creator, label: cr.dataset.creator }); return; }
     var r = e.target.closest(".skill");
     if (r && e.target.closest("[data-run]")) {
-      var ir = Number(r.dataset.i), nx2 = r.nextElementSibling, kb = shown()[ir];
-      if (kb && priceText(kb) && trialUsed(kb.name)) { if (nx2 && nx2.classList.contains("picked") && /Checkout/.test(nx2.textContent)) { nx2.remove(); size(); return; } run(kb, r); return; }
+      var ir = Number(r.dataset.i), nx2 = r.nextElementSibling;
       if (nx2 && nx2.classList.contains("picked")) { nx2.remove(); size(); return; }
       run(shown()[ir], r); return;
     }
