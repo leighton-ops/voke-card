@@ -873,7 +873,6 @@ function back(){const t=trail.pop();menuOpen=false;if(!t||t.view===state.view&&t
 function home(){trail=[];state.view='market';if(state.query||state.catKey||Object.keys(state.filters).length||state.mode==='shortlist'){search.value='';state.query='';state.catKey='';state.filters={};state.mode='browse';fetchPage(false);}else render();root.scrollTop=0;}
 
 /* ------------------------------------------------------------------ markup (prototype components) */
-const backButton=()=>`<div class="v-detail-top"><button class="v-back cursor-interaction" data-action="back" aria-label="Back">${icon('chevron-left')}</button><span class="v-version">VOKE / V4</span></div>`;
 const footer=()=>`<footer class="v-footer"><span>voke. &nbsp; Built by people. Powered by possibility.</span><span>Voke V4</span></footer>`;
 function cover(p,linked=true){const tag=linked?'a':'div';return `<div class="v-cover"><${tag} ${linked?`href="#skill-${esc(p.id)}" data-action="detail" data-id="${esc(p.id)}" aria-label="View ${esc(p.name)}"`:''} class="v-art-link v-art-${p.art} ${linked?'cursor-interaction':''}">${p.media?(p.media.kind==='video'?`<video class="v-uploaded-media" src="${p.media.url}" muted playsinline preload="metadata" aria-label="${esc(p.name)} cover video"></video>`:`<img class="v-uploaded-media" src="${p.media.url}" alt="${esc(p.name)} cover">`):`<span class="v-sculpture" aria-hidden="true"><i></i><i></i><i></i></span><span class="v-cover-kicker">${esc(p.kicker)}</span><span class="v-cover-title">${p.headline}</span><span class="v-cover-label">${esc(p.label)}</span>`}</${tag}>${p.id==='draft'?'':`<button class="v-save cursor-interaction" data-action="bookmark" data-id="${esc(p.id)}" aria-pressed="${saved.includes(p.id)}" aria-label="${saved.includes(p.id)?'Unsave':'Save'} ${esc(p.name)}">${icon('bookmark')}</button>`}</div>`;}
 function meta(p,interactive=false){return `<div class="v-meta">${interactive?`<button type="button" class="v-star-toggle" data-star-id="${esc(p.id)}" aria-pressed="${!!p.starred}" aria-label="${p.starred?'Remove your star from':'Star'} ${esc(p.name)}">${icon('star')}</button>`:icon('star')}<span data-star-count="${esc(p.id)}">${fmt(p.stars)}</span><span class="v-tiny">stars</span>${p.id==='draft'?`<span>@${esc(p.creator)}</span>`:`<a class="cursor-interaction" href="#creator-${esc(p.creator)}" data-action="creator" data-creator="${esc(p.creator)}">@${esc(p.creator)}</a>`}</div>`;}
@@ -930,7 +929,7 @@ function detail(p){
   if(!detailCache[p.id])loadDetail(p.id);
   const e=detailCache[p.id]||{};
   const rel=(e.pairs||[]).concat(e.similar||[]).slice(0,3);
-  return `${backButton()}${productDetail(p)}${rel.length?`<div class="v-results"><strong>Related skills</strong><span>${rel.length}</span></div><div class="v-grid v4-related">${rel.map(card).join('')}</div>`:''}${footer()}`;
+  return `${productDetail(p)}${rel.length?`<div class="v-results"><strong>Related skills</strong><span>${rel.length}</span></div><div class="v-grid v4-related">${rel.map(card).join('')}</div>`:''}${footer()}`;
 }
 function loadDetail(id){
   detailCache[id]={loading:true};
@@ -942,7 +941,7 @@ function creatorView(){
   const c=state.creator;
   const body=creatorList.loading?loadingState():creatorList.error?errorState('retry-creator'):grid(creatorList.items,creatorList.items.length,empty('No public skills yet',`@${esc(c)} hasn’t published a public skill.`,`<button class="v-button cursor-interaction" data-action="home">Explore skills</button>`));
   const name=creatorList.items[0]&&creatorList.items[0].creatorName;
-  return `${backButton()}<div class="v-profile-head"><div class="v-avatar">${esc(c.slice(0,2).toUpperCase())}</div><div><div class="v-eyebrow">VOKE CREATOR</div><h1>@${esc(c)}</h1><p>${esc(name||'Skills by this creator.')}</p></div></div>${creatorList.loading||creatorList.error?'':`<div class="v-results"><strong>Skills by @${esc(c)}</strong><span>${creatorList.items.length} ${creatorList.items.length===1?'skill':'skills'}</span></div>`}${body}${footer()}`;
+  return `<div class="v-profile-head"><div class="v-avatar">${esc(c.slice(0,2).toUpperCase())}</div><div><div class="v-eyebrow">VOKE CREATOR</div><h1>@${esc(c)}</h1><p>${esc(name||'Skills by this creator.')}</p></div></div>${creatorList.loading||creatorList.error?'':`<div class="v-results"><strong>Skills by @${esc(c)}</strong><span>${creatorList.items.length} ${creatorList.items.length===1?'skill':'skills'}</span></div>`}${body}${footer()}`;
 }
 function loadCreator(handle){
   creatorList={loading:true,items:[],error:false};const my=++gen;
@@ -952,8 +951,8 @@ function loadCreator(handle){
 }
 function collection(){
   const starred=state.view==='starred';
-  const head=`${backButton()}<div class="v-profile-head"><div class="v-avatar">${icon(starred?'star':'bookmark')}</div><div><div class="v-eyebrow">${starred?'SHARED WITH EVERYONE':'KEPT IN THIS BROWSER'}</div><h1>${starred?'Starred skills':'Saved skills'}</h1><p>${starred?'Skills you’ve starred. Stars count toward each skill’s total.':'Good finds, all in one place.'}</p></div></div>`;
-  if(!library){if(!libraryLoading)loadLibrary().then(()=>{if(['saved','starred'].includes(state.view))render();},()=>{if(['saved','starred'].includes(state.view)){state.libError=true;render();}});return head+(state.libError?errorState('retry-library'):loadingState('Loading your skills…'))+footer();}
+  const head=`<div class="v-profile-head"><div class="v-avatar">${icon(starred?'star':'bookmark')}</div><div><div class="v-eyebrow">${starred?'SHARED WITH EVERYONE':'KEPT IN THIS BROWSER'}</div><h1>${starred?'Starred skills':'Saved skills'}</h1><p>${starred?'Skills you’ve starred. Stars count toward each skill’s total.':'Good finds, all in one place.'}</p></div></div>`;
+  if(!library){if(!libraryLoading)loadLibrary().then(()=>{if(['saved','starred'].includes(state.view))render();},()=>{if(['saved','starred'].includes(state.view)){state.libError=true;render();}});return (head)+(state.libError?errorState('retry-library'):loadingState('Loading your skills…'))+footer();}
   const list=library.filter(p=>starred?state.favs.includes(p.id):saved.includes(p.id));
   return head+grid(list,list.length,empty(starred?'No starred skills yet':'Save your next great find',starred?'Tap the star on any skill to add it here.':'Tap the bookmark on any skill to keep it here.',`<button class="v-button cursor-interaction" data-action="home">Explore skills</button>`))+footer();
 }
@@ -994,6 +993,11 @@ function header(){
   /* Add Skill: the step bar takes the search bar's place in the header. */
   let slot=root.querySelector('.v4-head-steps');if(!slot){slot=document.createElement('div');slot.className='v4-head-steps';root.querySelector('.v-search').after(slot);}
   slot.innerHTML=state.view==='add'?stepsNav():'';
+  /* Skill, creator, saved and starred pages: a back circle takes the logo's place. */
+  const backView=['detail','creator','saved','starred'].includes(state.view);
+  let bk=root.querySelector('.v4-head-back');if(!bk){bk=document.createElement('div');bk.className='v4-head-back';root.querySelector('.v-logo').before(bk);}
+  bk.innerHTML=backView?`<button type="button" class="v3-circle v4-back" data-action="back" aria-label="Back">${icon('chevron-left')}</button>`:'';
+  if(backView)root.dataset.back='1';else delete root.dataset.back;
   if(state.view==='add'){menuOpen=false;acts.innerHTML=`<button type="button" class="v3-circle v3-plus" data-create="close" aria-label="Close skill editor">${icon('x')}</button>`;menu.hidden=true;return;}
   acts.innerHTML=`<button type="button" class="v3-circle v3-plus" data-action="add" aria-label="Add a skill">${icon('plus')}</button><button type="button" class="v3-circle v3-desktop" data-action="theme" aria-label="Switch to ${state.theme==='dark'?'light':'dark'} mode">${icon(state.theme==='dark'?'moon':'sun')}</button><button type="button" class="v3-circle v3-menu-button v4-menu-button" data-action="menu" aria-label="${menuOpen?'Close menu':'Open menu'}" aria-expanded="${menuOpen}" aria-controls="v3-menu">${icon(menuOpen?'x':'menu')}</button>`;
   menu.hidden=!menuOpen;
@@ -1558,4 +1562,11 @@ body.vk-hidden{display:none}
 #voke-v2 .v-categories{gap:10px!important}
 @container vpreview (width < 688px){#voke-v2 .v-categories{gap:8px!important}}
 #voke-v2[data-theme=light] .v-categories .v-chip{box-shadow:inset 0 0 0 1px rgba(33,33,33,.14)}
+/* Back circle in the logo's spot; the old back row and VOKE / V4 label are gone, so content moves up. */
+#voke-v2 .v4-head-back{display:none;order:0;flex:none}
+#voke-v2[data-back] .v4-head-back{display:block}
+#voke-v2[data-back] .v-logo{display:none}
+#voke-v2 .v4-back{background:var(--v-panel)}
+#voke-v2[data-view=detail] .v-main,#voke-v2[data-view=creator] .v-main,#voke-v2[data-view=saved] .v-main{padding-top:8px!important}
+#voke-v2[data-back] .v4-head-back{margin-right:auto}
 </style>
