@@ -909,7 +909,7 @@ function market(){
   else if(state.error)body=errorState();
   else if(Object.values(state.filters).some(f=>f.status!=='ok'))body='';
   else body=grid(state.results,state.total,empty(scoped?'No skills found':'No skills yet',scoped?'Try a different search, or browse every skill.':'The library is empty right now.',scoped?`<button class="v-button cursor-interaction" data-action="home">Browse all skills</button>`:''));
-  return `<section class="v-intro" aria-label="Voke"><div class="v3-title-row"><h1>${short?'Skills that fit your request':'Agent Skills Marketplace'}</h1></div><p>${short?`Best matches for “${esc(state.query)}”. Pick one to run it.`:'Proven, step-by-step skills that run right here in chat.'}</p></section><div class="v-toolbar"><nav class="v-categories" aria-label="Skill categories">${cats.map(c=>`<button class="v-chip cursor-interaction" data-action="category" data-category="${esc(c.key)}" aria-pressed="${state.catKey===c.key}">${esc(c.label)}</button>`).join('')}</nav></div>${filterNotice()}${!state.loading&&!state.error&&scoped&&state.results.length?`<div class="v-results" aria-live="polite"><strong>${state.query?`“${esc(state.query)}”`:state.catKey?esc(catLabel(state.catKey)):'Filtered'}</strong><span>${state.total} ${state.total===1?'skill':'skills'}</span></div>`:''}${body}${footer()}`;
+  return `<h1 class="sr-only">Voke skills</h1><div class="v-toolbar"><nav class="v-categories" aria-label="Skill categories">${cats.map(c=>`<button class="v-chip cursor-interaction" data-action="category" data-category="${esc(c.key)}" aria-pressed="${state.catKey===c.key}">${esc(c.label)}</button>`).join('')}</nav></div>${short?`<p class="v4-shortlist">Best matches for <b>“${esc(state.query)}”</b>. Pick one to run it.</p>`:''}${filterNotice()}${!state.loading&&!state.error&&scoped&&state.results.length?`<div class="v-results" aria-live="polite"><strong>${state.query?`“${esc(state.query)}”`:state.catKey?esc(catLabel(state.catKey)):'Filtered'}</strong><span>${state.total} ${state.total===1?'skill':'skills'}</span></div>`:''}${body}${footer()}`;
 }
 function specs(p){const d=detailCache[p.id]&&detailCache[p.id].detail;const rows=[['Category',esc(p.category)],['Access',p.visibility==='private'?'Private · only you':'Free'],['Stars',`<span data-star-count="${esc(p.id)}">${fmt(p.stars)}</span>`],['Creator',p.id==='draft'?`@${esc(p.creator)}`:`<a href="#creator-${esc(p.creator)}" data-action="creator" data-creator="${esc(p.creator)}">@${esc(p.creator)}</a>`]];if(p.license)rows.push(['License',esc(p.license==='proprietary'?'Voke':p.license)]);const runs=(d&&d.runs)||p.runs;if(runs)rows.push(['Runs',esc(runs)]);const con=(d&&d.connections)||p.needs;if(con&&con.length)rows.push(['Connections',esc(con.join(', '))]);if(d&&d.cost)rows.push(['Cost',esc(d.cost)]);return `<dl class="v-specs">${rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`;}
 function runBlock(p){return `<div class="v-purchase"><button class="v-primary cursor-interaction" data-action="start" data-id="${esc(p.id)}">Run Skill ${icon('arrow-up-right')}</button><span class="v-trial-note">${p.visibility==='private'?'Only you can see this skill':'Free to use'} · Copies <code>${esc(runCommand(p))}</code> for your chat</span></div>`;}
@@ -1485,4 +1485,24 @@ body.vk-hidden{display:none}
 #voke-v2{overflow-x:hidden!important;overflow-y:auto!important}
 #voke-v2 #v-page-label{white-space:nowrap}
 #voke-v2 .v-pager .v-dots{min-width:0;overflow:hidden}
+/* ---- Compact sizing: the V3 card's density. One scale for everything (type, spacing, covers, buttons,
+   every view and Add Skill step) so proportions stay exactly as designed. Breakpoints are unaffected:
+   they follow #voke-stage, outside the scaled element. Frame stays about 640px tall. ---- */
+#voke-v2{--vk-scale:.85;zoom:var(--vk-scale);height:calc(628px / var(--vk-scale))!important;max-height:calc(var(--vk-max,100000px) / var(--vk-scale))!important}
+@container vpreview (width < 600px){#voke-v2{height:calc(600px / var(--vk-scale))!important}}
+/* Desktop header: logo, pill search, three circle buttons on one row; category pills below. */
+@container vpreview (min-width:688px){
+#voke-v2 .v-header{flex-wrap:nowrap!important;gap:18px!important}
+#voke-v2 .v-logo{order:0;margin-right:0!important;flex:none}
+#voke-v2 .v-search{order:1!important;flex:1 1 auto!important;width:auto!important;min-width:0}
+#voke-v2 .v-actions{order:2!important;flex:none}
+}
+#voke-v2[data-view=market] .v-main{padding-top:8px}
+#voke-v2 .v4-shortlist{margin:6px 0 14px;font-size:15px;color:var(--v-muted)}
+#voke-v2 .v4-shortlist b{color:var(--v-text);font-weight:500}
+#voke-v2 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* Readability floor after scaling: card titles about 14px and descriptions about 12.5px on screen. */
+#voke-v2 .v-product .v-card-info h2{font-size:17px!important}
+#voke-v2 .v-product .v-description,#voke-v2 .v-product .v-mobile-summary{font-size:15px!important;line-height:1.4!important}
+@container vpreview (width < 688px){#voke-v2 .v-product .v-card-info h2{font-size:16px!important}#voke-v2 .v-product .v-mobile-summary,#voke-v2 .v-product .v-description{font-size:14px!important}}
 </style>
