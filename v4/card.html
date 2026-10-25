@@ -1554,4 +1554,8 @@ body.vk-hidden{display:none}
 #voke-v2 .v-search{box-sizing:border-box;height:44px!important;min-height:0!important;padding-top:0!important;padding-bottom:0!important}
 #voke-v2[data-view=add] .v4-head-steps .create-steps{height:44px;padding:3px}
 @container vpreview (width < 688px){#voke-v2 .v-search{height:40px!important}#voke-v2[data-view=add] .v4-head-steps .create-steps{height:40px}}
+/* Category pills: room between them; in light mode the outline matches the Run button's border. */
+#voke-v2 .v-categories{gap:10px!important}
+@container vpreview (width < 688px){#voke-v2 .v-categories{gap:8px!important}}
+#voke-v2[data-theme=light] .v-categories .v-chip{box-shadow:inset 0 0 0 1px rgba(33,33,33,.14)}
 </style>
