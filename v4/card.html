@@ -1577,4 +1577,11 @@ body.vk-hidden{display:none}
 #voke-v2 .v4-more[hidden]{display:none}
 #voke-v2 .v4-more:hover{text-decoration:underline}
 #voke-v2 .v4-more:focus-visible{outline:2px solid var(--v-text);outline-offset:2px;border-radius:4px}
+/* Skill page, desktop: the details panel spans both rows so the tabs sit right under the cover. */
+@container vpreview (min-width:688px){
+#voke-v2 .v-product-layout:not(.create-product-review){grid-template-rows:auto 1fr;align-items:start}
+#voke-v2 .v-product-layout:not(.create-product-review) .v-product-media{grid-column:1;grid-row:1}
+#voke-v2 .v-product-layout:not(.create-product-review) .v-summary{grid-column:2;grid-row:1 / span 2;align-self:start}
+#voke-v2 .v-product-layout:not(.create-product-review) .v-detail-tabs{grid-column:1;grid-row:2;margin-top:0}
+}
 </style>
