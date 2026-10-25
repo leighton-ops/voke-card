@@ -312,9 +312,8 @@
   .skill .save:hover{background:var(--vk-search)}
   .runb{height:36px;padding:0 14px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--vk-ring);background:var(--vk-bg);display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--vk-name);white-space:nowrap}
   .runb svg{width:12px;height:12px;fill:currentColor;stroke:none}
-  /* Price tag before the category tag, same shape: the price in the CTA green, or Free in the category tag's grey. */
-  .ptag{flex:none;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:6px;background:var(--vk-brand);color:var(--vk-brand-tx);white-space:nowrap;font-variant-numeric:tabular-nums}
-  .ptag.free{background:var(--vk-search);color:var(--vk-meta)}
+  /* Price tag before the category tag, styled exactly like it: the price, or Free. */
+  .ptag{flex:none;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:6px;background:var(--vk-search);color:var(--vk-meta);white-space:nowrap;font-variant-numeric:tabular-nums}
   @media (hover:hover){.runb:hover{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}}
   .skill:has(+ .picked) .runb{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
   .vk-pages .skill,.dt-rel .skill{grid-template-columns:36px minmax(0,1fr) auto;column-gap:12px;padding:10px 8px}
@@ -1047,7 +1046,7 @@
     var si = h("div", "si"); si.innerHTML = svg(P[k.category] || P.other); r.appendChild(si);
     var body = h("div", "body"), l1 = h("div", "l1");
     l1.appendChild(h("span", "name", label));
-    l1.appendChild(h("span", priceText(k) ? "ptag" : "ptag free", priceText(k) || "Free"));
+    l1.appendChild(h("span", "ptag", priceText(k) || "Free"));
     if (k.category) l1.appendChild(h("span", "ctag", catLabel(k.category)));
     body.appendChild(l1);
     if (k.blurb || k.description) body.appendChild(h("p", "dm", k.blurb || k.description));
@@ -1312,7 +1311,7 @@
     var by = h("div", "by"), who = h("span");
     var handle = k.creator ? k.creator.handle : "voke";
     var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle; who.appendChild(cb); by.appendChild(who);
-    by.appendChild(h("span", priceText(k) ? "ptag" : "ptag free", priceText(k) || "Free"));
+    by.appendChild(h("span", "ptag", priceText(k) || "Free"));
     var st = h("button", "star" + (k.starred ? " starred" : "")); st.type = "button"; st.dataset.star = k.name;
     st.innerHTML = svg(P.star) + "<span>" + fmtStars(k.stars) + "</span>"; by.appendChild(st);
     mid.appendChild(by); hero.appendChild(mid);
