@@ -918,7 +918,7 @@ function detailTabs(p){
   const outs=(d&&d.outputs)||[],steps=((d&&d.steps)||[]).map(stepTitle).filter(Boolean);
   const pending=wait?`<p class="v-tiny" role="status">Loading details…</p>`:failed?`<p class="v-tiny" role="alert">Couldn’t load more details. <button class="v-link" data-action="retry-detail" data-id="${esc(p.id)}">Try again</button></p>`:'';
   const panels=[
-    `<h2>What this skill does</h2><p>${esc(p.desc)}</p>${outs.length?`<h2>What you get</h2><ul>${outs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${pending}`,
+    `<h2>What this skill does</h2><div class="v4-desc"><p class="v4-clamp">${esc(p.desc)}</p><button type="button" class="v4-more" data-action="more-desc" aria-expanded="false" hidden>…more</button></div>${outs.length?`<h2>What you get</h2><ul>${outs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${pending}`,
     `<h2>Start with your context</h2><p>${esc(p.start||'Run the skill, then answer its questions one at a time.')}</p>${steps.length?`<h2>Steps</h2><ol>${steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:''}${pending}`,
     `<h2>Skill details</h2>${specs(p)}`,
     `<div class="v-inline-creator"><span class="v-avatar">${esc(p.creator.slice(0,2).toUpperCase())}</span><a href="#creator-${esc(p.creator)}" data-action="creator" data-creator="${esc(p.creator)}">@${esc(p.creator)}</a></div><p>${esc(p.creatorName||'')}${p.creatorName?' · ':''}Explore more skills from this creator.</p><button class="v-button cursor-interaction" style="margin-top:12px" data-action="creator" data-creator="${esc(p.creator)}">View skills</button>`];
@@ -1014,7 +1014,8 @@ function setPage(index){
   if(state.view==='market'&&state.results.length<need&&state.next!=null){state.page=index;syncPager();fetchPage(true,Math.min(50,Math.max(PAGE,need-state.results.length))).then(()=>{if(state.view!=='market')return;requestAnimationFrame(()=>{railTo(root.querySelector('#v-pages'),Math.min(index,root.querySelector('#v-pages').children.length-1),false);syncPager();});});return;}
   state.page=index;railTo(rail,index,true);syncPager();
 }
-function setTab(i,smooth=true){state.tab=i;railTo(root.querySelector('#v-tab-rail'),i,smooth);root.querySelectorAll('[data-action="tab"]').forEach((b,j)=>{b.setAttribute('aria-selected',j===i);b.tabIndex=j===i?0:-1;});}
+function checkClamps(){root.querySelectorAll('.v4-desc:not(.open)').forEach(d=>{const t=d.querySelector('.v4-clamp');if(t.clientHeight)d.querySelector('.v4-more').hidden=t.scrollHeight<=t.clientHeight+1;});}
+function setTab(i,smooth=true){state.tab=i;requestAnimationFrame(checkClamps);railTo(root.querySelector('#v-tab-rail'),i,smooth);root.querySelectorAll('[data-action="tab"]').forEach((b,j)=>{b.setAttribute('aria-selected',j===i);b.tabIndex=j===i?0:-1;});}
 function bindRail(id,key,update){const rail=root.querySelector(id);if(!rail)return;let timer;rail.addEventListener('scroll',()=>{clearTimeout(timer);timer=setTimeout(()=>{if(rail.scrollWidth<=rail.clientWidth+2)return;const gap=parseFloat(getComputedStyle(rail).gap)||0;const n=Math.max(0,Math.min(rail.children.length-1,Math.round(rail.scrollLeft/(rail.clientWidth+gap))));if(n!==state[key]){state[key]=n;update();}},100);},{passive:true});}
 
 /* ------------------------------------------------------------------ render */
@@ -1028,7 +1029,7 @@ function render(){
   icons();syncPager();
   bindRail('#v-pages','page',()=>{syncPager();const need=(state.page+2)*perPage();if(state.view==='market'&&state.results.length<need&&state.next!=null&&!state.loading)fetchPage(true).then(()=>requestAnimationFrame(()=>{railTo(root.querySelector('#v-pages'),state.page,false);syncPager();}));});
   bindRail('#v-tab-rail','tab',()=>root.querySelectorAll('[data-action="tab"]').forEach((b,i)=>b.setAttribute('aria-selected',i===state.tab)));
-  requestAnimationFrame(()=>{root.querySelectorAll('.v4-desc').forEach(d=>{const t=d.querySelector('.v4-clamp');d.querySelector('.v4-more').hidden=t.scrollHeight<=t.clientHeight+1;});railTo(root.querySelector('#v-pages'),state.page,false);railTo(root.querySelector('#v-tab-rail'),state.tab,false);root.style.setProperty('--v-nav',root.querySelector('.v-header').getBoundingClientRect().height+'px');creatorBind();});
+  requestAnimationFrame(()=>{checkClamps();railTo(root.querySelector('#v-pages'),state.page,false);railTo(root.querySelector('#v-tab-rail'),state.tab,false);root.style.setProperty('--v-nav',root.querySelector('.v-header').getBoundingClientRect().height+'px');creatorBind();});
 }
 
 /* Wide layouts show every loaded skill in one grid (the pager is for phones): load the next page near the end. */
@@ -1584,4 +1585,15 @@ body.vk-hidden{display:none}
 #voke-v2 .v-product-layout:not(.create-product-review) .v-summary{grid-column:2;grid-row:1 / span 2;align-self:start}
 #voke-v2 .v-product-layout:not(.create-product-review) .v-detail-tabs{grid-column:1;grid-row:2;margin-top:0}
 }
+/* Skill descriptions at 14px on screen (16.5px before the card's .85 scale). */
+#voke-v2 .v-summary .v-summary-description,#voke-v2 .v-tab-pane p,#voke-v2 .v-tab-pane li{font-size:16.5px!important;line-height:1.5!important}
+/* Light mode: tab hover goes black, not white. */
+#voke-v2[data-theme=light] .v-tab:hover,#voke-v2[data-theme=light] .v-detail-tabs .v-tab:hover{color:#212121}
+/* Copied / sent banner in the CTA yellow, both themes. */
+#voke-v2 .v-header .v-handoff,#voke-v2[data-theme] .v-header .v-handoff{background:#f4ff71;color:#212121;border-color:#e3ef5c}
+#voke-v2 .v-header .v-handoff p,#voke-v2[data-theme] .v-header .v-handoff p,#voke-v2 .v-header .v-handoff strong{color:#212121}
+#voke-v2 .v-header .v-handoff .v-handoff-symbol,#voke-v2[data-theme] .v-header .v-handoff .v-handoff-symbol{background:#212121;color:#f4ff71}
+#voke-v2 .v-header .v-handoff .v-handoff-close,#voke-v2[data-theme] .v-header .v-handoff .v-handoff-close{color:#212121}
+#voke-v2 .v-header .v-handoff .v-handoff-close:hover{background:rgba(33,33,33,.08)}
+#voke-v2 .v-header .v-handoff .v-handoff-text{background:#fff;color:#212121;border-color:rgba(33,33,33,.2)}
 </style>
