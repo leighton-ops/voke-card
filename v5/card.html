@@ -410,11 +410,11 @@
   .back{border-radius:30px;padding:8px}
   .shell{border-radius:22px}
 
-  /* Dark: search, category pills, light/dark and menu buttons on #2A2A2A with no outline. */
-  :root{--vk-search:light-dark(#f0f0ef,#2A2A2A);--vk-chip:light-dark(transparent,#2A2A2A);--vk-chip-line:light-dark(rgba(33,33,33,.14),transparent);--vk-btn:light-dark(#ffffff,#2A2A2A);--vk-btn-hov:light-dark(#f0f0ef,#333333)}
+  /* Search, category pills, light/dark and menu buttons share the search bar's fill, no outline (#f0f0ef light, #2A2A2A dark). */
+  :root{--vk-search:light-dark(#f0f0ef,#2A2A2A);--vk-chip:light-dark(#f0f0ef,#2A2A2A);--vk-chip-line:transparent;--vk-btn:light-dark(#f0f0ef,#2A2A2A);--vk-btn-hov:light-dark(#e6e5e2,#333333)}
   .cats button:not(.on){background:var(--vk-chip);border-color:var(--vk-chip-line)}
   .head #theme,.head #dots{background:var(--vk-btn);box-shadow:inset 0 0 0 1px var(--vk-chip-line)}
-  @media (hover:hover){.head #theme:hover,.head #dots:hover{background:var(--vk-btn-hov)}}
+  @media (hover:hover){.head #theme:hover,.head #dots:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
   .head #dots[aria-expanded=true]{background:var(--vk-btn-hov)}
 </style>
 </head>
