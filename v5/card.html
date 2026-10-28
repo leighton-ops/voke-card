@@ -418,11 +418,11 @@
   @media (hover:hover){.head #theme:hover,.head #dots:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
   .head #dots[aria-expanded=true]{background:var(--vk-btn-hov)}
 
-  /* Search bar hovers like the pills. A hovered row's Run play takes the row's hover fill; only hovering the
-     button itself turns it solid. */
+  /* Search bar hovers like the pills. A hovered row's Run play takes the row's hover fill; hovering the button
+     itself turns it the + button's yellow with black text. */
   @media (hover:hover){.head .field:hover{background:var(--vk-btn-hov)}}
   .skill.on .runb{background:var(--vk-hov)}
-  @media (hover:hover){.skill.on .runb:hover,.skill .runb:hover{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}}
+  @media (hover:hover){.skill.on .runb:hover,.skill .runb:hover,.runb:hover,.dt-run:hover{background:var(--vk-brand)!important;color:#000!important;box-shadow:none!important}}
   .skill.pl:has(+ .picked) .prun{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
 </style>
 </head>
