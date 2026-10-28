@@ -416,6 +416,13 @@
   .head #theme,.head #dots{background:var(--vk-btn);box-shadow:inset 0 0 0 1px var(--vk-chip-line)}
   @media (hover:hover){.head #theme:hover,.head #dots:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
   .head #dots[aria-expanded=true]{background:var(--vk-btn-hov)}
+
+  /* Search bar hovers like the pills. A hovered row's Run play takes the row's hover fill; only hovering the
+     button itself turns it solid. */
+  @media (hover:hover){.head .field:hover{background:var(--vk-btn-hov)}}
+  .skill.on .runb{background:var(--vk-hov)}
+  @media (hover:hover){.skill.on .runb:hover,.skill .runb:hover{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}}
+  .skill.pl:has(+ .picked) .prun{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
 </style>
 </head>
 <body>
