@@ -431,6 +431,9 @@
 
   /* Copied banner: black in light mode, white in dark mode. */
   :root{--vk-done:var(--vk-inv);--vk-done-tx:var(--vk-inv-tx)}
+
+  /* After Run play is clicked, the button stays yellow (the hover color) instead of turning black. */
+  .skill:has(+ .picked) .runb,.skill.pl:has(+ .picked) .prun{background:var(--vk-brand)!important;color:#000!important;box-shadow:none!important}
 </style>
 </head>
 <body>
