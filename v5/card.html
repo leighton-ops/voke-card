@@ -1,0 +1,1544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voke</title>
+<style>
+  /* Voke card. Tokens follow the host's light/dark scheme. */
+  :root{
+    color-scheme:light dark;
+    --vk-back:light-dark(#f0f0ef,#232625);
+    --vk-bg:light-dark(#ffffff,#1c1e22);
+    --vk-tx:light-dark(#212121,#f4f2f0);
+    --vk-tx2:light-dark(#2d3748,#d5d8de);
+    --vk-tx3:light-dark(#4a5568,#a9b2c0);
+    --vk-line:light-dark(#e2e8f0,rgba(255,255,255,.08));
+    --vk-field:var(--vk-pick); /* one fill everywhere: the search bar color */
+    --vk-search:var(--vk-pick);
+    --vk-hover:light-dark(rgba(33,33,33,.05),#232625);
+    --vk-ring:light-dark(rgba(33,33,33,.14),rgba(255,255,255,.16));
+    --vk-sel:light-dark(#f4f2f0,#2b2e35);
+    --vk-ok:light-dark(#edf7f0,#1f2b24);
+    --vk-sel-ring:light-dark(rgba(33,33,33,.12),rgba(255,255,255,.18));
+    --vk-inv:light-dark(#212121,#f4f2f0);
+    --vk-inv-tx:light-dark(#ffffff,#212121);
+    --vk-focus:var(--vk-cta-ink);
+    --vk-brand:#dfff72;
+    /* Copied banner: the logo's chartreuse */
+    --vk-done:var(--vk-brand);
+    --vk-done-tx:var(--vk-brand-tx);
+    /* State color: ink black (light) / off-white (dark) for selection, progress, saved state and focus; brand blue is the logo */
+    --vk-cta:light-dark(#212121,#f4f2f0);
+    --vk-cta-ink:light-dark(#212121,#f4f2f0);
+    --vk-cta-soft:light-dark(#e9e7e4,#3a3e47);
+    --vk-cta-soft-tx:light-dark(#212121,#f4f2f0);
+    --vk-brand-tx:#172118;
+    --vk-star:light-dark(#b7791f,#f4d35e);
+    --vk-name:light-dark(#212121,#f7f6f4);
+    --vk-desc:light-dark(#2d3748,#ccd1d9);
+    --vk-meta:light-dark(#4a5568,#a9b2c0);
+    --vk-pick:light-dark(#f0f0ef,#232625);
+    --vk-icon:light-dark(#4a5568,#a9b2c0);
+    --vk-pill-on:var(--vk-cta);
+    --vk-pill-bd:light-dark(#e2e8f0,rgba(255,255,255,.08));
+    --vk-pill-line:light-dark(#a0aec0,rgba(255,255,255,.22));
+    --vk-track:light-dark(#e2e8f0,#3a3e47);
+    --vk-font:system-ui,-apple-system,"SF Pro Text","Segoe UI",sans-serif;
+    /* legacy names used by the recipe view */
+    --vk-bg2:var(--vk-field);--vk-ghost:var(--vk-hover);--vk-bd:var(--vk-ring);--vk-bd2:var(--vk-line);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  html,body{margin:0;background:transparent;font-family:var(--vk-font);color:var(--vk-tx);-webkit-font-smoothing:antialiased}
+  button,input{font:inherit;color:inherit}
+  button{appearance:none;-webkit-appearance:none;border:0;background:none;padding:0;margin:0;cursor:pointer;line-height:1}
+  svg{display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  button:focus-visible,.skill:focus-visible{outline:2px solid var(--vk-focus);outline-offset:2px}
+
+  /* Card: mobile type and spacing on every screen; width fills the chat column */
+  /* Phones render the card edge to edge, so give it a side gutter there */
+  @media (max-width:600px){body{padding:0 12px}}
+  .back{background:var(--vk-back);border-radius:22px;padding:9px}
+  .shell{background:var(--vk-bg);border:1px solid var(--vk-pill-bd);border-radius:18px;overflow:hidden;padding:10px 10px 0;display:flex;flex-direction:column;gap:10px}
+
+  /* Header */
+  .head{display:flex;align-items:center;gap:9px}
+  .mark{width:36px;height:36px;border-radius:10px;background:var(--vk-brand);color:var(--vk-brand-tx);display:grid;place-items:center;font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1;flex:none}
+  .logo{width:36px;height:36px;border-radius:50%;background:var(--vk-brand);color:var(--vk-brand-tx);display:grid;place-items:center;font-size:20px;font-weight:700;flex:none;text-transform:lowercase;line-height:1;padding-bottom:2px}
+  .field{flex:1;min-width:0;display:flex;align-items:center;height:36px;padding:0 12px;border-radius:10px;background:var(--vk-search);cursor:text}
+  .field:focus-within{outline:none}
+  .search{flex:1;min-width:0;height:36px;border:0;outline:0;padding:0;margin:0;background:transparent;box-shadow:none;border-radius:0;-webkit-appearance:none;appearance:none;font-size:15px;color:var(--vk-name)}
+  .search::placeholder{color:var(--vk-tx3);opacity:1}
+  .search::-webkit-search-cancel-button{display:none}
+  .dots{flex:none;width:36px;height:36px;padding:0;border:0;border-radius:10px;background:var(--vk-bg);display:grid;place-items:center;line-height:0;color:var(--vk-icon)}
+  .dots[aria-expanded=true]{background:var(--vk-pick)}
+  @media (hover:hover){.dots:hover{background:var(--vk-pick)}}
+  .dots:focus{outline:none}
+  .dots:focus-visible{outline:2px solid var(--vk-icon);outline-offset:2px}
+  .dots svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  /* Header buttons: + (brand), light/dark, menu. Rounded squares, the same 36px as the logo and search bar. */
+  .dots,.hb{box-shadow:inset 0 0 0 1px var(--vk-ring)}
+  .hb{flex:none;width:36px;height:36px;padding:0;border:0;border-radius:10px;background:var(--vk-bg);display:grid;place-items:center;line-height:0;color:var(--vk-icon);cursor:pointer}
+  .hb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  @media (hover:hover){.hb:hover{background:var(--vk-pick)}}
+  .hb:focus{outline:none}
+  .hb:focus-visible{outline:2px solid var(--vk-icon);outline-offset:2px}
+  .hb.add{background:var(--vk-brand);color:var(--vk-brand-tx);box-shadow:none}
+  @media (hover:hover){.hb.add:hover{filter:brightness(.95)}}
+  .hb.add svg{stroke-width:2.2}
+  .hb .moon{display:none}
+  :root[data-theme=dark] .hb .sun{display:none}
+  :root[data-theme=dark] .hb .moon{display:block}
+  .dots .x{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;display:none}
+  .dots[aria-expanded=true] .d{display:none}
+  .dots[aria-expanded=true] .x{display:block}
+
+  /* Menu */
+  .menu{padding:8px;border-radius:12px;background:var(--vk-pick)}
+  .menu[hidden]{display:none}
+  .menu button{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:8px;font-size:15px;text-align:left;line-height:1.2}
+  .menu button:hover{background:var(--vk-hover)}
+  .menu svg{width:19px;height:19px}
+  .menu hr{border:0;border-top:1px solid var(--vk-line);margin:8px 0}
+  .menu .n{margin-left:auto;color:var(--vk-tx3);font-variant-numeric:tabular-nums}
+
+  /* Category pills + active filters */
+  .cats{display:flex;gap:8px;overflow-x:auto;padding:2px 0;scrollbar-width:none;white-space:nowrap}
+  .cats::-webkit-scrollbar{display:none}
+  .cats.overflow{-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+  .cats.overflow.end{-webkit-mask-image:none;mask-image:none}
+  .cats button{flex:none;padding:6px 14px;border-radius:100px;border:1px solid var(--vk-pill-line);font-size:12px;font-weight:500;line-height:1.2;color:var(--vk-tx2);white-space:nowrap}
+  .cats button:hover{color:var(--vk-name)}
+  .cats button.on{background:var(--vk-pill-on);border-color:transparent;color:var(--vk-inv-tx);font-weight:600}
+  .filters{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .filters:empty{display:none}
+  .chip{display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 4px 0 12px;border-radius:15px;background:var(--vk-inv);color:var(--vk-inv-tx);font-size:13px;font-weight:500}
+  .chip button{display:grid;place-items:center;width:24px;height:24px;border-radius:12px;opacity:.75}
+  .chip button:hover{opacity:1;background:rgba(127,127,127,.25)}
+  .chip svg{width:12px;height:12px;stroke-width:2.5}
+
+  /* Skill list */
+  .list{height:384px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:var(--vk-line) transparent}
+  .list::-webkit-scrollbar{width:6px}
+  .list::-webkit-scrollbar-thumb{background:var(--vk-line);border-radius:3px}
+  .skill{position:relative;display:grid;grid-template-columns:20px 1fr 32px;column-gap:12px;align-items:start;border-radius:10px;padding:10px 8px 10px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .skill+.skill{margin-top:2px}
+      .skill.on{background:var(--vk-pick)}
+  .skill[data-busy]{opacity:.6}
+  .top{display:contents}
+  .body{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .si{width:20px;height:20px;margin-top:1px;display:grid;place-items:center;color:var(--vk-icon)}
+  .on .si{color:var(--vk-icon)}
+  .si svg{width:18px;height:18px}
+  .name{font-size:15px;font-weight:500;line-height:1.3;color:var(--vk-name);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .save{grid-column:3;grid-row:1;align-self:center;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--vk-meta)}
+  .save:hover{background:var(--vk-field)}
+  .save svg{width:17px;height:17px}
+  .save.saved{color:var(--vk-cta-ink)}
+  .save.saved svg{fill:currentColor}
+  .desc{margin:0;font-size:13px;line-height:1.4;color:var(--vk-desc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .by{display:flex;align-items:center;gap:6px;font-size:13px;line-height:1.4;color:var(--vk-meta)}
+  .by strong{font-weight:500}
+  .creator{font-weight:500;color:inherit;line-height:inherit;border-radius:4px}
+  .creator:hover{color:var(--vk-name);text-decoration:underline;text-underline-offset:2px}
+  .star{display:flex;align-items:center;gap:3px;padding:0 4px;margin:0 -4px;border-radius:6px;font-size:13px;color:inherit;font-variant-numeric:tabular-nums}
+  .star svg{width:13px;height:13px}
+  .star.starred svg{fill:var(--vk-star);stroke:var(--vk-star)}
+  .empty{padding:24px;text-align:center;font-size:14px;line-height:1.5;color:var(--vk-tx3)}
+  .empty b{color:var(--vk-tx);font-weight:600}
+  .acts{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+  .btn{height:36px;padding:0 16px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--vk-ring);font-size:14px;font-weight:500}
+  .btn:hover{background:var(--vk-hover)}
+  .btn.primary{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
+  .note{margin:8px 0;padding:12px;border-radius:10px;background:var(--vk-field);font-size:14px;color:var(--vk-tx2)}
+  .note.ok{background:var(--vk-done);color:var(--vk-done-tx);display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.4}
+  .note.ok .ck{width:17px;height:17px;border-radius:50%;background:none;border:1.8px solid currentColor;color:var(--vk-done-tx);display:grid;place-items:center;flex:none;margin-top:1px}
+  .note.ok .ck svg{width:11px;height:11px;stroke-width:3.2}
+  .note.ok b.t{display:block;font-size:14px;color:var(--vk-done-tx);margin-bottom:4px}
+  .note code{font-family:ui-monospace,monospace;color:var(--vk-tx)}
+  .note input.cmd{display:block;width:100%;margin-top:8px;font-family:ui-monospace,monospace;font-size:13px;box-sizing:border-box}
+  .more{padding:10px;text-align:center;font-size:13px;color:var(--vk-tx3)}
+  .sk{display:flex;align-items:center;gap:12px;padding:16px 12px;margin:2px 0}
+  .sk i{display:block;height:13px;border-radius:7px;background:var(--vk-field);animation:pulse 1.1s ease-in-out infinite alternate}
+  .sk i:first-child{width:20px;height:20px;border-radius:6px;flex:none}
+  @keyframes pulse{to{opacity:.5}}
+  .foot{display:none}
+  /* Phones: the Claude iOS app keeps vertical swipes for the chat (the list never scrolls up and down inside
+     the card, and JS-driven scrolling lags), but sideways swipes reach the card: the category pills scroll
+     natively. So on phones the skills sit on pages of 5 that swipe sideways, with a scroll bar and page numbers underneath. */
+  .vk-pages .list.paged{height:auto;touch-action:auto;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none}
+  .vk-pages .list.paged::-webkit-scrollbar{display:none}
+  .pg{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
+  .vk-pages .list:not(.paged){height:auto;min-height:200px}
+  .vk-pages .static .list{max-height:none;overflow:visible}
+  .pager{display:flex;flex-direction:column;gap:2px;padding:0 0 8px}
+  .pager[hidden]{display:none}
+  /* No pager underneath (one page, or desktop): keep the last skill off the card's bottom edge */
+  .shell:has(> .pager[hidden]){padding-bottom:10px}
+  /* Scroll bar: thumb sized to one page, follows the swipe; drag it or tap the track */
+  .bar{position:relative;height:18px;margin:0 4px;touch-action:none;cursor:pointer}
+  .bar::before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;border-radius:1px;background:var(--vk-track)}
+  .thumb{position:absolute;left:0;top:7.5px;height:3px;border-radius:1.5px;background:var(--vk-cta-ink);min-width:24px;will-change:transform}
+  .bar.dragging .thumb{top:7px;height:4px;border-radius:2px}
+  /* Page numbers */
+  /* Arrows pinned to the edges; the numbers between them change without moving the arrows */
+  .nums{display:grid;grid-template-columns:32px 1fr 32px;align-items:center;gap:4px;font-size:13px;font-variant-numeric:tabular-nums}
+  .nums .pn{display:flex;align-items:center;justify-content:center;gap:4px;min-width:0}
+  .nums button{min-width:32px;height:32px;padding:0 6px;border-radius:8px;color:var(--vk-desc)}
+  .nums button.on{background:var(--vk-cta-soft);color:var(--vk-cta-soft-tx);font-weight:600}
+  .nums button:disabled{opacity:.35;cursor:default}
+  .nums .gap{min-width:18px;text-align:center;color:var(--vk-tx3)}
+  .nums svg{width:16px;height:16px;margin:0 auto}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* Recipe card, repo chooser and status line (GitHub to Skill, running skill) */
+  .rc{padding:14px 16px 12px}
+  .rc h2{margin:0;font-size:15px;font-weight:600;line-height:1.3}
+  .rc .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:var(--vk-tx3)}
+  .pill{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:10px;background:var(--vk-ghost);color:var(--vk-tx2);font-size:12px;white-space:nowrap}
+  .pill.ok{background:light-dark(#e3f3e8,#1f3a2a);color:light-dark(#1d6b3a,#8fd6a8)}
+  .pill.warn{background:light-dark(#fbefd9,#3d3020);color:light-dark(#8a5a12,#e6c07d)}
+  .rc .d{margin:10px 0 0;font-size:13px;color:var(--vk-tx2);line-height:1.45}
+  .rc h3{margin:14px 0 6px;font-size:12px;font-weight:600;color:var(--vk-tx3);text-transform:uppercase;letter-spacing:.04em}
+  .steps{margin:0;padding:0;list-style:none;counter-reset:st}
+  .steps li{counter-increment:st;display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--vk-bd2);font-size:13px}
+  .steps li:first-child{border-top:0}
+  .steps li::before{content:counter(st);flex-shrink:0;width:20px;height:20px;border-radius:10px;background:var(--vk-ghost);display:grid;place-items:center;font-size:12px;color:var(--vk-tx2);font-variant-numeric:tabular-nums}
+  .steps .t{flex:1;min-width:0}
+  .steps .tools{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .kv{font-size:13px;color:var(--vk-tx2);line-height:1.5}
+  .kv b{color:var(--vk-tx);font-weight:600}
+  .tags{display:flex;flex-wrap:wrap;gap:4px}
+  .rc .acts{justify-content:flex-start;margin-top:14px}
+  .rc .why{margin-top:4px;font-size:12px;color:var(--vk-tx3)}
+  .row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px}
+  .row .body{flex:1;min-width:0}
+  .row .top{min-height:0;gap:8px}
+  .row .desc{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--vk-tx2)}
+  .use{flex-shrink:0;height:30px;padding:0 14px;border-radius:8px;border:1px solid var(--vk-bd);background:var(--vk-bg);font-size:13px;font-weight:500}
+  .use:hover{background:var(--vk-inv);color:var(--vk-inv-tx);border-color:transparent}
+  .use:disabled{opacity:.6;cursor:default}
+  .status{display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:13px;color:var(--vk-tx2)}
+  .status b{color:var(--vk-tx);font-weight:600}
+  svg.vmark{width:19px;height:19px;max-width:none;max-height:none;fill:currentColor;stroke:none;overflow:visible}
+  .status .logo svg.vmark{width:11px;height:11px}
+  .logo:has(svg.vmark){padding-bottom:0}
+  .status .logo{width:22px;height:22px;font-size:12px}
+  .shell.solo{padding:10px}
+  .static .list{height:auto;max-height:420px}
+  body.hidden .shell{display:none}
+  @media (prefers-reduced-motion:reduce){.sk i{animation:none}}
+
+  /* Skill page: opened from a skill's Details button. Stacked on desktop; on touch screens the top stays put
+     and the sections below swipe sideways as pages (the chat keeps vertical swipes). */
+  .bk{display:none}
+  .detailing .bk{display:grid}
+  .detailing #cats,.detailing #filters,.detailing #list,.detailing #pager,.detailing #menu{display:none}
+  .dt[hidden]{display:none}
+  .dt{display:flex;flex-direction:column;gap:10px;padding:0 2px 12px}
+  .dt-hero{display:grid;column-gap:12px;align-items:start}
+  .dt-ic{width:44px;height:44px;border-radius:12px;background:var(--vk-search);display:grid;place-items:center;color:var(--vk-icon)}
+  .dt-ic svg{width:22px;height:22px}
+  .dt-t{margin:0;font-size:19px;font-weight:600;line-height:1.25;color:var(--vk-name)}
+  .dt-hero .by{margin-top:3px}
+  .dt-d{margin:0;font-size:14px;line-height:1.5;color:var(--vk-desc)}
+  .dt-pills{display:flex;flex-wrap:wrap;gap:6px}
+  .dt-pills .pill{height:22px;padding:0 9px;border-radius:11px;background:var(--vk-search);color:var(--vk-desc)}
+  .dt-run{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:44px;border-radius:12px;background:var(--vk-inv);color:var(--vk-inv-tx);font-size:15px;font-weight:600}
+  .dt-run svg{width:15px;height:15px;fill:currentColor;stroke:none}
+  .dt .note.ok{margin:0}
+  .dt-sec{border-top:1px solid var(--vk-line);padding-top:12px}
+  .dt-h{margin:0 0 8px 2px;font-size:12px;font-weight:600;color:var(--vk-tx3)}
+  .dt-sec>.dt-h:not(:first-child){margin-top:16px}
+  .dt-it{padding:4px 2px;font-size:14px;line-height:1.5;color:var(--vk-desc)}
+  .dt-cell{display:flex;justify-content:space-between;gap:12px;padding:9px 12px;margin-bottom:6px;border-radius:10px;background:var(--vk-search);font-size:14px;color:var(--vk-name)}
+  .dt-cell span:first-child{font-size:13px;color:var(--vk-meta);flex:none}
+  .dt-cell span:last-child{text-align:right}
+  .dt-st{display:flex;gap:10px;padding:6px 2px;font-size:14px;line-height:1.4;color:var(--vk-desc)}
+  .dt-st b{width:20px;height:20px;border-radius:10px;background:var(--vk-search);display:grid;place-items:center;font-size:12px;font-weight:400;flex:none;font-variant-numeric:tabular-nums}
+  .dt-mono{font-family:ui-monospace,monospace}
+  .dt-sub{margin:8px 2px 0;font-size:12px;color:var(--vk-meta)}
+  .dt-kv{display:flex;justify-content:space-between;gap:12px;padding:7px 2px;font-size:14px;color:var(--vk-desc);border-bottom:1px solid var(--vk-line)}
+  .dt-kv:last-child{border-bottom:0}
+  .dt-kv span:first-child{color:var(--vk-meta)}
+  .dt-kv a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+  .dt-rel .skill.on{background:var(--vk-pick)}
+  @media (hover:hover){.dt-rel .skill:hover{background:var(--vk-pick)}}
+  .dt-wait{height:13px;border-radius:7px;background:var(--vk-search);margin:8px 2px;animation:pulse 1.1s ease-in-out infinite alternate}
+  .info{display:flex;align-items:center;gap:3px;font-size:13px;color:inherit;padding:0 4px;margin:0 -4px;border-radius:6px}
+  .info svg{width:14px;height:14px}
+  .info:hover{color:var(--vk-name)}
+  /* Wide screens: hero across the top with Run skill beside the title; reading column plus a facts column */
+  .dt-top{display:flex;flex-direction:column;gap:10px}
+  .dt-hero{grid-template-columns:44px 1fr auto}
+  .dt-acts{display:flex;align-items:center;gap:6px}
+  .dt.wide{display:grid;grid-template-columns:minmax(0,1fr) 220px;column-gap:28px;row-gap:12px;padding:4px 6px 16px}
+  .dt.wide>.dt-top,.dt.wide>.note{grid-column:1/-1}
+  .dt.wide .dt-top{padding-bottom:14px;border-bottom:1px solid var(--vk-line)}
+  .dt.wide .dt-d{max-width:62ch}
+  .dt.wide .dt-run{width:auto;height:38px;padding:0 18px;border-radius:10px;font-size:14px}
+  .dt.wide .dt-run svg{width:13px;height:13px}
+  .dt-main,.dt-aside{min-width:0;display:flex;flex-direction:column;gap:14px}
+  .dt.wide .dt-sec{border-top:0;padding-top:0}
+  .dt.wide .dt-main .dt-sec+.dt-sec{border-top:1px solid var(--vk-line);padding-top:14px}
+  .dt.wide .dt-main .dt-it,.dt.wide .dt-main .dt-st{max-width:62ch}
+  .dt-aside .dt-sec+.dt-sec{border-top:1px solid var(--vk-line);padding-top:14px}
+  .dt-aside .dt-cell{flex-direction:column;gap:2px;padding:8px 10px;font-size:13px}
+  .dt-aside .dt-cell span:last-child{text-align:left}
+  .dt-aside .dt-kv{font-size:13px;padding:6px 0}
+  .dt-aside .dt-kv span:last-child,.dt-aside .dt-kv a{text-align:right;min-width:0;overflow-wrap:anywhere}
+
+  /* Skill rows, directory style */
+  .skill{display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:14px;align-items:center;border-radius:14px;padding:12px}
+  .skill .si{width:40px;height:40px;margin:0;border-radius:10px;box-shadow:inset 0 0 0 1px var(--vk-line);background:var(--vk-bg)}
+  .skill .si svg{width:19px;height:19px}
+  .skill .body{gap:3px}
+  .l1{display:flex;align-items:center;gap:8px;min-width:0}
+  .l1 .name{min-width:0}
+  .ctag{flex:none;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:6px;background:var(--vk-search);color:var(--vk-meta);white-space:nowrap}
+  .l2{margin:0;font-size:13px;line-height:1.4;color:var(--vk-meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .l2 .who .creator{font-weight:400}
+  .l2 .dsc{color:var(--vk-desc)}
+  .l2 .sm{display:none}
+  .dm{display:none;margin:0;font-size:13px;line-height:1.4;color:var(--vk-desc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vk-pages .dm,.dt-rel .dm{display:block}
+  .l2 .star{display:inline-flex;vertical-align:-2px;margin:0;padding:0}
+  .l1 .ctag{min-width:0;overflow:hidden;text-overflow:ellipsis}
+  .vk-pages .ctag,.dt-rel .ctag{display:none}
+  .racts{display:flex;align-items:center;gap:10px}
+  .racts .star{min-width:54px;justify-content:flex-end}
+  .skill .save{grid-column:auto;grid-row:auto;align-self:center;width:36px;height:36px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--vk-ring);background:var(--vk-bg)}
+  .skill .save:hover{background:var(--vk-search)}
+  .runb{height:36px;padding:0 14px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--vk-ring);background:var(--vk-bg);display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--vk-name);white-space:nowrap}
+  .runb svg{width:12px;height:12px;fill:currentColor;stroke:none}
+  /* Price tag before the category tag, styled exactly like it: the price, or Free. */
+  .ptag{flex:none;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:6px;background:var(--vk-search);color:var(--vk-meta);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .pname{color:var(--vk-name);font-weight:500}
+  /* V5: the outcome keeps its words; the category tag gives way first. */
+  .l1 .name{flex:0 0 auto;max-width:72%}.l1 .ctag{flex-shrink:1}
+  @media (max-width:560px){.l1{align-items:flex-start}.l1 .name{flex:0 1 auto;max-width:none;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}.l1 .ptag{margin-top:1px}}
+  @media (hover:hover){.runb:hover{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}}
+  .skill:has(+ .picked) .runb{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
+  .vk-pages .skill,.dt-rel .skill{grid-template-columns:36px minmax(0,1fr) auto;column-gap:12px;padding:10px 8px}
+  .vk-pages .skill .si,.dt-rel .skill .si{width:36px;height:36px}
+  .vk-pages .l2 .sm,.dt-rel .l2 .sm{display:inline}
+  .vk-pages .l2 .dsc,.dt-rel .l2 .dsc,.vk-pages .racts .star,.dt-rel .racts .star{display:none}
+  .vk-pages .runb span,.dt-rel .runb span{display:none}
+  .vk-pages .runb,.dt-rel .runb{width:36px;padding:0;justify-content:center}
+  .vk-pages .racts,.dt-rel .racts{gap:6px}
+  /* Narrow rows: name and actions share the first line; description and @creator run the full width below */
+  .vk-pages .skill,.dt-rel .skill{grid-template-columns:36px minmax(0,1fr) auto;grid-template-rows:auto auto auto;row-gap:1px;align-items:center}
+  .vk-pages .skill .si,.dt-rel .skill .si{grid-row:1/4;align-self:start}
+  .vk-pages .skill .body,.dt-rel .skill .body{display:contents}
+  .vk-pages .skill .l1,.dt-rel .skill .l1{grid-column:2;grid-row:1;min-height:32px}
+  .vk-pages .skill .racts,.dt-rel .skill .racts{grid-column:3;grid-row:1}
+  .vk-pages .skill .dm,.dt-rel .skill .dm{grid-column:2/4;grid-row:2}
+  .vk-pages .skill .l2,.dt-rel .skill .l2{grid-column:2/4;grid-row:3}
+  .vk-pages .skill .save,.dt-rel .skill .save,.vk-pages .runb,.dt-rel .runb{width:32px;height:32px;border-radius:9px}
+  @media (max-width:520px){
+    .skill{grid-template-rows:auto auto auto;row-gap:1px}.skill .si{grid-row:1/4;align-self:start}.skill .body{display:contents}
+    .skill .l1{grid-column:2;grid-row:1;min-height:32px}.skill .racts{grid-column:3;grid-row:1}
+    .skill .dm{grid-column:2/4;grid-row:2}.skill .l2{grid-column:2/4;grid-row:3}
+    .skill .save,.runb{width:32px;height:32px;border-radius:9px}
+    .skill{grid-template-columns:36px minmax(0,1fr) auto;column-gap:12px;padding:10px 8px}
+    .skill .si{width:36px;height:36px}
+    .l2 .sm{display:inline}.l2 .dsc,.racts .star,.ctag{display:none}.dm{display:block}
+    .runb span{display:none}.runb{width:36px;padding:0;justify-content:center}.racts{gap:6px}
+  }
+  /* Touch: tabs over sideways pages, all the same height so nothing jumps */
+  .dt-tabs{display:flex;gap:4px;border-top:1px solid var(--vk-line);padding-top:10px}
+  .dt-tabs button{flex:1;height:30px;border-radius:100px;font-size:12px;font-weight:500;color:var(--vk-meta)}
+  .dt-tabs button.on{background:var(--vk-inv);color:var(--vk-inv-tx);font-weight:600}
+  .dt-pages{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none}
+  .dt-pages::-webkit-scrollbar{display:none}
+  .dt-pg{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;padding:0 2px}
+  .dt-pg>.dt-sec:first-child{border-top:0;padding-top:4px}
+</style>
+</head>
+<body>
+<div class="back">
+<main class="shell" id="card">
+  <header class="head">
+    <button class="dots bk" id="bk" type="button" aria-label="Back to plays"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div class="mark" aria-hidden="true"><svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg></div>
+    <label class="field"><input class="search" id="q" type="search" placeholder="Search plays..." autocomplete="off" spellcheck="false" aria-label="Search Voke plays" aria-controls="list"></label>
+    <button class="hb add" id="add" type="button" aria-label="Create a play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="hb" id="theme" type="button" aria-label="Switch to dark mode"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+    <button class="dots" id="dots" type="button" aria-label="Menu" aria-expanded="false"><svg class="d" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </header>
+  <div class="menu" id="menu" hidden></div>
+  <nav class="cats" id="cats" aria-label="Categories"></nav>
+  <div class="filters" id="filters"></div>
+  <section class="list" id="list" role="listbox" aria-label="Voke plays"></section>
+  <div class="pager" id="pager" hidden>
+    <div class="bar" id="pgBar" role="scrollbar" aria-controls="list" aria-orientation="horizontal" aria-valuemin="1" aria-label="Pages"><div class="thumb" id="pgThumb"></div></div>
+    <nav class="nums" id="pgNums" aria-label="Pages"></nav>
+  </div>
+  <section class="dt" id="dt" hidden aria-label="Play page"></section>
+  <footer class="foot">
+    <div class="nav"><span class="k"><kbd>↑</kbd><kbd>↓</kbd>Select</span><span class="k"><kbd>↵</kbd>Copy</span></div>
+    <span id="count">Powered by Voke</span>
+  </footer>
+</main></div>
+<script>
+(function () {
+  "use strict";
+  var PAGE = 20;
+  // Touch screens page the list sideways (see the .vk-pages styles); PER skills to a page.
+  var paged = matchMedia("(hover:none) and (pointer:coarse)").matches, PER = 5;
+  document.documentElement.classList.toggle("vk-pages", paged);
+  var $ = function (id) { return document.getElementById(id); };
+  var q = $("q"), list = $("list"), filters = $("filters"), cats = $("cats"), menu = $("menu"), count = $("count");
+
+  // ------------------------------------------------------------ MCP Apps bridge (JSON-RPC over postMessage)
+  var nextId = 1, pending = {}, ready = false;
+  function post(msg) { window.parent.postMessage(Object.assign({ jsonrpc: "2.0" }, msg), "*"); }
+  function request(method, params) {
+    return new Promise(function (resolve, reject) {
+      var id = nextId++;
+      pending[id] = { resolve: resolve, reject: reject };
+      post({ id: id, method: method, params: params || {} });
+      setTimeout(function () { if (pending[id]) { delete pending[id]; reject(new Error("timeout")); } }, 20000);
+    });
+  }
+  function notify(method, params) { post({ method: method, params: params || {} }); }
+
+  window.addEventListener("message", function (e) {
+    if (e.source !== window.parent) return;
+    var m = e.data;
+    if (!m || m.jsonrpc !== "2.0") return;
+    if (m.id != null && pending[m.id] && !m.method) {
+      var p = pending[m.id]; delete pending[m.id];
+      if (m.error) p.reject(m.error); else p.resolve(m.result);
+      return;
+    }
+    if (m.id != null && m.method) { post({ id: m.id, result: {} }); return; } // ping, teardown, etc.
+    switch (m.method) {
+      case "ui/notifications/tool-input": onInput(m.params && m.params.arguments); break;
+      case "ui/notifications/tool-result": onResult(m.params); break;
+      case "ui/notifications/host-context-changed": applyContext(m.params); break;
+    }
+  });
+
+  function applyContext(ctx) {
+    if (!ctx) return;
+    var vars = ctx.styles && ctx.styles.variables;
+    if (vars) for (var k in vars) if (vars[k]) document.documentElement.style.setProperty(k, vars[k]);
+    var fonts = ctx.styles && ctx.styles.css && ctx.styles.css.fonts;
+    if (fonts && !$("vk-fonts")) { var st = document.createElement("style"); st.id = "vk-fonts"; st.textContent = fonts; document.head.appendChild(st); }
+    if (ctx.theme) { hostTheme = ctx.theme; setTheme(); }
+  }
+  // Light/dark: the host's theme unless this viewer picked one with the header button (kept in this browser).
+  var hostTheme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light", userTheme = null;
+  try { userTheme = localStorage.getItem("voke-theme"); } catch (e) {}
+  function setTheme() {
+    var t = userTheme === "light" || userTheme === "dark" ? userTheme : hostTheme;
+    // The page root keeps the host's scheme: a root scheme that differs from the chat makes the browser paint an
+    // opaque square behind the card's rounded corners. The viewer's choice applies from the body down instead.
+    document.documentElement.style.colorScheme = hostTheme;
+    document.body.style.colorScheme = t;
+    document.documentElement.dataset.theme = t;
+    var b = document.getElementById("theme");
+    if (b) b.setAttribute("aria-label", "Switch to " + (t === "dark" ? "light" : "dark") + " mode");
+  }
+  setTheme();
+
+  // ------------------------------------------------------------ state
+  // Filters: kind -> resolution from the server ({kind, status, query, value:{key,label}, candidates}).
+  var SIGIL = { creator: "@", category: "#", resource: "*" }, KINDS = ["creator", "category", "resource"];
+  var S = { query: "", filters: {}, results: [], total: 0, next: null, totalAll: 0, mode: "browse",
+            categories: [], loading: true, more: false, sel: -1, gen: 0, view: "", favs: [] };
+
+  // While the list is scrolling, nothing redraws it: results, star counts and searches wait until it rests.
+  // The listener only sets a flag and a timer, so it does no layout work per event.
+  var scrolling = false, idleTimer = 0, waiting = [];
+  function whenIdle(fn) { if (scrolling) waiting.push(fn); else fn(); }
+  list.addEventListener("scroll", function () {
+    scrolling = true; clearTimeout(idleTimer);
+    idleTimer = setTimeout(function () {
+      scrolling = false;
+      var w = waiting; waiting = [];
+      w.forEach(function (fn) { fn(); });
+    }, 150);
+  }, { passive: true });
+
+  function onInput(args) {
+    if (!args) return;
+    if (typeof args.query === "string" && !q.value) q.value = args.query;
+  }
+  function structured(r) { return r && (r.structuredContent || r.structured_content); }
+  function onResult(r) {
+    var d = structured(r);
+    if (!d) { S.loading = false; S.error = true; draw(); return; }
+    if (d.view && typeof d.view === "object") { showView(d.view); return; }
+    absorb(d, false);
+    refreshStars(); loadFavs();
+  }
+
+  // ------------------------------------------------------------ helpers
+  function h(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function button(label, cls, fn) { var b = h("button", cls, label); b.type = "button"; b.onclick = fn; return b; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function svg(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>'; }
+
+  var P = {
+    eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12ZM12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z",
+    bookmark: "M7 3.5h10a1 1 0 0 1 1 1V20l-6-3.8L6 20V4.5a1 1 0 0 1 1-1Z",
+    user: "M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2",
+    card: "M3 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3ZM3 10h18M7 15h.01M11 15h2",
+    star: "M12 17.75l-6.17 3.25 1.18-6.88-5-4.87 6.9-1L12 2l3.09 6.25 6.9 1-5 4.87 1.18 6.88Z",
+    x: "M6 6l12 12M18 6 6 18",
+    "video-ads": "M3 7h12v10H3zM15 10l6-3v10l-6-3",
+    social: "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M18 14a5 5 0 0 1 4 6",
+    strategy: "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z",
+    content: "M12 19h9M16.5 3.5a2 2 0 0 1 3 3L9 17l-4 1 1-4Z",
+    writing: "M12 19h9M16.5 3.5a2 2 0 0 1 3 3L9 17l-4 1 1-4Z",
+    marketing: "M13 2 3 14h8l-1 8 11-12h-8l1-8Z",
+    sales: "M3 5h18v14H3zM3 7l9 7 9-7",
+    design: "m12 2 9 5-9 5-9-5 9-5Zm-9 10 9 5 9-5",
+    other: "M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01"
+  };
+  function catLabel(key) {
+    for (var i = 0; i < S.categories.length; i++) if (S.categories[i].key === key) return S.categories[i].label;
+    return key ? key.replace(/-/g, " ").replace(/^./, function (c) { return c.toUpperCase(); }) : "";
+  }
+
+  // Saved skills live in this browser only; the chat-level shortcut is made by the voke skill.
+  // Sandboxed hosts can block storage, so a memory copy keeps saves working for this card at least.
+  var SAVED_KEY = "voke-saved", memSaved = null;
+  function savedSet() {
+    if (memSaved) return memSaved.slice();
+    try { var v = JSON.parse(localStorage.getItem(SAVED_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  }
+  function isSaved(n) { return savedSet().indexOf(n) > -1; }
+  function toggleSaved(n) {
+    var v = savedSet(), i = v.indexOf(n);
+    if (i > -1) v.splice(i, 1); else v.unshift(n);
+    try { localStorage.setItem(SAVED_KEY, JSON.stringify(v)); memSaved = null; } catch (e) { memSaved = v; }
+    return i < 0;
+  }
+
+  // A card may carry price {amount, billing: "once"|"month"}; free skills have none.
+  function priceText(k) { var p = k.price; if (!p || !p.amount) return ""; var a = "$" + (Math.round(p.amount * 100) / 100).toString().replace(/\.(\d)$/, ".$10"); return p.billing === "month" ? a + "/mo" : a; }
+
+  // Stars are shared across everyone: the server counts one per voter, and every skill starts at 1.
+  // The voter is an anonymous id kept in this browser so a star can be taken back.
+  var voter = (function () {
+    function make() {
+      try { var b = new Uint8Array(16); crypto.getRandomValues(b); return Array.prototype.map.call(b, function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
+      catch (e) { return (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).slice(0, 32); }
+    }
+    try { var v = localStorage.getItem("voke-voter"); if (!/^[A-Za-z0-9_-]{8,64}$/.test(v || "")) { v = make(); localStorage.setItem("voke-voter", v); } return v; }
+    catch (e) { return make(); }
+  })();
+  function fmtStars(n) { return n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n || 1); }
+  function mergeStars(map) {
+    if (!map) return;
+    S.results.forEach(function (k) { var x = map[k.name]; if (x) { k.stars = x.count; k.starred = !!x.starred; } });
+    Object.keys(map).forEach(function (n) {
+      var i = S.favs.indexOf(n);
+      if (map[n].starred && i < 0) S.favs.push(n); else if (!map[n].starred && i > -1) S.favs.splice(i, 1);
+    });
+  }
+  // Favorited Skills: everything this voter has starred, across the whole library (for the menu count).
+  function loadFavs() {
+    request("tools/call", { name: "voke_star", arguments: { voter: voter } })
+      .then(function (r) { var d = structured(r); if (d && d.stars) mergeStars(d.stars); })
+      .catch(function () {});
+  }
+  // The first card comes from the model's call, which can't know this voter: ask which of these I've starred.
+  function refreshStars() {
+    var names = S.results.map(function (k) { return k.name; });
+    if (!names.length) return;
+    request("tools/call", { name: "voke_star", arguments: { voter: voter, names: names } })
+      .then(function (r) { var d = structured(r); if (d) whenIdle(function () { mergeStars(d.stars); starChanged(); }); })
+      .catch(function () {});
+  }
+  // Star counts change in place on the rows already drawn; the list itself is not rebuilt.
+  function paintStars() {
+    var byName = {};
+    S.results.forEach(function (k) { byName[k.name] = k; });
+    list.querySelectorAll("[data-star]").forEach(function (st) {
+      var k = byName[st.dataset.star];
+      if (!k) return;
+      var label = k.title || k.name, n = k.stars || 1;
+      st.classList.toggle("starred", !!k.starred);
+      st.lastChild.textContent = fmtStars(k.stars);
+      st.setAttribute("aria-pressed", k.starred ? "true" : "false");
+      st.setAttribute("aria-label", (k.starred ? "Unstar " : "Star ") + label + ", " + n + (n === 1 ? " star" : " stars"));
+    });
+  }
+  // The Favorited view lists only starred skills, so a star change there redraws; elsewhere it paints in place.
+  function starChanged() { if (S.view === "favs") draw(); else paintStars(); }
+  function toggleStar(name) {
+    var k = S.results.filter(function (x) { return x.name === name; })[0];
+    if (!k || k.starBusy) return;
+    var was = { stars: k.stars || 1, starred: !!k.starred };
+    k.starred = !was.starred; k.stars = was.stars + (k.starred ? 1 : -1); k.starBusy = true; starChanged();
+    request("tools/call", { name: "voke_star", arguments: { voter: voter, name: name, on: k.starred } })
+      .then(function (r) {
+        var d = structured(r);
+        if (!d || (r && (r.isError || r.is_error))) throw new Error("star failed");
+        mergeStars(d.stars);
+      })
+      .catch(function () { k.stars = was.stars; k.starred = was.starred; })
+      .then(function () { k.starBusy = false; whenIdle(starChanged); });
+  }
+
+  function send(text) {
+    return request("ui/message", { role: "user", content: [{ type: "text", text: text }] })
+      .catch(function () { return request("ui/message", { role: "user", content: { type: "text", text: text } }); });
+  }
+
+  // ------------------------------------------------------------ non-browse views (intake recipe, repo chooser, status)
+  function say(text, btn, done) {
+    btn.disabled = true; var label = btn.textContent; btn.textContent = "Sending…";
+    send(text).then(function () { btn.textContent = done || "Sent"; })
+      .catch(function () {
+        btn.disabled = false; btn.textContent = label;
+        var n = h("p", "note"); n.innerHTML = "Couldn’t send from here. Type <code>" + esc(text) + "</code> in chat.";
+        btn.closest(".acts, .row").after(n); size();
+      });
+  }
+
+  function recipe(v, card) {
+    var r = h("div", "rc");
+    r.appendChild(h("div", "why", "GitHub to Skill"));
+    r.appendChild(h("h2", null, v.title));
+    var m = h("div", "meta");
+    m.appendChild(h("span", null, v.repo));
+    m.appendChild(h("span", "pill " + (v.verdict === "handoff" ? "warn" : "ok"), v.verdict_label));
+    m.appendChild(h("span", "pill" + (v.open_license ? "" : " warn"), "License: " + v.license));
+    m.appendChild(h("span", "pill" + (v.mit ? " ok" : ""), v.mit ? "MIT" : "Not MIT"));
+    r.appendChild(m);
+    if (v.reasons && v.reasons.length) r.appendChild(h("div", "why", "Why: " + v.reasons.join("; ")));
+    if (v.description) r.appendChild(h("p", "d", v.description));
+    if (v.steps && v.steps.length) {
+      r.appendChild(h("h3", null, "Steps"));
+      var ol = h("ol", "steps");
+      v.steps.forEach(function (st) {
+        var li = h("li"), t = h("div", "t", st.title), tl = h("div", "tools");
+        (st.tools.length ? st.tools : [v.verdict === "handoff" ? "Claude Code or Codex" : "Chat"]).forEach(function (x) { tl.appendChild(h("span", "pill", x)); });
+        t.appendChild(tl); li.appendChild(t); ol.appendChild(li);
+      });
+      r.appendChild(ol);
+    }
+    var needs = (v.services || []).map(function (x) { return x.name + (x.instant ? " (Composio, may need no account)" : " (via Composio)"); });
+    if (needs.length || (v.env_vars || []).length) {
+      r.appendChild(h("h3", null, "Connections"));
+      var k = h("div", "kv"); k.textContent = needs.concat((v.env_vars || []).map(function (e) { return "key " + e; })).join(" · ");
+      r.appendChild(k);
+    }
+    r.appendChild(h("h3", null, "Cost to run"));
+    var c = v.cost || {}, ck = h("div", "kv");
+    ck.innerHTML = c.lines && c.lines.length
+      ? "Roughly <b>$" + c.low.toFixed(2) + "–$" + c.high.toFixed(2) + "</b> per run in outside services, plus Claude usage from your plan. " +
+        esc(c.lines.map(function (x) { return x.service + " " + x.range; }).join(" · ")) + ". Ballpark only."
+      : "Nothing beyond Claude usage from your plan.";
+    (c.notes || []).forEach(function (n) { ck.appendChild(h("div", "why", n + ".")); });
+    r.appendChild(ck);
+    if (v.tags && v.tags.length) {
+      r.appendChild(h("h3", null, "Found under"));
+      var tg = h("div", "tags"); v.tags.slice(0, 12).forEach(function (x) { tg.appendChild(h("span", "pill", x)); });
+      r.appendChild(tg);
+    }
+    var a = h("div", "acts");
+    if (v.in_library) a.appendChild(h("span", "pill ok", "Published on Voke"));
+    else {
+      a.appendChild(button(v.verdict === "handoff" ? "Get the prompt" : "Test it", "btn primary",
+        function () { say("/voke test " + v.url, this, "Testing"); }));
+      a.appendChild(button("Publish", "btn",
+        function () { say("/voke publish " + v.url, this, "Publishing"); }));
+    }
+    r.appendChild(a);
+    if (!v.in_library) r.appendChild(h("p", "note",
+      (v.open_license ? (v.tested ? "Ready to publish Public or Private." : "Public needs one test run first; Private doesn’t.")
+                      : "No open license, so it can only be published Private.") +
+      (v.signed_in ? "" : " Private needs your personal Voke link.")));
+    card.appendChild(r);
+  }
+
+  function bundle(v, card) {
+    var top = h("div", "rc");
+    top.appendChild(h("div", "why", "GitHub to Skill"));
+    top.appendChild(h("h2", null, v.repo));
+    var m = h("div", "meta");
+    m.appendChild(h("span", null, v.skills.length + " skills by @" + v.creator));
+    var mit = v.skills.filter(function (s) { return s.mit; }).length;
+    m.appendChild(h("span", "pill" + (mit === v.skills.length ? " ok" : ""), mit === v.skills.length ? "All MIT" : mit + " of " + v.skills.length + " MIT"));
+    top.appendChild(m);
+    top.appendChild(h("div", "why", "Each one publishes as its own skill with its own /voke command, all under @" + v.creator + "."));
+    card.appendChild(top);
+    var l = h("div", "list");
+    v.skills.forEach(function (c) {
+      var row = h("div", "row"), b = h("div", "body"), t = h("div", "top");
+      t.appendChild(h("span", "name", c.title));
+      t.appendChild(h("span", "pill" + (c.verdict === "handoff" ? " warn" : " ok"), c.verdict_label));
+      if (!c.open_license) t.appendChild(h("span", "pill warn", "License: " + c.license));
+      if (c.in_library) t.appendChild(h("span", "pill ok", "On Voke"));
+      b.appendChild(t); if (c.description) b.appendChild(h("p", "desc", c.description));
+      row.appendChild(b);
+      row.appendChild(button("Test", "use", function () { say("/voke test " + v.url + " " + c.name, this, "Testing"); }));
+      row.appendChild(button("Review", "use", function () { say("/voke " + c.url, this, "Reviewing"); }));
+      l.appendChild(row);
+    });
+    card.appendChild(l);
+    var a = h("div", "acts");
+    a.appendChild(button("Publish all " + v.skills.length, "btn primary",
+      function () { say("/voke publish " + v.url, this, "Publishing"); }));
+    card.appendChild(a);
+    card.appendChild(h("p", "note", (v.tested ? "Tested. Ready to publish Public or Private." :
+      "Public needs one test run of any skill here; Private doesn’t.") + (v.signed_in ? "" : " Private needs your personal Voke link.")));
+  }
+
+  function showView(v) {
+    var card = $("card");
+    card.classList.add("static");
+    if (v.kind === "recipe" || v.kind === "bundle") {
+      card.innerHTML = "";
+      (v.kind === "recipe" ? recipe : bundle)(v, card);
+    } else if (v.kind === "status" || v.kind === "note") {
+      card.innerHTML = ""; card.classList.add("solo");
+      var line = h("div", "status"), logo = h("div", "logo"); logo.innerHTML = '<svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg>'; logo.setAttribute("aria-hidden", "true");
+      line.appendChild(logo);
+      var t = h("span");
+      t.innerHTML = v.kind === "note" ? esc(v.text || "") :
+        esc(v.label || "Running") + " <b>" + esc(v.title || "") + "</b>" + (v.creator ? " by @" + esc(v.creator) : "");
+      line.appendChild(t); card.appendChild(line);
+    } else {
+      document.body.classList.add("hidden");
+    }
+    S.loading = false; S.static = true; size();
+  }
+
+  // ------------------------------------------------------------ data
+  function absorb(d, append) {
+    S.loading = false; S.more = false; S.error = false;
+    S.query = d.query || "";
+    if (!S.gen && d.mode === "shortlist") { S.mode = "shortlist"; S.shortQuery = d.query || ""; }
+    if (d.categories) S.categories = d.categories;
+    S.filters = {};
+    (d.filters || []).forEach(function (f) { S.filters[f.kind] = f; });
+    var from = S.results.length;
+    S.results = append ? S.results.concat(d.results || []) : (d.results || []);
+    S.total = d.total || 0;
+    S.next = d.next_offset;
+    S.totalAll = d.total_unfiltered || 0;
+    if (!append) { S.sel = restSel(); list.scrollTop = 0; list.scrollLeft = 0; pgNow = 0; pgWant = null; }
+    if (append) { appendRows(from); return; }
+    if (document.activeElement !== q && q.value !== S.query) q.value = S.query;
+    draw();
+    if (S.enterPending && !append) { S.enterPending = false; enterRun(); }
+  }
+
+  function filterArgs() {
+    var a = {};
+    KINDS.forEach(function (k) { var f = S.filters[k]; a[k] = !f ? "" : f.value ? f.value.key : f.query; });
+    return a;
+  }
+
+  function fetchPage(append) {
+    var gen = ++S.gen;
+    if (append) { S.more = true; tail(); } else { S.loading = true; draw(); }
+    var args = filterArgs();
+    args.query = q.value.trim();
+    args.offset = append ? S.next : 0;
+    args.limit = S.view ? 50 : PAGE; // the saved and favorited views filter the whole library here
+    // A shortlist stays loose while its original request is in the box; edited text searches normally.
+    args.mode = S.mode === "shortlist" && args.query === S.shortQuery ? "shortlist" : "browse";
+    args.action = "page";
+    args.voter = voter;
+    request("tools/call", { name: "voke", arguments: args })
+      .then(function (r) {
+        var d = structured(r);
+        whenIdle(function () { if (gen === S.gen) { if (d) absorb(d, append); else fail(); } });
+      })
+      .catch(function () { whenIdle(function () { if (gen === S.gen) fail(); }); });
+  }
+  function fail() { S.loading = false; S.more = false; S.error = true; draw(); }
+
+  function setFilter(kind, v) { // v: {key,label} or null to remove
+    if (v) S.filters[kind] = { kind: kind, status: "ok", query: v.key, value: v };
+    else delete S.filters[kind];
+    fetchPage(false);
+  }
+  function clearFilters() { S.filters = {}; S.view = ""; fetchPage(false); }
+  function active() { return KINDS.map(function (k) { return S.filters[k]; }).filter(Boolean); }
+  function blocking() { return active().filter(function (f) { return f.status !== "ok"; })[0]; }
+  function tabKey() { var f = S.filters.category; return f && f.status === "ok" && f.value ? f.value.key : ""; }
+  function isTab(key) { return S.categories.some(function (c) { return c.key === key; }); }
+  function shown() {
+    if (!S.view) return S.results;
+    if (S.view === "favs") return S.results.filter(function (k) { return k.starred; });
+    var saved = savedSet();
+    return S.results.filter(function (k) { return saved.indexOf(k.name) > -1; });
+  }
+
+  // ------------------------------------------------------------ rendering
+  function drawCats() {
+    cats.innerHTML = "";
+    var cur = tabKey();
+    var tabs = [{ key: "", label: "All" }].concat(S.categories);
+    if (tabs.length < 2) { cats.style.display = "none"; return; }
+    cats.style.display = "";
+    tabs.forEach(function (c) {
+      var b = button(c.label, c.key === cur && !(c.key === "" && S.view) ? "on" : "", function () {
+        if (c.key === tabKey()) return;
+        if (c.key) setFilter("category", { key: c.key, label: c.label }); else setFilter("category", null);
+      });
+      b.setAttribute("aria-pressed", c.key === cur ? "true" : "false");
+      cats.appendChild(b);
+    });
+    tabEdge();
+  }
+  function tabEdge() {
+    cats.classList.toggle("overflow", cats.scrollWidth > cats.clientWidth + 2);
+    cats.classList.toggle("end", cats.scrollLeft + cats.clientWidth >= cats.scrollWidth - 2);
+  }
+  var edgeRaf = 0;
+  cats.addEventListener("scroll", function () {
+    if (!edgeRaf) edgeRaf = requestAnimationFrame(function () { edgeRaf = 0; tabEdge(); });
+  }, { passive: true });
+  window.addEventListener("resize", tabEdge);
+
+  function drawFilters() {
+    filters.innerHTML = "";
+    var chips = active().filter(function (f) { return f.status === "ok" && !(f.kind === "category" && isTab(f.value.key)); });
+    if (S.view) chips.unshift({ view: S.view });
+    chips.forEach(function (f) {
+      var chip = h("span", "chip", f.view ? (f.view === "favs" ? "Favorited" : "Saved") : SIGIL[f.kind] + f.value.key);
+      var x = h("button"); x.type = "button"; x.innerHTML = svg(P.x);
+      x.firstChild.style.width = x.firstChild.style.height = "12px";
+      x.setAttribute("aria-label", f.view ? "Show all plays" : "Remove filter " + SIGIL[f.kind] + f.value.key);
+      x.onclick = function () {
+        if (f.view) { S.view = ""; fetchPage(false); } else setFilter(f.kind, null);
+        q.focus();
+      };
+      chip.appendChild(x);
+      filters.appendChild(chip);
+    });
+  }
+
+  function message(html, actions) {
+    var m = h("div", "empty"); m.innerHTML = html;
+    if (actions && actions.length) { var a = h("div", "acts"); actions.forEach(function (b) { a.appendChild(b); }); m.appendChild(a); }
+    list.appendChild(m);
+  }
+  function browseAll() {
+    var only = active().length === 1 && active()[0].kind === "creator";
+    return button(only ? "Browse all creators" : "Show all plays", "btn primary", clearFilters);
+  }
+  function skeleton() {
+    [62, 48, 70, 55, 66, 44, 58].forEach(function (w) {
+      var k = h("div", "sk"), b = h("i"); b.style.width = w + "%";
+      k.appendChild(h("i")); k.appendChild(b); list.appendChild(k);
+    });
+  }
+
+  function draw() {
+    if (S.static) return;
+    drawCats(); drawFilters();
+    $("pager").hidden = true;
+    var keepLeft = list.scrollLeft; // a redraw (selecting, bookmarking) keeps a phone on its page
+    list.innerHTML = ""; list.classList.remove("paged");
+    var bad = blocking(), items = shown();
+    count.textContent = S.loading || bad || !items.length ? "Powered by Voke" :
+      (function (n) { return n + (n === 1 ? " play" : " plays"); })(S.view ? items.length : S.total) + " · Powered by Voke";
+    if (S.loading) { skeleton(); size(); return; }
+    if (S.error) {
+      message("Couldn’t reach the Voke library.", [button("Try again", "btn", function () { fetchPage(false); })]);
+      size(); return;
+    }
+    if (bad) {
+      var opts = bad.candidates.map(function (c) {
+        return button((c.label !== c.key ? c.label + " · " : "") + SIGIL[bad.kind] + c.key, "btn", function () { setFilter(bad.kind, c); });
+      });
+      if (bad.status === "ambiguous") {
+        message("<b>" + esc(SIGIL[bad.kind] + bad.query) + "</b> matches more than one " + bad.kind + ". Which one?",
+          opts.concat([button("Any " + bad.kind, "btn", function () { setFilter(bad.kind, null); })]));
+      } else {
+        message((bad.kind === "resource" ? "No plays are built from <b>" + esc(SIGIL[bad.kind] + bad.query) + "</b> yet."
+          : "No " + bad.kind + " named <b>" + esc(SIGIL[bad.kind] + bad.query) + "</b>.") +
+          (bad.candidates.length ? " Did you mean:" : ""), opts.concat([browseAll()]));
+      }
+      size(); return;
+    }
+    if (!items.length) {
+      var topic = S.query ? " matching <b>" + esc(S.query) + "</b>" : "";
+      var scope = active().map(function (f) { return f.kind === "category" ? catLabel(f.value.key) : SIGIL[f.kind] + f.value.key; }).join(", ");
+      if (S.view === "favs") message("No favorited plays" + topic + " yet. Tap the star on any play to favorite it.", [browseAll()]);
+      else if (S.view) message("No saved plays" + topic + " yet. Tap the bookmark on any play to save it.", [browseAll()]);
+      else if (scope) message("No plays in <b>" + esc(scope) + "</b>" + topic + "." +
+          (S.totalAll ? " " + S.totalAll + " match across all plays." : ""), [browseAll()]);
+      else message("No matching plays. Try different words, or describe what you want done in chat.");
+      size(); return;
+    }
+    var shortNote = S.mode === "shortlist" && q.value.trim() === S.shortQuery ? h("p", "note", "A few plays could fit this. Pick the one to run.") : null;
+    // Desktop: the list scrolls inside the card and loads the next page near the bottom.
+    // Phones: pages of PER skills that swipe sideways; the next server page loads as the last pages near.
+    if (paged) {
+      list.classList.add("paged");
+      items.forEach(function (k, i) { place(row(k, i)); });
+      if (shortNote) list.firstChild.insertBefore(shortNote, list.firstChild.firstChild);
+      list.scrollLeft = keepLeft;
+    } else {
+      if (shortNote) list.appendChild(shortNote);
+      items.forEach(function (k, i) { list.appendChild(row(k, i)); });
+    }
+    tail();
+    watchEnd();
+    pager();
+    size();
+  }
+
+  // Paging: an IntersectionObserver on the last row asks for the next page as it nears the bottom,
+  // and the new rows are appended after the ones already drawn.
+  var endSeen = window.IntersectionObserver ? new IntersectionObserver(function (es) {
+    if (es.some(function (e) { return e.isIntersecting; }) && S.next != null && !S.more && !S.loading && !S.view) fetchPage(true);
+  }, { root: list, rootMargin: "0px 0px 60px 0px" }) : null;
+  function watchEnd() {
+    if (!endSeen || paged) return;
+    endSeen.disconnect();
+    var rows = list.querySelectorAll(".skill");
+    if (rows.length && S.next != null && !S.view) endSeen.observe(rows[rows.length - 1]);
+  }
+  // Desktop shows "Loading more…" at the end of the list while a page is on its way; phones show it in the pager.
+  function tail() {
+    var m = list.querySelector(".more");
+    if (m) m.remove();
+    if (S.more && !paged) list.appendChild(h("div", "more", "Loading more…"));
+    if (paged) pager();
+  }
+  // Phones: a row goes on the last page, or starts a new one when that page is full.
+  function place(r) {
+    var pg = list.lastElementChild;
+    if (!pg || !pg.classList.contains("pg") || pg.querySelectorAll(".skill").length >= PER) {
+      pg = h("div", "pg"); list.appendChild(pg);
+    }
+    pg.appendChild(r);
+  }
+  function appendRows(from) {
+    S.more = false;
+    var m = list.querySelector(".more");
+    if (m) m.remove();
+    if (paged) S.results.slice(from).forEach(function (k, j) { place(row(k, from + j)); });
+    else {
+      var f = document.createDocumentFragment();
+      S.results.slice(from).forEach(function (k, j) { f.appendChild(row(k, from + j)); });
+      list.appendChild(f);
+    }
+    count.textContent = S.total + (S.total === 1 ? " play" : " plays") + " · Powered by Voke";
+    tail();
+    watchEnd();
+    size();
+  }
+
+  // ------------------------------------------------------------ phone pager
+  // A scroll bar whose thumb follows the swipe (drag it or tap the track) and page numbers (1 2 3 … 20).
+  // Pages past the loaded ones come from the server: the bar and numbers count every matching skill.
+  var pgNow = 0, pgRaf = 0, pgWant = null, pgDrag = false, pgGrab = 0;
+  var pgBar = $("pgBar"), pgThumb = $("pgThumb"), pgNums = $("pgNums");
+  function pagesLoaded() { return list.classList.contains("paged") ? list.children.length : 0; }
+  function pagesTotal() {
+    var n = S.view ? shown().length : Math.max(S.total, S.results.length);
+    return Math.max(pagesLoaded(), Math.ceil(n / PER));
+  }
+  function pager() {
+    var bar = $("pager"), loaded = pagesLoaded();
+    if (!paged || !loaded) { bar.hidden = true; return; }
+    var total = pagesTotal();
+    bar.hidden = total < 2;
+    if (pgWant != null && pgWant < loaded) { var w = pgWant; pgWant = null; goPage(w); }
+    // Ask for the next server page while two loaded pages are still ahead, or to reach a page tapped further on.
+    var want = Math.max(pgNow, pgWant == null ? 0 : pgWant);
+    if (!S.view && S.next != null && !S.more && !S.loading && want >= loaded - 2) fetchPage(true);
+    drawNums(total);
+    paintBar();
+  }
+  function paintBar() {
+    var total = pagesTotal(), w = list.clientWidth || 1, bw = pgBar.clientWidth, tw = Math.max(24, bw / Math.max(1, total));
+    var f = total > 1 ? Math.min(1, list.scrollLeft / w / (total - 1)) : 0;
+    pgThumb.style.width = tw + "px";
+    pgThumb.style.transform = "translateX(" + (f * (bw - tw)) + "px)";
+    pgBar.setAttribute("aria-valuemax", total);
+    pgBar.setAttribute("aria-valuenow", pgNow + 1);
+  }
+  function drawNums(total) {
+    var cur = pgNow, show = [];
+    for (var i = 0; i < total; i++) if (i === 0 || i === total - 1 || Math.abs(i - cur) <= 1) show.push(i);
+    pgNums.innerHTML = "";
+    var prev = button("", null, function () { goPage(pgNow - 1); });
+    prev.innerHTML = svg("M15 6l-6 6 6 6"); prev.setAttribute("aria-label", "Previous page"); prev.disabled = cur <= 0;
+    pgNums.appendChild(prev);
+    var mid = h("span", "pn");
+    pgNums.appendChild(mid);
+    show.forEach(function (i, j) {
+      if (j && i - show[j - 1] > 1) mid.appendChild(h("span", "gap", "…"));
+      var b = button(String(i + 1), i === cur ? "on" : null, function () { goPage(i); });
+      b.setAttribute("aria-label", "Page " + (i + 1));
+      if (i === cur) b.setAttribute("aria-current", "page");
+      mid.appendChild(b);
+    });
+    var next = button("", null, function () { goPage(pgNow + 1); });
+    next.innerHTML = svg("M9 6l6 6-6 6"); next.setAttribute("aria-label", "Next page"); next.disabled = cur >= total - 1;
+    pgNums.appendChild(next);
+  }
+  // Pages not loaded yet: go as far as the loaded ones, load more, and finish the move when they arrive.
+  function goPage(i) {
+    var w = list.clientWidth, loaded = pagesLoaded();
+    i = Math.max(0, Math.min(pagesTotal() - 1, i));
+    if (i >= loaded) { pgWant = i; i = loaded - 1; pager(); }
+    if (w) list.scrollTo({ left: i * w, behavior: "smooth" });
+  }
+  // One layout read per frame at most while the pages slide.
+  list.addEventListener("scroll", function () {
+    if (!paged || pgRaf) return;
+    pgRaf = requestAnimationFrame(function () {
+      pgRaf = 0;
+      var w = list.clientWidth, i = w ? Math.round(list.scrollLeft / w) : 0;
+      if (i !== pgNow) { pgNow = i; pager(); } else paintBar();
+    });
+  }, { passive: true });
+  // Dragging the bar moves the pages directly; letting go snaps to the nearest page.
+  function barLeft(x) {
+    var r = pgBar.getBoundingClientRect(), tw = pgThumb.offsetWidth, total = pagesTotal();
+    var f = Math.max(0, Math.min(1, (x - r.left - pgGrab) / Math.max(1, r.width - tw)));
+    var page = f * (total - 1), loaded = pagesLoaded();
+    if (page > loaded - 1) pgWant = Math.round(page);
+    return Math.min(page, loaded - 1) * list.clientWidth;
+  }
+  pgBar.addEventListener("pointerdown", function (e) {
+    var tr = pgThumb.getBoundingClientRect();
+    pgGrab = e.clientX >= tr.left && e.clientX <= tr.right ? e.clientX - tr.left : tr.width / 2;
+    pgDrag = true; pgBar.classList.add("dragging"); list.style.scrollSnapType = "none";
+    try { pgBar.setPointerCapture(e.pointerId); } catch (err) {}
+    list.scrollLeft = barLeft(e.clientX);
+  });
+  pgBar.addEventListener("pointermove", function (e) { if (pgDrag) list.scrollLeft = barLeft(e.clientX); });
+  function barDrop() {
+    if (!pgDrag) return;
+    pgDrag = false; pgBar.classList.remove("dragging"); list.style.scrollSnapType = "";
+    var w = list.clientWidth || 1, want = pgWant;
+    pgWant = null;
+    goPage(want != null ? want : Math.round(list.scrollLeft / w));
+  }
+  pgBar.addEventListener("pointerup", barDrop);
+  pgBar.addEventListener("pointercancel", barDrop);
+
+  function catLabel(key) {
+    var c = S.categories.filter(function (x) { return x.key === key; })[0];
+    return c ? c.label : String(key || "").replace(/-/g, " ").replace(/^./, function (x) { return x.toUpperCase(); });
+  }
+  function starButton(k, label, cls) {
+    var st = h("button", "star " + cls + (k.starred ? " starred" : "")); st.type = "button"; st.dataset.star = k.name;
+    st.innerHTML = svg(P.star) + "<span>" + fmtStars(k.stars) + "</span>";
+    st.setAttribute("aria-pressed", k.starred ? "true" : "false");
+    st.setAttribute("aria-label", (k.starred ? "Unstar " : "Star ") + label + ", " + (k.stars || 1) + ((k.stars || 1) === 1 ? " star" : " stars"));
+    return st;
+  }
+  // A skill row: icon tile; name with its category; "by creator · description"; then stars, save and Run skill.
+  // Tapping the row opens the skill page. Narrow cards (phones, the skill page's related lists) drop the
+  // description, move the stars onto the by line and shrink Run skill to its icon.
+  function row(k, i) {
+    var on = i === S.sel, label = k.title || k.name, saved = isSaved(k.name);
+    var r = h("div", "skill" + (on ? " on" : ""));
+    r.tabIndex = 0;
+    r.setAttribute("role", "option");
+    r.setAttribute("aria-selected", on ? "true" : "false");
+    r.dataset.i = i;
+    var si = h("div", "si"); si.innerHTML = svg(P[k.category] || P.other); r.appendChild(si);
+    var body = h("div", "body"), l1 = h("div", "l1");
+    // V5: the row leads with the outcome (the play's short blurb); the play's name goes on the by-line.
+    l1.appendChild(h("span", "name", k.blurb || label));
+    l1.appendChild(h("span", "ptag", priceText(k) || "Free"));
+    if (k.category) l1.appendChild(h("span", "ctag", catLabel(k.category)));
+    body.appendChild(l1);
+    if (!k.blurb && k.description) body.appendChild(h("p", "dm", k.description));
+    var l2 = h("p", "l2"), who = h("span", "who");
+    var handle = k.creator ? k.creator.handle : "voke";
+    var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle;
+    cb.setAttribute("aria-label", "Show plays by @" + handle);
+    if (k.blurb) { who.appendChild(h("span", "pname", label)); who.appendChild(document.createTextNode(" · ")); }
+    who.appendChild(cb); l2.appendChild(who);
+    var sm = h("span", "sm"); sm.appendChild(document.createTextNode(" · ")); sm.appendChild(starButton(k, label, "s-sm")); l2.appendChild(sm);
+
+    body.appendChild(l2);
+    r.appendChild(body);
+    var acts = h("div", "racts");
+    acts.appendChild(starButton(k, label, "s-lg"));
+    var b = h("button", "save" + (saved ? " saved" : "")); b.type = "button"; b.innerHTML = svg(P.bookmark);
+    b.dataset.save = k.name;
+    b.setAttribute("aria-label", (saved ? "Unsave " : "Save ") + label);
+    b.setAttribute("aria-pressed", saved ? "true" : "false");
+    acts.appendChild(b);
+    var rb = h("button", "runb"); rb.type = "button"; rb.dataset.run = k.name;
+    rb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run play</span>';
+    rb.setAttribute("aria-label", "Run " + label);
+    acts.appendChild(rb);
+    r.appendChild(acts);
+    return r;
+  }
+
+  function touch() { return matchMedia("(hover:none)").matches; }
+  // Desktop: nothing is highlighted at rest; hover highlights. With text in the search box the top
+  // match is highlighted so Enter runs it. Touch screens keep the first skill open.
+  function restSel() {
+    if (!shown().length) return -1;
+    return touch() || q.value.trim() ? 0 : -1;
+  }
+  function enterRun() {
+    var r = list.querySelector('[data-i="' + S.sel + '"]');
+    if (r) run(shown()[S.sel], r);
+  }
+
+  function select(i, scroll) {
+    var n = shown().length;
+    if (!n || i === S.sel) return;
+    S.sel = i < 0 ? -1 : (i + n) % n;
+    draw();
+    var node = list.querySelector('[data-i="' + S.sel + '"]');
+    if (node && scroll) node.scrollIntoView({ block: "nearest" });
+  }
+  function move(dir) { var n = shown().length; if (n) select(S.sel < 0 ? (dir > 0 ? 0 : n - 1) : S.sel + dir, true); }
+
+  // Tapping a skill copies its run command ("/voke ad engine"). Pasting and sending it runs the skill:
+  // the server loads a skill when the /voke text names one exactly. If the sandbox blocks the
+  // clipboard, the note shows the command in a field that selects itself for a manual copy.
+  function copyText(text) {
+    var legacy = function () {
+      var t = document.createElement("textarea"); t.value = text; t.readOnly = true;
+      t.style.cssText = "position:absolute;left:-9999px;top:0";
+      document.body.appendChild(t); t.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      t.remove(); return ok;
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText)
+        return navigator.clipboard.writeText(text).then(function () { return true; }, legacy);
+    } catch (e) {}
+    return Promise.resolve(legacy());
+  }
+  function run(k, el) {
+    if (el.dataset.busy) return;
+    el.dataset.busy = "1";
+    var text = "/voke " + String(k.title || k.name).toLowerCase();
+    copyText(text).then(function (ok) {
+      delete el.dataset.busy;
+      list.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
+      var n = h("p", "note picked" + (ok ? " ok" : ""));
+      n.innerHTML = ok
+        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">Copied!</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
+        : "Copy is blocked here. Copy this, then paste it into the message box below and send: " +
+          "<input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
+      el.after(n);
+      // A row near the bottom of the list would leave its banner cut off: once it has laid out,
+      // slide the list up just far enough to show the whole banner (scrollIntoView is unreliable in
+      // the host's iframe, so the list is scrolled directly).
+      if (!paged) requestAnimationFrame(function () {
+        var lb = list.getBoundingClientRect().bottom, nb = n.getBoundingClientRect().bottom, over = nb - lb + 12;
+        if (over > 0) try { list.scrollTo({ top: list.scrollTop + over, behavior: "smooth" }); } catch (e) { list.scrollTop += over; }
+      });
+      var f = n.querySelector("input.cmd");
+      if (f) { f.addEventListener("focus", function () { f.select(); }); f.focus(); f.select(); }
+      size();
+    });
+  }
+
+  // ------------------------------------------------------------ skill page
+  // Opened from a row's Details button. Everything on it comes from the skill's own files and the catalog
+  // (voke_skill on the server); a section with nothing to show is left out. Related rows are the same rows as
+  // the list and behave the same: tap copies the run command, the bookmark saves, the star stars.
+  var PG = { stack: [], open: false, gen: 0, data: null, card: null, picked: null, failed: false, keepTop: 0, tab: 0 }, dt = $("dt");
+  function cardByName(n) {
+    if (PG.card && PG.card.name === n) return PG.card;
+    var d = PG.data || {};
+    return (d.pairs || []).concat(d.similar || []).filter(function (k) { return k.name === n; })[0];
+  }
+  function openPage(name, card, fromPage) {
+    if (!menu.hidden) closeMenu();
+    if (!fromPage) PG.stack = [];
+    else if (PG.card) PG.stack.push(PG.card);
+    if (!PG.open) PG.keepTop = list.scrollTop;
+    PG.open = true; PG.gen++; PG.data = null; PG.failed = false; PG.picked = null; PG.tab = 0;
+    PG.card = card || { name: name, title: name };
+    $("card").classList.add("detailing"); dt.hidden = false;
+    renderPage();
+    var gen = PG.gen;
+    request("tools/call", { name: "voke_skill", arguments: { name: name, voter: voter } })
+      .then(function (r) {
+        if (gen !== PG.gen) return;
+        var d = structured(r);
+        if (!d || r.isError || r.is_error) throw new Error("page failed");
+        PG.data = d; PG.card = d.skill; renderPage();
+      })
+      .catch(function () { if (gen === PG.gen) { PG.failed = true; renderPage(); } });
+  }
+  function closePage() {
+    PG.open = false; PG.gen++; dt.hidden = true; dt.innerHTML = "";
+    $("card").classList.remove("detailing");
+    draw(); list.scrollTop = PG.keepTop; size();
+  }
+  // Back: to the skill page this one was opened from, else to the list.
+  $("bk").onclick = function () {
+    var prev = PG.stack.pop();
+    if (prev) { var keep = PG.stack; openPage(prev.name, prev, false); PG.stack = keep; } else closePage();
+  };
+
+  function runCommand(k) { return "/voke " + String(k.title || k.name).toLowerCase(); }
+  function copyFrom(k, after, key) {
+    dt.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
+    dt.querySelectorAll(".skill.on").forEach(function (x) { x.classList.remove("on"); });
+    if (PG.picked === key) { PG.picked = null; fitPages(); size(); return; }
+    PG.picked = key;
+    var text = runCommand(k);
+    copyText(text).then(function (ok) {
+      if (PG.picked !== key) return;
+      var n = h("p", "note picked" + (ok ? " ok" : ""));
+      n.innerHTML = ok
+        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">Copied!</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
+        : "Copy is blocked here. Copy this, then paste it into the message box below and send: <input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
+      after.after(n);
+      if (after.classList.contains("skill")) after.classList.add("on");
+      var f = n.querySelector("input.cmd");
+      if (f) { f.addEventListener("focus", function () { f.select(); }); f.focus(); f.select(); }
+      fitPages(); size();
+    });
+  }
+  function paintPageStars(k) {
+    dt.querySelectorAll("[data-star]").forEach(function (st) {
+      if (st.dataset.star !== k.name) return;
+      st.classList.toggle("starred", !!k.starred);
+      st.lastChild.textContent = fmtStars(k.stars);
+      st.setAttribute("aria-pressed", k.starred ? "true" : "false");
+    });
+  }
+  function starOnPage(k) {
+    if (k.starBusy) return;
+    var was = { stars: k.stars || 1, starred: !!k.starred };
+    k.starred = !was.starred; k.stars = was.stars + (k.starred ? 1 : -1); k.starBusy = true; paintPageStars(k);
+    request("tools/call", { name: "voke_star", arguments: { voter: voter, name: k.name, on: k.starred } })
+      .then(function (r) {
+        var d = structured(r);
+        if (!d || (r && (r.isError || r.is_error))) throw new Error("star failed");
+        var x = d.stars && d.stars[k.name]; if (x) { k.stars = x.count; k.starred = !!x.starred; }
+        mergeStars(d.stars);
+      })
+      .catch(function () { k.stars = was.stars; k.starred = was.starred; })
+      .then(function () { k.starBusy = false; paintPageStars(k); });
+  }
+
+  function sec(title) { var s = h("div", "dt-sec"); if (title) s.appendChild(h("p", "dt-h", title)); return s; }
+  function heading(s, title) { s.appendChild(h("p", "dt-h", title)); }
+  function cell(s, a, b) { var c = h("div", "dt-cell"); c.appendChild(h("span", null, a)); c.appendChild(h("span", null, b)); s.appendChild(c); }
+  function kv(s, a, b, href) {
+    var r = h("div", "dt-kv"); r.appendChild(h("span", null, a));
+    if (href) { var l = h("a", null, b); l.href = href; l.target = "_blank"; l.rel = "noopener"; r.appendChild(l); }
+    else r.appendChild(h("span", null, b));
+    s.appendChild(r);
+  }
+  function pills(s, items, mono) {
+    var w = h("div", "dt-pills");
+    items.forEach(function (x) { w.appendChild(h("span", "pill" + (mono ? " dt-mono" : ""), x)); });
+    s.appendChild(w);
+  }
+  function relRows(s, title, cards) {
+    if (!cards || !cards.length) return;
+    heading(s, title);
+    var box = h("div", "dt-rel");
+    cards.slice(0, paged ? 2 : 3).forEach(function (k, i) {
+      var r = row(k, -100 - i); r.dataset.name = k.name; box.appendChild(r);
+    });
+    s.appendChild(box);
+  }
+
+  // The page's sections, each built once. Phones group them into swipe pages; wide screens put the reading
+  // (what you get, steps, related) in a main column and the facts (needs, memory, works in, about) in a side column.
+  function blocks(k, d, data) {
+    var B = {};
+    if (d.outputs && d.outputs.length) {
+      B.outputs = sec("What you get");
+      d.outputs.forEach(function (x) { B.outputs.appendChild(h("div", "dt-it", x)); });
+    }
+    B.needs = sec("What it needs");
+    if (k.start) {
+      var ask = /\?\s*$/.test(k.start);
+      cell(B.needs, ask ? "It asks" : "You give", ask ? k.start : k.start.replace(/^send me /i, "").replace(/\.$/, "").replace(/^./, function (c) { return c.toUpperCase(); }));
+    }
+    cell(B.needs, "Connections", d.connections && d.connections.length ? d.connections.join(", ") : "None");
+    cell(B.needs, "Cost", d.cost || "$0");
+    if (d.steps && d.steps.length) {
+      B.steps = sec("How it runs");
+      d.steps.forEach(function (x, i) { var r = h("div", "dt-st"); r.appendChild(h("b", null, String(i + 1))); r.appendChild(h("span", null, x)); B.steps.appendChild(r); });
+    }
+    if (d.memory && d.memory.length) {
+      B.memory = sec("Remembers between sessions"); pills(B.memory, d.memory, true);
+      B.memory.appendChild(h("p", "dt-sub", "Saved on your side, never on Voke."));
+    }
+    B.works = sec("Works in");
+    pills(B.works, d.any_app ? ["Any AI app"] : [d.verdict === "handoff" ? "Claude Code or Codex" : "Claude"]);
+    B.about = sec("About");
+    if (d.repo) kv(B.about, "Source", d.repo, k.source); else if (k.source && /^https?:/.test(k.source)) kv(B.about, "Source", "Link", k.source);
+    if (data.license) kv(B.about, "License", data.license);
+    kv(B.about, "Category", data.category_label || k.category);
+    kv(B.about, "Creator", "@" + (k.creator ? k.creator.handle : "voke"));
+    if ((data.pairs && data.pairs.length) || (data.similar && data.similar.length)) {
+      B.pairs = data.pairs && data.pairs.length ? sec() : null;
+      if (B.pairs) relRows(B.pairs, "Pairs well with", data.pairs);
+      B.similar = data.similar && data.similar.length ? sec() : null;
+      if (B.similar) relRows(B.similar, "Similar plays", data.similar);
+    }
+    return B;
+  }
+  function join(list) { // several blocks shown as one page: one section, headings spaced as usual
+    var s = sec();
+    list.filter(Boolean).forEach(function (b) { while (b.firstChild) s.appendChild(b.firstChild); });
+    return s;
+  }
+  function pageSections(k, d, data) {
+    var B = blocks(k, d, data), pages = [];
+    pages.push({ label: "Overview", sec: join([B.outputs, B.needs]) });
+    if (B.steps || B.memory) pages.push({ label: "Steps", sec: join([B.steps, B.memory]) });
+    pages.push({ label: "Details", sec: join([B.works, B.about]) });
+    if (B.pairs || B.similar) pages.push({ label: "Related", sec: join([B.pairs, B.similar]) });
+    return pages;
+  }
+  function wideLayout() { return !paged && window.innerWidth >= 560; }
+
+  function renderPage() {
+    var k = PG.card, d = PG.data ? PG.data.detail || {} : null, label = k.title || k.name, wide = wideLayout();
+    dt.innerHTML = "";
+    dt.classList.toggle("wide", wide);
+    var top = h("div", "dt-top");
+    var hero = h("div", "dt-hero"), ic = h("div", "dt-ic");
+    ic.innerHTML = svg(P[k.category] || P.other); hero.appendChild(ic);
+    var mid = h("div"); mid.appendChild(h("p", "dt-t", k.blurb || label));
+    var by = h("div", "by"), who = h("span");
+    var handle = k.creator ? k.creator.handle : "voke";
+    if (k.blurb) { who.appendChild(h("span", "pname", label)); who.appendChild(document.createTextNode(" · ")); }
+    var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle; who.appendChild(cb); by.appendChild(who);
+    by.appendChild(h("span", "ptag", priceText(k) || "Free"));
+    var st = h("button", "star" + (k.starred ? " starred" : "")); st.type = "button"; st.dataset.star = k.name;
+    st.innerHTML = svg(P.star) + "<span>" + fmtStars(k.stars) + "</span>"; by.appendChild(st);
+    mid.appendChild(by); hero.appendChild(mid);
+    var acts = h("div", "dt-acts");
+    var saved = isSaved(k.name), sb = h("button", "save" + (saved ? " saved" : "")); sb.type = "button"; sb.dataset.save = k.name;
+    sb.innerHTML = svg(P.bookmark); sb.setAttribute("aria-label", (saved ? "Unsave " : "Save ") + label); acts.appendChild(sb);
+    var run = h("button", "dt-run"); run.type = "button"; run.id = "dtRun";
+    run.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run play</span>';
+    if (wide) acts.appendChild(run);
+    hero.appendChild(acts);
+    top.appendChild(hero);
+    var desc = (k.description || k.blurb || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim();
+    if (desc) top.appendChild(h("p", "dt-d", desc));
+    if (d) {
+      var tags = [d.runs || "Runs in chat"];
+      if (PG.data.license) tags.push(PG.data.license);
+      pills(top, tags);
+    }
+    if (!wide) top.appendChild(run);
+    dt.appendChild(top);
+    if (!d) {
+      if (PG.failed) dt.appendChild(h("p", "note", "Couldn’t load this play’s details. Run play still works."));
+      else [70, 55, 62].forEach(function (w) { var b = h("div", "dt-wait"); b.style.width = w + "%"; dt.appendChild(b); });
+      size(); return;
+    }
+    if (wide) {
+      var B = blocks(k, d, PG.data), main = h("div", "dt-main"), aside = h("aside", "dt-aside");
+      [B.outputs, B.steps, B.pairs, B.similar].forEach(function (b) { if (b) main.appendChild(b); });
+      [B.needs, B.memory, B.works, B.about].forEach(function (b) { if (b) aside.appendChild(b); });
+      dt.appendChild(main); dt.appendChild(aside); size(); return;
+    }
+    var pages = pageSections(k, d, PG.data);
+    if (!paged) { pages.forEach(function (p) { dt.appendChild(p.sec); }); size(); return; }
+    var tabs = h("nav", "dt-tabs"), wrap = h("section", "dt-pages");
+    pages.forEach(function (p, i) {
+      var b = h("button", i === PG.tab ? "on" : null, p.label); b.type = "button"; b.dataset.tab = i; tabs.appendChild(b);
+      var pg = h("div", "dt-pg"); pg.appendChild(p.sec); wrap.appendChild(pg);
+    });
+    dt.appendChild(tabs); dt.appendChild(wrap);
+    var bar = h("div", "bar"), thumb = h("div", "thumb");
+    thumb.style.width = (100 / pages.length) + "%"; bar.appendChild(thumb); dt.appendChild(bar);
+    wrap.addEventListener("scroll", function () {
+      var w = wrap.clientWidth || 1, x = wrap.scrollLeft / w, c = Math.round(x);
+      thumb.style.transform = "translateX(" + (x * bar.clientWidth / pages.length) + "px)";
+      if (c !== PG.tab) { PG.tab = c; tabs.querySelectorAll("button").forEach(function (b, i) { b.classList.toggle("on", i === c); }); }
+    }, { passive: true });
+    bar.onclick = function (e) { var r = bar.getBoundingClientRect(); goTab(Math.floor((e.clientX - r.left) / r.width * pages.length)); };
+    requestAnimationFrame(function () { fitPages(); if (PG.tab) wrap.scrollLeft = PG.tab * wrap.clientWidth; size(); });
+  }
+  function goTab(i) {
+    var wrap = dt.querySelector(".dt-pages"); if (!wrap) return;
+    var n = wrap.children.length; i = Math.max(0, Math.min(n - 1, i));
+    try { wrap.scrollTo({ left: i * wrap.clientWidth, behavior: "smooth" }); } catch (e) { wrap.scrollLeft = i * wrap.clientWidth; }
+  }
+  var lastWide = null;
+  window.addEventListener("resize", function () {
+    if (!PG.open) return;
+    var w = wideLayout(); if (w !== lastWide) { lastWide = w; if (lastWide !== null) renderPage(); }
+  });
+  // Every page as tall as the tallest, so swiping never makes the card jump.
+  function fitPages() {
+    var wrap = dt.querySelector(".dt-pages"); if (!wrap) return;
+    wrap.style.height = "auto";
+    var hmax = 0; Array.prototype.forEach.call(wrap.children, function (p) { hmax = Math.max(hmax, p.scrollHeight); });
+    wrap.style.height = hmax + "px";
+  }
+
+  dt.addEventListener("click", function (e) {
+    var t = e.target;
+    var dd = t.closest("[data-detail]");
+    if (dd) { openPage(dd.dataset.detail, cardByName(dd.dataset.detail), true); return; }
+    var sv = t.closest("[data-save]");
+    if (sv) { var on = toggleSaved(sv.dataset.save); sv.classList.toggle("saved", on); sv.setAttribute("aria-pressed", on ? "true" : "false"); return; }
+    var sb = t.closest("[data-star]");
+    if (sb) { var ks = cardByName(sb.dataset.star); if (ks) starOnPage(ks); return; }
+    var cr = t.closest("[data-creator]");
+    if (cr) { closePage(); q.value = ""; S.view = ""; setFilter("creator", { key: cr.dataset.creator, label: cr.dataset.creator }); return; }
+    var rr = t.closest("[data-run]");
+    if (rr && rr.closest(".skill")) { var kx = cardByName(rr.dataset.run); if (kx) copyFrom(kx, rr.closest(".skill"), "rel:" + kx.name); return; }
+    if (t.closest("#dtRun")) { copyFrom(PG.card, dt.classList.contains("wide") ? dt.querySelector(".dt-top") : $("dtRun"), "run"); return; }
+    var tb = t.closest("[data-tab]");
+    if (tb) { goTab(Number(tb.dataset.tab)); return; }
+    var r = t.closest(".skill");
+    if (r) { openPage(r.dataset.name, cardByName(r.dataset.name), true); try { $("card").scrollIntoView({ block: "start" }); } catch (x) {} }
+  });
+  dt.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches(".skill")) { e.preventDefault(); e.target.click(); }
+  });
+
+  // ------------------------------------------------------------ input
+  // Only real pointer movement moves the selection; arrow-key scrolling slides rows under a resting pointer.
+  var mouseMoved = false;
+  list.addEventListener("mousemove", function (e) {
+    if (touch() || scrolling) return; // browsers send a mousemove after a wheel scroll; that isn't the pointer moving
+    mouseMoved = true;
+    var r = e.target.closest(".skill");
+    if (r) select(Number(r.dataset.i), false);
+  });
+  list.addEventListener("mouseleave", function () {
+    if (touch() || !mouseMoved) return;
+    mouseMoved = false; select(restSel(), false);
+  });
+  list.addEventListener("click", function (e) {
+    var dd = e.target.closest("[data-detail]");
+    if (dd) { var kk = shown().filter(function (x) { return x.name === dd.dataset.detail; })[0]; openPage(dd.dataset.detail, kk); return; }
+    var b = e.target.closest("[data-save]");
+    if (b) { toggleSaved(b.dataset.save); draw(); return; }
+    var sb = e.target.closest("[data-star]");
+    if (sb) { toggleStar(sb.dataset.star); return; }
+    // Creator name: show only that creator's skills, the same as a leading @creator filter.
+    var cr = e.target.closest("[data-creator]");
+    if (cr) { q.value = ""; S.view = ""; setFilter("creator", { key: cr.dataset.creator, label: cr.dataset.creator }); return; }
+    var r = e.target.closest(".skill");
+    if (r && e.target.closest("[data-run]")) {
+      var ir = Number(r.dataset.i), nx2 = r.nextElementSibling;
+      if (nx2 && nx2.classList.contains("picked")) { nx2.remove(); size(); return; }
+      run(shown()[ir], r); return;
+    }
+    if (r && e.target.closest("[data-go]")) {
+      var g = e.target.closest("[data-go]"); g.textContent = "Copied"; setTimeout(function () { g.textContent = "Copy"; }, 2000);
+      run(shown()[Number(r.dataset.i)], r); return;
+    }
+    if (!r) return;
+    // A tap opens the skill's page; its Run skill button copies the run command.
+    var ko = shown()[Number(r.dataset.i)];
+    if (ko) { openPage(ko.name, ko); return; }
+  });
+  list.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches(".skill")) { e.preventDefault(); e.target.click(); }
+  });
+  document.querySelectorAll("[data-dir]").forEach(function (b) { b.onclick = function () { move(Number(b.dataset.dir)); }; });
+
+  var timer = null;
+  q.addEventListener("input", function () { if (PG.open) closePage(); clearTimeout(timer); S.enterPending = false; var t = timer = setTimeout(function () { whenIdle(function () { if (timer !== t) return; timer = null; fetchPage(false); }); }, 180); });
+  document.addEventListener("keydown", function (e) {
+    if (S.static || e.defaultPrevented) return;
+    if (PG.open) { if (e.key === "Escape") closePage(); return; }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault(); mouseMoved = false; move(e.key === "ArrowDown" ? 1 : -1);
+      if (e.target !== q) grab();
+    } else if (e.key === "Enter" && (e.target === q || e.target === document.body)) {
+      e.preventDefault();
+      // Typed faster than the search: run the top match once the results arrive.
+      if (timer || S.loading) { S.enterPending = true; return; }
+      enterRun();
+    } else if (e.key === "Escape" && !menu.hidden) closeMenu();
+  });
+
+  // Put the cursor in the search box so typing filters right away; hosts may take a moment to hand over focus.
+  function grab() {
+    if (S.static || touch()) return; // on phones, focusing would throw up the keyboard over the card
+    try { window.focus(); } catch (e) {}
+    try { q.focus({ preventScroll: true }); var L = q.value.length; q.setSelectionRange(L, L); } catch (e) {}
+  }
+  grab();
+  [50, 250, 600, 1200].forEach(function (t) { setTimeout(function () { if (document.activeElement === document.body) grab(); }, t); });
+  window.addEventListener("focus", function () { if (document.activeElement === document.body) grab(); });
+
+  $("theme").onclick = function () {
+    userTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("voke-theme", userTheme); } catch (e) {}
+    setTheme();
+  };
+  // + starts GitHub to Skill in chat, Voke's way to add a skill.
+  $("add").onclick = function () {
+    var b = this;
+    send("/voke github to skill").catch(function () {
+      if (b.closest(".head").nextElementSibling.classList.contains("note")) return;
+      var n = h("p", "note"); n.innerHTML = "Couldn’t send from here. Type <code>/voke github to skill</code> in chat."; b.closest(".head").after(n); size();
+    });
+  };
+  // ☰ menu: saved skills view
+  function closeMenu() { menu.hidden = true; var d = $("dots"); d.setAttribute("aria-expanded", "false"); d.setAttribute("aria-label", "Menu"); d.blur(); size(); }
+  $("dots").onclick = function () {
+    if (!menu.hidden) { closeMenu(); return; }
+    menu.innerHTML = "";
+    var pb = button("Profile", null, function () { closeMenu(); send("/voke profile").catch(function () {}); });
+    pb.insertAdjacentHTML("afterbegin", svg(P.user));
+    var bb = button("Billing", null, function () { closeMenu(); send("/voke billing").catch(function () {}); });
+    bb.insertAdjacentHTML("afterbegin", svg(P.card));
+    // Saved and Favorited are list views; the one that's open turns into "All Plays".
+    function viewButton(key, label, n, icon) {
+      var on = S.view === key;
+      var b = button(on ? "All Plays" : label + " (" + n + ")", null, function () {
+        S.view = on ? "" : key; if (S.view) S.filters = {}; closeMenu(); fetchPage(false);
+      });
+      b.insertAdjacentHTML("afterbegin", svg(on ? P.other : icon));
+      return b;
+    }
+    menu.appendChild(pb); menu.appendChild(bb); menu.appendChild(h("hr"));
+    menu.appendChild(viewButton("saved", "Saved Plays", savedSet().length, P.bookmark));
+    menu.appendChild(viewButton("favs", "Favorited Plays", S.favs.length, P.star));
+    menu.hidden = false; $("dots").setAttribute("aria-expanded", "true"); $("dots").setAttribute("aria-label", "Close menu"); size();
+  };
+
+  // ------------------------------------------------------------ sizing
+  var lastH = -1;
+  function size() {
+    var hgt = document.body.classList.contains("hidden") ? 0 : Math.ceil(document.documentElement.getBoundingClientRect().height);
+    if (ready && hgt !== lastH) {
+      lastH = hgt;
+      notify("ui/notifications/size-changed", { width: Math.ceil(document.documentElement.getBoundingClientRect().width), height: hgt });
+    }
+  }
+  if (window.ResizeObserver) new ResizeObserver(size).observe(document.body);
+
+  // ------------------------------------------------------------ start
+  draw();
+  request("ui/initialize", {
+    appInfo: { name: "Voke", version: "0.4.0" },
+    appCapabilities: { availableDisplayModes: ["inline"] },
+    protocolVersion: "2026-01-26"
+  }).then(function (res) {
+    applyContext(res && res.hostContext);
+    lastH = -1; ready = true;
+    notify("ui/notifications/initialized", {});
+    size();
+  }).catch(function () { if (!ready) { ready = true; notify("ui/notifications/initialized", {}); } size(); });
+  // Some hosts answer initialize late or not at all; don't leave the card at zero height meanwhile.
+  setTimeout(function () { if (!ready) { ready = true; size(); } }, 1500);
+})();
+</script>
+</body>
+</html>
