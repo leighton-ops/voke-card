@@ -431,6 +431,53 @@
 
   /* After Run play is clicked, the button stays yellow (the hover color) instead of turning black. */
   .skill:has(+ .picked) .runb,.skill.pl:has(+ .picked) .prun{background:var(--vk-brand)!important;color:#000!important;box-shadow:none!important}
+
+  /* V5 play page */
+  .dt.pp{gap:12px;padding:8px 2px 14px}
+  .pp .dt-pages{align-items:flex-start;transition:height .2s ease}
+  .dt.pp-wide{display:grid;grid-template-columns:minmax(0,1fr) 264px;column-gap:20px;align-items:start;padding:4px 4px 16px}
+  .pp-left{min-width:0;display:flex;flex-direction:column;gap:14px}
+  .pp-card{position:sticky;top:0;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:18px;background:var(--vk-chip)}
+  .pp-t{margin:0;font-size:20px;font-weight:600;line-height:1.25;letter-spacing:-.01em;color:var(--vk-name)}
+  .pp-wide .pp-t{font-size:18px}
+  .pp-by{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--vk-meta)}
+  .pp-who{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pp-who .creator{font-size:13px}
+  .pp-acts{display:flex;align-items:center;gap:2px;flex:none}
+  .pp-acts .save,.pp-acts .star{height:30px;min-width:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 6px;color:var(--vk-meta);font-size:12px}
+  .pp-acts svg{width:16px;height:16px}
+  .pp-d{margin:0;font-size:14px;line-height:1.5;color:var(--vk-desc);display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+  .pp-ctas{display:flex;flex-direction:column;gap:8px}
+  .pp-ctas .dt-run{height:44px;border-radius:999px;font-size:15px}
+  .pp-trial{height:40px;border-radius:999px;font-size:14px;font-weight:600;color:var(--vk-name);border:1px solid var(--vk-ring);background:transparent}
+  @media (hover:hover){.pp-trial:hover{background:var(--vk-btn-hov)}}
+  .pp-card .pp-trial{border-color:var(--vk-ring)}
+  .pp-media{display:flex;flex-direction:column;gap:8px;min-width:0}
+  .pp-media .cov.pp-cov{width:100%;height:auto;aspect-ratio:16/9;border-radius:14px;padding:16px 18px}
+  .pp-media .cov.pp-cov span{font-size:24px;line-height:1.15;-webkit-line-clamp:3;letter-spacing:-.01em}
+  .pp-thumbs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+  .pp-thumbs::-webkit-scrollbar{display:none}
+  .pp-media .cov.pp-th{flex:0 0 112px;width:112px;height:63px;border-radius:9px;padding:6px 7px;scroll-snap-align:start}
+  .pp-media .cov.pp-th span{font-size:10.5px;-webkit-line-clamp:3}
+  .pp-real{background:#000}.pp-real::after{display:none}
+  .pp-real img,.pp-real video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .pp-th.pp-real{cursor:pointer;opacity:.7}.pp-th.pp-real.on{opacity:1;outline:2px solid var(--vk-name);outline-offset:-2px}
+  .pp-tabsbox{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .dt-tabs.pp-tabs{border-top:0;padding-top:0;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .pp-tabs::-webkit-scrollbar{display:none}
+  .pp-tabs button{flex:none;height:32px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--vk-name);background:var(--vk-chip);white-space:nowrap}
+  .pp-tabs button.on{background:var(--vk-inv);color:var(--vk-inv-tx);font-weight:600}
+  @media (hover:hover){.pp-tabs button:not(.on):hover{background:var(--vk-btn-hov)}}
+  .pp .dt-pg>.dt-sec:first-child{border-top:0;padding-top:2px}
+  .pp-li{display:flex;gap:10px;padding:5px 2px;font-size:14px;line-height:1.45;color:var(--vk-desc)}
+  .pp-ck{flex:none;width:20px;height:20px;border-radius:50%;background:var(--vk-brand);color:#000;display:grid;place-items:center;font-size:11px;font-weight:700}
+  .pp-mod{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;margin-bottom:6px;border-radius:12px;background:var(--vk-chip)}
+  .pp-mod b{flex:none;width:26px;height:26px;border-radius:8px;background:var(--vk-bg);display:grid;place-items:center;font-size:12px;font-weight:600;color:var(--vk-name);font-variant-numeric:tabular-nums}
+  .pp-mod div{display:flex;flex-direction:column;gap:1px;min-width:0;font-size:14px;line-height:1.4;color:var(--vk-name)}
+  .pp-mk{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--vk-meta)}
+  .pp .dt-cell{background:var(--vk-chip)}
+  .pp-rel{border-top:1px solid var(--vk-line);padding-top:12px}
+  .pp-card .note.picked{margin:0}
 </style>
 </head>
 <body>
@@ -1201,7 +1248,7 @@
       list.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
       var n = h("p", "note picked" + (ok ? " ok" : ""));
       n.innerHTML = ok
-        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">Copied!</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
+        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">" + (trial ? "Free trial ready!" : "Copied!") + "</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
         : "Copy is blocked here. Copy this, then paste it into the message box below and send: " +
           "<input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
       el.after(n);
@@ -1233,7 +1280,7 @@
     if (!fromPage) PG.stack = [];
     else if (PG.card) PG.stack.push(PG.card);
     if (!PG.open) PG.keepTop = list.scrollTop;
-    PG.open = true; PG.gen++; PG.data = null; PG.failed = false; PG.picked = null; PG.tab = 0;
+    PG.open = true; PG.gen++; PG.data = null; PG.failed = false; PG.picked = null; PG.tab = 0; PG.shot = 0;
     PG.card = card || { name: name, title: name };
     $("card").classList.add("detailing"); dt.hidden = false;
     renderPage();
@@ -1259,7 +1306,7 @@
   };
 
   function runCommand(k) { return "/voke " + String(k.title || k.name).toLowerCase(); }
-  function copyFrom(k, after, key) {
+  function copyFrom(k, after, key, trial) {
     dt.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
     dt.querySelectorAll(".skill.on").forEach(function (x) { x.classList.remove("on"); });
     if (PG.picked === key) { PG.picked = null; fitPages(); size(); return; }
@@ -1269,7 +1316,7 @@
       if (PG.picked !== key) return;
       var n = h("p", "note picked" + (ok ? " ok" : ""));
       n.innerHTML = ok
-        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">Copied!</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
+        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">" + (trial ? "Free trial ready!" : "Copied!") + "</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
         : "Copy is blocked here. Copy this, then paste it into the message box below and send: <input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
       after.after(n);
       if (after.classList.contains("skill")) after.classList.add("on");
@@ -1378,66 +1425,132 @@
   }
   function wideLayout() { return !paged && window.innerWidth >= 560; }
 
+  // V5 play page (Skool course page). Wide: media and tabs on the left, a sticky card on the right with the
+  // title, @creator · runs, description and the Run play CTA. Narrow: one column, in the order title, by line,
+  // cover, thumbnails, description, CTAs, tabs. Media comes from k.media ([{src, type, poster}]) when the play
+  // has it; until then the cover is the play's gradient and the thumbnails preview what the play produces.
+  function mediaEl(m, cls) {
+    var w = h("div", cls + " pp-real");
+    if (m.type === "video") { var v = document.createElement("video"); v.src = m.src; if (m.poster) v.poster = m.poster; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = /\bpp-cov\b/.test(cls); w.appendChild(v); }
+    else { var im = document.createElement("img"); im.src = m.src; im.alt = m.alt || ""; im.loading = "lazy"; w.appendChild(im); }
+    return w;
+  }
+  function tile(k, text, i) { // placeholder thumbnail: the play's colors, shifted per tile, with what it shows
+    var t = cover(k, "cov pp-th"), x = 0, s = String(k.name || ""); for (var j = 0; j < s.length; j++) x = (x * 31 + s.charCodeAt(j)) | 0;
+    var hue = (Math.abs(x) + 40 * (i + 1)) % 360;
+    t.setAttribute("style", "background:linear-gradient(155deg,hsl(" + hue + " 40% 36%),hsl(" + ((hue + 28) % 360) + " 46% 18%))");
+    t.firstChild.textContent = text; return t;
+  }
+  function mediaBlock(k, d) {
+    var box = h("div", "pp-media pl"), media = (k.media || []).filter(function (m) { return m && m.src; });
+    var main = media.length ? mediaEl(media[PG.shot || 0] || media[0], "cov pp-cov") : cover(k, "cov pp-cov");
+    box.appendChild(main);
+    var strip = h("div", "pp-thumbs");
+    if (media.length > 1) media.forEach(function (m, i) {
+      var t = mediaEl(m, "cov pp-th" + (i === (PG.shot || 0) ? " on" : "")); t.dataset.shot = i; t.setAttribute("role", "button"); t.tabIndex = 0; strip.appendChild(t);
+    });
+    else if (d) ((d.outputs && d.outputs.length ? d.outputs : d.steps) || []).slice(0, 6).forEach(function (x, i) { strip.appendChild(tile(k, x, i)); });
+    if (strip.children.length) box.appendChild(strip);
+    return box;
+  }
+  function estTime(d) {
+    if (d.minutes) return "~" + d.minutes + " min";
+    var n = (d.steps || []).length; return n ? "~" + Math.max(2, Math.round(n * 1.5)) + " min" : "~2 min";
+  }
+  function playTabs(k, d, data) {
+    var T = [];
+    var a = sec(), you = k.start ? (/\?\s*$/.test(k.start) ? k.start : k.start.replace(/^send me /i, "").replace(/\.$/, "").replace(/^./, function (c) { return c.toUpperCase(); })) : "";
+    if (d.outputs && d.outputs.length) d.outputs.forEach(function (x) { var r = h("div", "pp-li"); r.appendChild(h("span", "pp-ck", "✓")); r.appendChild(h("span", null, x)); a.appendChild(r); });
+    else a.appendChild(h("div", "dt-it", (k.description || k.blurb || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim() || "A finished result, in this chat."));
+    if (you) { heading(a, /\?\s*$/.test(k.start) ? "It starts by asking" : "You bring"); a.appendChild(h("div", "dt-it", you)); }
+    T.push({ label: "What you get", sec: a });
+    if ((d.steps && d.steps.length) || (d.memory && d.memory.length)) {
+      var b = sec();
+      (d.steps || []).forEach(function (x, i) {
+        var r = h("div", "pp-mod"); r.appendChild(h("b", null, String(i + 1)));
+        var t = h("div"); t.appendChild(h("span", "pp-mk", "Step " + (i + 1))); t.appendChild(h("span", null, x)); r.appendChild(t); b.appendChild(r);
+      });
+      if (d.memory && d.memory.length) { heading(b, "Remembers between runs"); pills(b, d.memory, true); b.appendChild(h("p", "dt-sub", "Saved on your side, never on Voke.")); }
+      T.push({ label: "The playbook", sec: b });
+    }
+    var c = sec(), tools = d.connections || [];
+    heading(c, "Tools needed");
+    if (tools.length) tools.forEach(function (x) { cell(c, x, "Connect once"); });
+    else cell(c, "Nothing to connect", "Runs in chat");
+    heading(c, "Cost & time");
+    cell(c, "Play", priceText(k) || "Free");
+    cell(c, "Tools per run", d.cost || "$0");
+    cell(c, "Est. run time", estTime(d));
+    cell(c, "Works in", d.any_app ? "Any AI app" : (d.verdict === "handoff" ? "Claude Code or Codex" : "Claude"));
+    if (d.repo || data.license) {
+      heading(c, "About");
+      if (d.repo) kv(c, "Source", d.repo, k.source);
+      if (data.license) kv(c, "License", data.license);
+    }
+    T.push({ label: "Tools & cost", sec: c });
+    return T;
+  }
   function renderPage() {
     var k = PG.card, d = PG.data ? PG.data.detail || {} : null, label = k.title || k.name, wide = wideLayout();
-    dt.innerHTML = "";
-    dt.classList.toggle("wide", wide);
-    var top = h("div", "dt-top");
-    var hero = h("div", "dt-hero pl"); hero.appendChild(cover(k, "cov dt-cov"));
-    var mid = h("div"); mid.appendChild(h("p", "dt-t", k.blurb || label));
-    var by = h("div", "by"), who = h("span");
-    var handle = k.creator ? k.creator.handle : "voke";
-    if (k.blurb) { who.appendChild(h("span", "pname", label)); who.appendChild(document.createTextNode(" · ")); }
-    var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle; who.appendChild(cb); by.appendChild(who);
-    by.appendChild(h("span", "ptag", priceText(k) || "Free"));
-    var st = h("button", "star" + (k.starred ? " starred" : "")); st.type = "button"; st.dataset.star = k.name;
-    st.innerHTML = svg(P.star) + "<span>" + fmtStars(k.stars) + "</span>"; by.appendChild(st);
-    mid.appendChild(by); hero.appendChild(mid);
-    var acts = h("div", "dt-acts");
+    var handle = k.creator ? k.creator.handle : "voke", price = priceText(k);
+    dt.innerHTML = ""; dt.classList.remove("wide"); dt.classList.add("pp"); dt.classList.toggle("pp-wide", wide);
+    // Card parts
+    var title = h("h2", "pp-t", k.blurb || label);
+    var by = h("div", "pp-by"), who = h("span", "pp-who");
+    var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle; who.appendChild(cb);
+    var np = Number(k.plays) || 0; who.appendChild(document.createTextNode(" · " + np.toLocaleString("en-US") + (np === 1 ? " run" : " runs")));
+    by.appendChild(who);
+    var acts = h("span", "pp-acts");
     var saved = isSaved(k.name), sb = h("button", "save" + (saved ? " saved" : "")); sb.type = "button"; sb.dataset.save = k.name;
     sb.innerHTML = svg(P.bookmark); sb.setAttribute("aria-label", (saved ? "Unsave " : "Save ") + label); acts.appendChild(sb);
+    var st = h("button", "star" + (k.starred ? " starred" : "")); st.type = "button"; st.dataset.star = k.name;
+    st.innerHTML = svg(P.star) + "<span>" + fmtStars(k.stars) + "</span>"; acts.appendChild(st);
+    by.appendChild(acts);
+    var descText = (k.description || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim();
+    if (k.blurb && descText === k.blurb) descText = "";
+    var desc = descText ? h("p", "pp-d", descText) : null;
+    var ctas = h("div", "pp-ctas");
     var run = h("button", "dt-run"); run.type = "button"; run.id = "dtRun";
-    run.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run play</span>';
-    if (wide) acts.appendChild(run);
-    hero.appendChild(acts);
-    top.appendChild(hero);
-    var desc = (k.description || k.blurb || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim();
-    if (desc) top.appendChild(h("p", "dt-d", desc));
-    if (d) {
-      var tags = [d.runs || "Runs in chat"];
-      if (PG.data.license) tags.push(PG.data.license);
-      pills(top, tags);
-    }
-    if (!wide) top.appendChild(run);
-    dt.appendChild(top);
+    run.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run play' + (price ? " · " + esc(price) : "") + "</span>";
+    ctas.appendChild(run);
+    if (price) { var tr = h("button", "pp-trial", "Use 1 free trial"); tr.type = "button"; tr.id = "dtTrial"; ctas.appendChild(tr); }
+    var media = mediaBlock(k, d);
+    // Tabs
+    var tabsBox = h("div", "pp-tabsbox");
     if (!d) {
-      if (PG.failed) dt.appendChild(h("p", "note", "Couldn’t load this play’s details. Run play still works."));
-      else [70, 55, 62].forEach(function (w) { var b = h("div", "dt-wait"); b.style.width = w + "%"; dt.appendChild(b); });
-      size(); return;
+      if (PG.failed) tabsBox.appendChild(h("p", "note", "Couldn’t load this play’s details. Run play still works."));
+      else [70, 55, 62].forEach(function (w) { var b = h("div", "dt-wait"); b.style.width = w + "%"; tabsBox.appendChild(b); });
+    } else {
+      var pages = playTabs(k, d, PG.data); if (PG.tab >= pages.length) PG.tab = 0;
+      var tabs = h("nav", "dt-tabs pp-tabs"), wrap = h("section", "dt-pages");
+      pages.forEach(function (p, i) {
+        var b = h("button", i === PG.tab ? "on" : null, p.label); b.type = "button"; b.dataset.tab = i; tabs.appendChild(b);
+        var pg = h("div", "dt-pg"); pg.appendChild(p.sec); wrap.appendChild(pg);
+      });
+      tabsBox.appendChild(tabs); tabsBox.appendChild(wrap);
+      wrap.addEventListener("scroll", function () {
+        var c = Math.round(wrap.scrollLeft / (wrap.clientWidth || 1));
+        if (c !== PG.tab) { PG.tab = c; tabs.querySelectorAll("button").forEach(function (b, i) { b.classList.toggle("on", i === c); }); fitPages(); size(); }
+      }, { passive: true });
+    }
+    var rel = null;
+    if (d && ((PG.data.pairs && PG.data.pairs.length) || (PG.data.similar && PG.data.similar.length))) {
+      rel = sec(); relRows(rel, "Similar plays", (PG.data.pairs || []).concat(PG.data.similar || []).slice(0, paged ? 2 : 3)); rel.classList.add("pp-rel");
     }
     if (wide) {
-      var B = blocks(k, d, PG.data), main = h("div", "dt-main"), aside = h("aside", "dt-aside");
-      [B.outputs, B.steps, B.pairs, B.similar].forEach(function (b) { if (b) main.appendChild(b); });
-      [B.needs, B.memory, B.works, B.about].forEach(function (b) { if (b) aside.appendChild(b); });
-      dt.appendChild(main); dt.appendChild(aside); size(); return;
+      var left = h("div", "pp-left"), card = h("aside", "pp-card");
+      left.appendChild(media); left.appendChild(tabsBox); if (rel) left.appendChild(rel);
+      [title, by, desc, ctas].forEach(function (x) { if (x) card.appendChild(x); });
+      dt.appendChild(left); dt.appendChild(card);
+    } else {
+      [title, by, media, desc, ctas, tabsBox, rel].forEach(function (x) { if (x) dt.appendChild(x); });
     }
-    var pages = pageSections(k, d, PG.data);
-    if (!paged) { pages.forEach(function (p) { dt.appendChild(p.sec); }); size(); return; }
-    var tabs = h("nav", "dt-tabs"), wrap = h("section", "dt-pages");
-    pages.forEach(function (p, i) {
-      var b = h("button", i === PG.tab ? "on" : null, p.label); b.type = "button"; b.dataset.tab = i; tabs.appendChild(b);
-      var pg = h("div", "dt-pg"); pg.appendChild(p.sec); wrap.appendChild(pg);
+    requestAnimationFrame(function () {
+      fitPages(); var w = dt.querySelector(".dt-pages"); if (w && PG.tab) w.scrollLeft = PG.tab * w.clientWidth;
+      var on = dt.querySelector(".pp-tabs .on"); if (on && PG.tab) { var n = on.parentNode; n.scrollLeft = Math.max(0, on.offsetLeft - n.offsetLeft - 16); }
+      size();
     });
-    dt.appendChild(tabs); dt.appendChild(wrap);
-    var bar = h("div", "bar"), thumb = h("div", "thumb");
-    thumb.style.width = (100 / pages.length) + "%"; bar.appendChild(thumb); dt.appendChild(bar);
-    wrap.addEventListener("scroll", function () {
-      var w = wrap.clientWidth || 1, x = wrap.scrollLeft / w, c = Math.round(x);
-      thumb.style.transform = "translateX(" + (x * bar.clientWidth / pages.length) + "px)";
-      if (c !== PG.tab) { PG.tab = c; tabs.querySelectorAll("button").forEach(function (b, i) { b.classList.toggle("on", i === c); }); }
-    }, { passive: true });
-    bar.onclick = function (e) { var r = bar.getBoundingClientRect(); goTab(Math.floor((e.clientX - r.left) / r.width * pages.length)); };
-    requestAnimationFrame(function () { fitPages(); if (PG.tab) wrap.scrollLeft = PG.tab * wrap.clientWidth; size(); });
+    size();
   }
   function goTab(i) {
     var wrap = dt.querySelector(".dt-pages"); if (!wrap) return;
@@ -1453,6 +1566,7 @@
   function fitPages() {
     var wrap = dt.querySelector(".dt-pages"); if (!wrap) return;
     wrap.style.height = "auto";
+    if (dt.classList.contains("pp")) { var cur = wrap.children[PG.tab] || wrap.children[0]; wrap.style.height = cur.scrollHeight + "px"; return; }
     var hmax = 0; Array.prototype.forEach.call(wrap.children, function (p) { hmax = Math.max(hmax, p.scrollHeight); });
     wrap.style.height = hmax + "px";
   }
@@ -1469,7 +1583,10 @@
     if (cr) { closePage(); q.value = ""; S.view = ""; setFilter("creator", { key: cr.dataset.creator, label: cr.dataset.creator }); return; }
     var rr = t.closest("[data-run]");
     if (rr && rr.closest(".skill")) { var kx = cardByName(rr.dataset.run); if (kx) copyFrom(kx, rr.closest(".skill"), "rel:" + kx.name); return; }
-    if (t.closest("#dtRun")) { copyFrom(PG.card, dt.classList.contains("wide") ? dt.querySelector(".dt-top") : $("dtRun"), "run"); return; }
+    if (t.closest("#dtRun")) { copyFrom(PG.card, dt.querySelector(".pp-ctas"), "run"); return; }
+    if (t.closest("#dtTrial")) { copyFrom(PG.card, dt.querySelector(".pp-ctas"), "trial", true); return; }
+    var sh = t.closest("[data-shot]");
+    if (sh) { PG.shot = Number(sh.dataset.shot); renderPage(); return; }
     var tb = t.closest("[data-tab]");
     if (tb) { goTab(Number(tb.dataset.tab)); return; }
     var r = t.closest(".skill");
