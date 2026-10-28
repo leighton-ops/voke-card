@@ -424,6 +424,10 @@
   .skill.on .runb{background:var(--vk-hov)}
   @media (hover:hover){.skill.on .runb:hover,.skill .runb:hover,.runb:hover,.dt-run:hover{background:var(--vk-brand)!important;color:#000!important;box-shadow:none!important}}
   .skill.pl:has(+ .picked) .prun{background:var(--vk-inv);color:var(--vk-inv-tx);box-shadow:none}
+
+  /* + button hover: a brighter green and a slight lift, never the grey hover of the other buttons. */
+  .head .hb.add{transition:transform .12s,background-color .12s}
+  @media (hover:hover){.head .hb.add:hover{background:#3BE477!important;color:#000;filter:none;transform:scale(1.06)}}
 </style>
 </head>
 <body>
