@@ -360,8 +360,9 @@
   .pl .cov{width:84px;height:56px;border-radius:7px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:5px 6px;box-sizing:border-box}
   .pl .cov::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.35))}
   .pl .cov span{position:relative;z-index:1;color:#fff;font-size:10.5px;font-weight:600;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.35)}
-  .pl .pb{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .pl .pb{min-width:0;display:flex;flex-direction:column;gap:2px}
   .pl .pt{font-size:15px;font-weight:500;line-height:1.25;color:var(--vk-name);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pl .pd{font-size:13px;line-height:1.35;color:var(--vk-desc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pl .pm{font-size:13px;color:var(--vk-meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:0}
   .pl .pm .star{display:inline-flex!important;margin-left:4px}
   .pl .pm .creator{margin-right:4px}
@@ -373,11 +374,11 @@
   @media (max-width:520px){
     .skill.pl{grid-template-columns:64px minmax(0,1fr) auto auto!important;column-gap:10px!important;padding:8px 6px!important}
     .pl .cov{width:64px;height:43px;padding:4px 5px}.pl .cov span{font-size:9px}
-    .pl .pm{font-size:12px}.pl .pp{font-size:13px}
+    .pl .pm{font-size:12px}.pl .pp{font-size:13px}.pl .pd{display:none}
     .prun{width:34px!important;height:34px;padding:0!important;border-radius:50%!important;justify-content:center;background:var(--vk-inv)!important;color:var(--vk-inv-tx)!important;box-shadow:none!important}.prun span{display:none}.prun svg{margin-left:2px}
   }
   .vk-pages .skill.pl,.dt-rel .skill.pl{grid-template-columns:64px minmax(0,1fr) auto auto!important;column-gap:10px!important}
-  .vk-pages .pl .cov,.dt-rel .pl .cov{width:64px;height:43px}.vk-pages .prun,.dt-rel .prun{width:34px!important;height:34px!important;padding:0!important;border-radius:50%!important;justify-content:center;background:var(--vk-inv)!important;color:var(--vk-inv-tx)!important;box-shadow:none!important}.vk-pages .prun span,.dt-rel .prun span{display:none}
+  .vk-pages .pl .cov,.dt-rel .pl .cov{width:64px;height:43px}.vk-pages .pl .pd,.dt-rel .pl .pd{display:none}.vk-pages .prun,.dt-rel .prun{width:34px!important;height:34px!important;padding:0!important;border-radius:50%!important;justify-content:center;background:var(--vk-inv)!important;color:var(--vk-inv-tx)!important;box-shadow:none!important}.vk-pages .prun span,.dt-rel .prun span{display:none}
 </style>
 </head>
 <body>
@@ -1083,6 +1084,9 @@
     r.appendChild(cover(k));
     var body = h("div", "pb");
     body.appendChild(h("div", "pt", k.blurb || label));
+    // Desktop only: one line of what the play does, between the outcome and the creator.
+    var pdesc = (k.description || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim();
+    if (pdesc && pdesc !== k.blurb) body.appendChild(h("div", "pd", pdesc));
     var meta = h("div", "pm"), handle = k.creator ? k.creator.handle : "voke";
     var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle;
     cb.setAttribute("aria-label", "Show plays by @" + handle);
