@@ -386,6 +386,29 @@
   .cats button{border-color:var(--vk-ring)}
   .head .field{border-radius:999px;padding:0 16px}
   .runb,.dt-run{border-radius:999px}
+
+  /* V5 dark palette (light mode unchanged). */
+  :root{
+    --vk-bg:light-dark(#ffffff,#121212);
+    --vk-back:light-dark(#f0f0ef,#1F1F1F);
+    --vk-pick:light-dark(#f0f0ef,#1F1F1F);
+    --vk-hov:light-dark(#f0f0ef,#2A2A2A);
+    --vk-hover:light-dark(rgba(33,33,33,.05),#2A2A2A);
+    --vk-tx:light-dark(#212121,#FFFFFF);
+    --vk-name:light-dark(#212121,#FFFFFF);
+    --vk-inv:light-dark(#212121,#FFFFFF);
+    --vk-inv-tx:light-dark(#ffffff,#121212);
+    --vk-tx2:light-dark(#2d3748,#B3B3B3);
+    --vk-tx3:light-dark(#4a5568,#B3B3B3);
+    --vk-desc:light-dark(#2d3748,#B3B3B3);
+    --vk-meta:light-dark(#4a5568,#B3B3B3);
+    --vk-icon:light-dark(#4a5568,#B3B3B3);
+  }
+  .dots[aria-expanded=true],.skill.on,.dt-rel .skill.on{background:var(--vk-hov)}
+  @media (hover:hover){.dots:hover,.hb:hover,.dt-rel .skill:hover,.save:hover,.skill .save:hover{background:var(--vk-hov)}}
+  /* Rounder frame, in step with the circles: outer 30px, inner 22px (outer minus the 8px gap). */
+  .back{border-radius:30px;padding:8px}
+  .shell{border-radius:22px}
 </style>
 </head>
 <body>
