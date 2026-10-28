@@ -1086,7 +1086,8 @@
     var meta = h("div", "pm"), handle = k.creator ? k.creator.handle : "voke";
     var cb = h("button", "creator", "@" + handle); cb.type = "button"; cb.dataset.creator = handle;
     cb.setAttribute("aria-label", "Show plays by @" + handle);
-    meta.appendChild(cb); meta.appendChild(document.createTextNode(" · ")); meta.appendChild(starButton(k, label, "s-sm"));
+    var np = Number(k.plays) || 0;
+    meta.appendChild(cb); meta.appendChild(document.createTextNode(" · " + np.toLocaleString("en-US") + (np === 1 ? " play" : " plays")));
     body.appendChild(meta);
     r.appendChild(body);
     r.appendChild(h("span", "pp", priceText(k) || "Free"));
