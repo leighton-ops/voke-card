@@ -1418,7 +1418,7 @@
     cell(B.needs, "Cost", d.cost || "$0");
     if (d.steps && d.steps.length) {
       B.steps = sec("How it runs");
-      d.steps.forEach(function (x, i) { var r = h("div", "dt-st"); r.appendChild(h("b", null, String(i + 1))); r.appendChild(h("span", null, x)); B.steps.appendChild(r); });
+      d.steps.forEach(function (x, i) { var r = h("div", "dt-st"); r.appendChild(h("b", null, String(i + 1))); r.appendChild(h("span", null, x && x.title ? x.title : x)); B.steps.appendChild(r); });
     }
     if (d.memory && d.memory.length) {
       B.memory = sec("Remembers between sessions"); pills(B.memory, d.memory, true);
@@ -1478,7 +1478,7 @@
     if (media.length > 1) media.forEach(function (m, i) {
       var t = mediaEl(m, "cov pp-th" + (i === (PG.shot || 0) ? " on" : "")); t.dataset.shot = i; t.setAttribute("role", "button"); t.tabIndex = 0; strip.appendChild(t);
     });
-    else if (d) ((d.outputs && d.outputs.length ? d.outputs : d.steps) || []).slice(0, 6).forEach(function (x, i) { strip.appendChild(tile(k, x, i)); });
+    else if (d) ((d.outputs && d.outputs.length ? d.outputs : d.steps) || []).slice(0, 6).forEach(function (x, i) { strip.appendChild(tile(k, x && x.title ? x.title : String(x), i)); });
     if (strip.children.length) box.appendChild(strip);
     return box;
   }
@@ -1524,7 +1524,7 @@
       mid.appendChild(cr);
       r.appendChild(mid);
       var mins = o.minutes != null ? Number(o.minutes) : (o.status === "built" ? 1 : 2);
-      var rt = h("div", "pb-rt"); rt.appendChild(h("b", null, mins < 1 ? "Instant" : "~" + Math.round(mins) + " min")); rt.appendChild(h("span", null, "Runtime"));
+      var rt = h("div", "pb-rt"); rt.appendChild(h("b", null, mins < 2 ? "Instant" : "~" + Math.round(mins) + " min")); rt.appendChild(h("span", null, "Runtime"));
       r.appendChild(rt); list.appendChild(r);
     });
     box.appendChild(list);
