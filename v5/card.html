@@ -504,6 +504,9 @@
   .pb-foot{display:flex;justify-content:space-between;gap:12px;padding:12px 6px 0;font-size:13px;color:var(--vk-meta)}
   .pb-foot b{color:var(--vk-name)}
   .pb-note{margin:8px 6px 0;font-size:12.5px;line-height:1.45;color:var(--vk-meta)}.pb-note b{color:var(--vk-name);font-weight:600}
+  .pb-cr{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin-top:5px}
+  .pb-cr .pb-chip{margin-top:0}
+  .pb-price{font-size:12px;font-weight:400;color:var(--vk-name)}
 </style>
 </head>
 <body>
@@ -1511,10 +1514,15 @@
       t.appendChild(document.createTextNode((i + 1) + ". " + o.title)); t.appendChild(h("span", "pb-tool", " · " + o.tool));
       mid.appendChild(t);
       if (o.desc) mid.appendChild(h("p", "pb-d", o.desc));
-      mid.appendChild(h("span", "pb-chip" + (o.status === "built" ? " ok" : ""),
+      var cr = h("div", "pb-cr");
+      cr.appendChild(h("span", "pb-chip" + (o.status === "built" ? " ok" : ""),
         o.status === "built" ? "✓ Built in" : o.status === "paused" ? "Paused for your approval" : "Voke connects · you approve"));
+      var price = o.price || (o.cost && !/^\$?0(\.0+)?$/.test(String(o.cost).trim()) ? o.cost : "");
+      if (o.status !== "built" && price) cr.appendChild(h("span", "pb-price", o.tool + " " + price));
+      mid.appendChild(cr);
       r.appendChild(mid);
-      var rt = h("div", "pb-rt"); rt.appendChild(h("b", null, o.cost || "$0")); rt.appendChild(h("span", null, (o.minutes || (o.status === "built" ? 1 : 2)) + " min"));
+      var mins = o.minutes != null ? Number(o.minutes) : (o.status === "built" ? 1 : 2);
+      var rt = h("div", "pb-rt"); rt.appendChild(h("b", null, mins < 1 ? "Instant" : "~" + Math.round(mins) + " min")); rt.appendChild(h("span", null, "Runtime"));
       r.appendChild(rt); list.appendChild(r);
     });
     box.appendChild(list);
