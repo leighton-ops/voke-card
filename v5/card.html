@@ -1498,7 +1498,9 @@
   }
   function playbook(k, d) {
     var box = sec(), tools = d.connections || [], apps = {};
-    var steps = d.steps.map(function (x) {
+    var raw = d.steps && d.steps.length ? d.steps
+      : [{ title: "Talk it through in chat", desc: k.start || "One conversation: tell it what you need and it works with you, step by step.", status: "built", minutes: 1 }];
+    var steps = raw.map(function (x) {
       var o = typeof x === "string" ? { title: x } : Object.assign({}, x);
       if (!o.desc) { var m = String(o.title).match(/^(.{3,60}?)\s*(?::| - | \u2014 )\s*(.+)$/); if (m) { o.title = m[1]; o.desc = m[2]; } }
       if (!o.tool) { var hit = tools.filter(function (t) { return new RegExp("\\b" + t.split(/\s+/)[0].replace(/[^\w]/g, ""), "i").test(o.title + " " + (o.desc || "")); })[0]; o.tool = hit || "Voke"; }
@@ -1540,7 +1542,7 @@
     a.appendChild(h("p", "pp-d", (k.description || k.blurb || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim() || "A finished result, in this chat."));
     if (you) { heading(a, /\?\s*$/.test(k.start) ? "It starts by asking" : "You bring"); a.appendChild(h("div", "dt-it", you)); }
     T.push({ label: "What you get", sec: a });
-    if (d.steps && d.steps.length) T.push({ label: "The playbook", sec: playbook(k, d) });
+    T.push({ label: "The playbook", sec: playbook(k, d) });
     var c = sec(), tools = d.connections || [];
     heading(c, "Tools needed");
     if (tools.length) tools.forEach(function (x) { cell(c, x, "Connect once"); });
