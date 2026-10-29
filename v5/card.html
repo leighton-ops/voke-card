@@ -1530,7 +1530,7 @@
     box.appendChild(list);
     var n = Object.keys(apps).length, foot = h("div", "pb-foot");
     foot.appendChild(h("span", null, steps.length + (steps.length === 1 ? " step" : " steps") + (n ? " · " + n + (n === 1 ? " app" : " apps") + " to approve" : " · all built in")));
-    var run = h("span"); run.appendChild(document.createTextNode("Run ")); run.appendChild(h("b", null, d.cost || "$0")); run.appendChild(document.createTextNode(n ? " · tools paid to the apps" : " · nothing to pay"));
+    var run = h("span"); run.appendChild(document.createTextNode(n ? "Run " : "")); run.appendChild(h("b", null, d.cost || "$0")); run.appendChild(document.createTextNode(n ? " · tools paid to the apps" : " in tools"));
     foot.appendChild(run); box.appendChild(foot);
     if (n) { var note = h("p", "pb-note"); note.innerHTML = "Nothing connected yet? That's fine. <b>Voke connects each app for you</b>: you tap Approve once per app."; box.appendChild(note); }
     if (d.memory && d.memory.length) { heading(box, "Remembers between runs"); pills(box, d.memory, true); box.appendChild(h("p", "dt-sub", "Saved on your side, never on Voke.")); }
