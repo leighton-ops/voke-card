@@ -479,6 +479,31 @@
   .pp-rel{border-top:1px solid var(--vk-line);padding-top:12px}
   .pp-card .note.picked{margin:0}
   [data-theme=dark] .dt-run{background:var(--vk-brand);color:#000}
+  /* play page v2: brand CTA on both themes, underline tabs, playbook steps */
+  .pp .dt-run,[data-theme=dark] .pp .dt-run{background:var(--vk-brand);color:#000}
+  .pp-tabsbox{gap:12px}
+  .dt-tabs.pp-tabs{gap:22px;border-bottom:1px solid var(--vk-line);padding:0 2px;scroll-snap-type:x proximity}
+  .pp-tabs button{height:38px;padding:0;border-radius:0;background:transparent!important;color:var(--vk-meta);font-size:14px;font-weight:500;position:relative;scroll-snap-align:start}
+  .pp-tabs button.on{background:transparent!important;color:var(--vk-name);font-weight:600}
+  .pp-tabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--vk-name)}
+  @media (hover:hover){.pp-tabs button:not(.on):hover{color:var(--vk-name)}}
+  .pp .dt-pg .pp-d{-webkit-line-clamp:unset;display:block;margin:0 2px}
+  .pb-list{display:flex;flex-direction:column;gap:4px;padding:6px;border-radius:18px;background:var(--vk-chip)}
+  .pb-step{display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:12px;padding:12px;border-radius:14px}
+  .pb-step.on{background:light-dark(#fff,#3a3a3a)}
+  .pp-app{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:700;letter-spacing:.02em}
+  .pp-app.vk{background:var(--vk-brand);color:#000}
+  .pb-mid{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+  .pb-t{margin:0;font-size:15px;font-weight:600;line-height:1.3;color:var(--vk-name)}
+  .pb-tool{font-weight:400;color:var(--vk-meta)}
+  .pb-d{margin:0;font-size:13.5px;line-height:1.4;color:var(--vk-desc)}
+  .pb-chip{margin-top:5px;height:24px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;font-size:12px;color:var(--vk-name);background:var(--vk-btn-hov)}
+  .pb-chip.ok{color:light-dark(#4d6b00,var(--vk-brand))}
+  .pb-rt{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:13px;color:var(--vk-meta);white-space:nowrap}
+  .pb-rt b{font-size:15px;color:var(--vk-name);font-weight:600}
+  .pb-foot{display:flex;justify-content:space-between;gap:12px;padding:12px 6px 0;font-size:13px;color:var(--vk-meta)}
+  .pb-foot b{color:var(--vk-name)}
+  .pb-note{margin:8px 6px 0;font-size:12.5px;line-height:1.45;color:var(--vk-meta)}.pb-note b{color:var(--vk-name);font-weight:600}
 </style>
 </head>
 <body>
@@ -1458,22 +1483,56 @@
     if (d.minutes) return "~" + d.minutes + " min";
     var n = (d.steps || []).length; return n ? "~" + Math.max(2, Math.round(n * 1.5)) + " min" : "~2 min";
   }
+  // The playbook: one card per step with the app it runs in, what it does, its cost and time, and whether it's
+  // built in or needs the user's approval. Steps may be strings or {title, tool, desc, cost, minutes, status}.
+  function appBadge(tool) {
+    var t = String(tool || "Voke"), voke = /^voke$/i.test(t);
+    var ini = voke ? "VK" : t.replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/).filter(Boolean).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase() || t.slice(0, 2).toUpperCase();
+    if (ini.length < 2) ini = t.slice(0, 2).replace(/^./, function (c) { return c.toUpperCase(); });
+    var b = h("span", "pp-app" + (voke ? " vk" : ""), ini);
+    if (!voke) { var x = 0; for (var j = 0; j < t.length; j++) x = (x * 31 + t.charCodeAt(j)) | 0; b.style.background = "hsl(" + (Math.abs(x) % 360) + " 62% 46%)"; }
+    return b;
+  }
+  function playbook(k, d) {
+    var box = sec(), tools = d.connections || [], apps = {};
+    var steps = d.steps.map(function (x) {
+      var o = typeof x === "string" ? { title: x } : Object.assign({}, x);
+      if (!o.desc) { var m = String(o.title).match(/^(.{3,60}?)\s*(?::| - | \u2014 )\s*(.+)$/); if (m) { o.title = m[1]; o.desc = m[2]; } }
+      if (!o.tool) { var hit = tools.filter(function (t) { return new RegExp("\\b" + t.split(/\s+/)[0].replace(/[^\w]/g, ""), "i").test(o.title + " " + (o.desc || "")); })[0]; o.tool = hit || "Voke"; }
+      if (!o.status) o.status = /^voke$/i.test(o.tool) ? "built" : "approve";
+      if (o.status === "approve") apps[o.tool] = 1;
+      return o;
+    });
+    var list = h("div", "pb-list");
+    steps.forEach(function (o, i) {
+      var r = h("div", "pb-step" + (i === 0 ? " on" : ""));
+      r.appendChild(appBadge(o.tool));
+      var mid = h("div", "pb-mid"), t = h("p", "pb-t");
+      t.appendChild(document.createTextNode((i + 1) + ". " + o.title)); t.appendChild(h("span", "pb-tool", " · " + o.tool));
+      mid.appendChild(t);
+      if (o.desc) mid.appendChild(h("p", "pb-d", o.desc));
+      mid.appendChild(h("span", "pb-chip" + (o.status === "built" ? " ok" : ""),
+        o.status === "built" ? "✓ Built in" : o.status === "paused" ? "Paused for your approval" : "Voke connects · you approve"));
+      r.appendChild(mid);
+      var rt = h("div", "pb-rt"); rt.appendChild(h("b", null, o.cost || "$0")); rt.appendChild(h("span", null, (o.minutes || (o.status === "built" ? 1 : 2)) + " min"));
+      r.appendChild(rt); list.appendChild(r);
+    });
+    box.appendChild(list);
+    var n = Object.keys(apps).length, foot = h("div", "pb-foot");
+    foot.appendChild(h("span", null, steps.length + (steps.length === 1 ? " step" : " steps") + (n ? " · " + n + (n === 1 ? " app" : " apps") + " to approve" : " · all built in")));
+    var run = h("span"); run.appendChild(document.createTextNode("Run ")); run.appendChild(h("b", null, d.cost || "$0")); run.appendChild(document.createTextNode(n ? " · tools paid to the apps" : " · nothing to pay"));
+    foot.appendChild(run); box.appendChild(foot);
+    if (n) { var note = h("p", "pb-note"); note.innerHTML = "Nothing connected yet? That's fine. <b>Voke connects each app for you</b>: you tap Approve once per app."; box.appendChild(note); }
+    if (d.memory && d.memory.length) { heading(box, "Remembers between runs"); pills(box, d.memory, true); box.appendChild(h("p", "dt-sub", "Saved on your side, never on Voke.")); }
+    return box;
+  }
   function playTabs(k, d, data) {
     var T = [];
     var a = sec(), you = k.start ? (/\?\s*$/.test(k.start) ? k.start : k.start.replace(/^send me /i, "").replace(/\.$/, "").replace(/^./, function (c) { return c.toUpperCase(); })) : "";
-    if (d.outputs && d.outputs.length) d.outputs.forEach(function (x) { var r = h("div", "pp-li"); r.appendChild(h("span", "pp-ck", "✓")); r.appendChild(h("span", null, x)); a.appendChild(r); });
-    else a.appendChild(h("div", "dt-it", (k.description || k.blurb || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim() || "A finished result, in this chat."));
+    a.appendChild(h("p", "pp-d", (k.description || k.blurb || "").replace(/\s*(Triggers?|Trigger with|Use when|Use this|Use for)\b[\s\S]*$/, "").trim() || "A finished result, in this chat."));
     if (you) { heading(a, /\?\s*$/.test(k.start) ? "It starts by asking" : "You bring"); a.appendChild(h("div", "dt-it", you)); }
     T.push({ label: "What you get", sec: a });
-    if ((d.steps && d.steps.length) || (d.memory && d.memory.length)) {
-      var b = sec();
-      (d.steps || []).forEach(function (x, i) {
-        var r = h("div", "pp-mod"); r.appendChild(h("b", null, String(i + 1)));
-        var t = h("div"); t.appendChild(h("span", "pp-mk", "Step " + (i + 1))); t.appendChild(h("span", null, x)); r.appendChild(t); b.appendChild(r);
-      });
-      if (d.memory && d.memory.length) { heading(b, "Remembers between runs"); pills(b, d.memory, true); b.appendChild(h("p", "dt-sub", "Saved on your side, never on Voke.")); }
-      T.push({ label: "The playbook", sec: b });
-    }
+    if (d.steps && d.steps.length) T.push({ label: "The playbook", sec: playbook(k, d) });
     var c = sec(), tools = d.connections || [];
     heading(c, "Tools needed");
     if (tools.length) tools.forEach(function (x) { cell(c, x, "Connect once"); });
@@ -1541,10 +1600,10 @@
     if (wide) {
       var left = h("div", "pp-left"), card = h("aside", "pp-card");
       left.appendChild(media); left.appendChild(tabsBox); if (rel) left.appendChild(rel);
-      [title, by, desc, ctas].forEach(function (x) { if (x) card.appendChild(x); });
+      [title, by, ctas].forEach(function (x) { if (x) card.appendChild(x); });
       dt.appendChild(left); dt.appendChild(card);
     } else {
-      [title, by, media, desc, ctas, tabsBox, rel].forEach(function (x) { if (x) dt.appendChild(x); });
+      [title, by, media, ctas, tabsBox, rel].forEach(function (x) { if (x) dt.appendChild(x); });
     }
     requestAnimationFrame(function () {
       fitPages(); var w = dt.querySelector(".dt-pages"); if (w && PG.tab) w.scrollLeft = PG.tab * w.clientWidth;
