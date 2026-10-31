@@ -519,6 +519,7 @@
   /* Light mode Run play states (dark keeps the green): page CTA black, hover white; row CTA outline, hover white, clicked black */
   @media (hover:hover){
     html[data-theme=light] body .pp .dt-run:hover{background:#fff!important;color:#191919!important;box-shadow:none!important}
+    html[data-theme=dark] body .pp .dt-run:hover{background:#fff!important;color:#000!important;box-shadow:none!important}
     html[data-theme=light] body .skill .runb:hover{background:#fff!important;color:#191919!important;box-shadow:inset 0 0 0 1px var(--vk-ring)!important}
   }
   html[data-theme=light] body .skill:has(+ .picked) .runb{background:#191919!important;color:#fff!important;box-shadow:none!important}
@@ -1789,7 +1790,18 @@
 
   // ------------------------------------------------------------ sizing
   var lastH = -1;
+  // The list shows whole rows only: its height ends right under the 5th row, so no half row and no white
+  // strip sit at the bottom of the card. More rows are still a scroll away.
+  function fitList() {
+    if (paged || PG.open || list.offsetParent === null || list.closest(".static")) return;
+    var rows = list.querySelectorAll(".skill");
+    if (rows.length <= 5) { if (list.style.height) list.style.height = ""; return; }
+    var top = list.getBoundingClientRect().top - list.scrollTop, r = rows[4].getBoundingClientRect();
+    var want = Math.ceil(r.bottom - top) + "px";
+    if (list.style.height !== want) list.style.height = want;
+  }
   function size() {
+    fitList();
     var hgt = document.body.classList.contains("hidden") ? 0 : Math.ceil(document.documentElement.getBoundingClientRect().height);
     if (ready && hgt !== lastH) {
       lastH = hgt;
