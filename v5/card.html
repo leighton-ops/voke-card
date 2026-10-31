@@ -516,6 +516,12 @@
     --vk-tx:light-dark(#191919,#FFFFFF);--vk-name:light-dark(#191919,#FFFFFF);--vk-tx2:light-dark(#191919,#B3B3B3);
     --vk-desc:light-dark(#666666,#B3B3B3);--vk-meta:light-dark(#666666,#B3B3B3);--vk-tx3:light-dark(#666666,#B3B3B3);--vk-icon:light-dark(#666666,#B3B3B3);
   }
+  /* Light mode Run play states (dark keeps the green): page CTA black, hover white; row CTA outline, hover white, clicked black */
+  @media (hover:hover){
+    html[data-theme=light] body .pp .dt-run:hover{background:#fff!important;color:#191919!important;box-shadow:inset 0 0 0 1px #191919!important}
+    html[data-theme=light] body .skill .runb:hover{background:#fff!important;color:#191919!important;box-shadow:inset 0 0 0 1px var(--vk-ring)!important}
+  }
+  html[data-theme=light] body .skill:has(+ .picked) .runb{background:#191919!important;color:#fff!important;box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -1286,7 +1292,7 @@
       list.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
       var n = h("p", "note picked" + (ok ? " ok" : ""));
       n.innerHTML = ok
-        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">" + (trial ? "Free trial ready!" : "Copied!") + "</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
+        ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">" + "Copied!" + "</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
         : "Copy is blocked here. Copy this, then paste it into the message box below and send: " +
           "<input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
       el.after(n);
