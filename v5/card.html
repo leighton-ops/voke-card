@@ -480,7 +480,8 @@
   .pp-card .note.picked{margin:0}
   [data-theme=dark] .dt-run{background:var(--vk-brand);color:#000}
   /* play page v2: brand CTA on both themes, underline tabs, playbook steps */
-  .pp .dt-run,[data-theme=dark] .pp .dt-run{background:var(--vk-brand);color:#000}
+  .pp .dt-run{background:light-dark(#191919,var(--vk-brand));color:light-dark(#fff,#000)}
+  [data-theme=dark] .pp .dt-run{background:var(--vk-brand);color:#000}
   .pp-tabsbox{gap:12px}
   .dt-tabs.pp-tabs{gap:22px;border-bottom:1px solid var(--vk-line);padding:0 2px;scroll-snap-type:x proximity}
   .pp-tabs button{height:38px;padding:0;border-radius:0;background:transparent!important;color:var(--vk-meta);font-size:14px;font-weight:500;position:relative;scroll-snap-align:start}
