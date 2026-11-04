@@ -2116,7 +2116,7 @@
       web.addEventListener("input", function () { clearTimeout(PF.t); PF.t = setTimeout(function () { autoFill(false); }, 900); });
       web.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); clearTimeout(PF.t); autoFill(true); } });
       web.addEventListener("blur", function () { if (PF.rendering) return; clearTimeout(PF.t); autoFill(false); });
-      step("Website", [web, h("p", "pf-status" + (PF.busy ? " busy" : ""), PF.status || "")], "We read your site and fill in the steps below: name, description, logo, colors, font, ideal customer and competitors. Change anything. No website? Fill them in yourself.");
+      step("Website", [web, h("p", "pf-status" + (PF.busy ? " busy" : ""), PF.status || "")], "We read your site and fill in name, description, logo, colors and font. Change anything. No website? Fill them in yourself.");
       step("Name", [field("", inp("name", "Business name"), "name")]);
       step("Description", [field("", inp("description", "What the business does, in a sentence or two", true), "description")]);
       var logo = h("div", "pf-logo"), img = h("div", "pf-lp");
@@ -2141,8 +2141,8 @@
       if (d.colors.length < 6) { var ac = h("button", "pf-add", "+ Add color"); ac.type = "button"; ac.dataset.addcolor = "1"; cw.appendChild(ac); }
       step("Brand colors", [field("", cw, "colors")]);
       step("Brand font", [field("", inp("font", "e.g. Inter"), "font")]);
-      step("Ideal customer", [field("", inp("icp", "Who buys from you, what they need, why they choose you", true), "icp")]);
-      step("Top competitors", [field("", inp("competitors", "e.g. Competitor A, Competitor B", true), "competitors")]);
+      step("Ideal customer (optional)", [field("", inp("icp", "Who buys from you, what they need, why they choose you", true), "icp")]);
+      step("Top competitors (optional)", [field("", inp("competitors", "e.g. Competitor A, Competitor B", true), "competitors")]);
     } else {
       step("Name", [field("", inp("name", "Your name or a label, e.g. Personal"))]);
       step("About you", [field("", inp("description", "What you work on, so plays fit you", true))]);
@@ -2200,8 +2200,8 @@
       keys.forEach(function (k) { if (b[k] && (!d[k] || PF.auto[k])) { d[k] = b[k]; PF.auto[k] = 1; } if (b[k]) got.push(k); });
       if (b.colors && b.colors.length && (!d.colors.length || PF.auto.colors)) { d.colors = b.colors.slice(0, 6); PF.auto.colors = 1; }
       if (b.colors && b.colors.length) got.push("colors");
-      var miss = ["icp", "competitors"].filter(function (k) { return !b[k]; });
-      PF.status = "Filled " + got.length + " of 7 from your site. Check them" + (miss.length ? "; add your " + miss.map(function (k) { return k === "icp" ? "ideal customer" : "competitors"; }).join(" and ") + " (or tap Need help?)" : "") + ".";
+      var core = got.filter(function (k) { return k !== "icp" && k !== "competitors"; }).length;
+      PF.status = "Filled " + core + " of 5 from your site. Everything stays editable.";
       rr();
     }).catch(function () { if (PF.last === u) { PF.busy = false; PF.status = "Couldn't read the site. Fill in the steps yourself."; rr(); } });
   }
