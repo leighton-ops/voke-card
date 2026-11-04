@@ -667,6 +667,23 @@
   @media (max-width:520px){.cp-row{grid-template-columns:36px minmax(0,1fr) 58px 50px 16px;gap:4px;padding:5px}.cp-tool,.cp-tool .pp-app{width:36px;height:36px}.cp-in{font-size:13px;padding:5px}.cp-sm{font-size:12px}}
   @media (min-width:521px){.cp-foot{flex-direction:row}.cp-foot>*{flex:1}.cp-foot .cp-pub{height:40px}}
   .cp-in{overflow:hidden}
+  .cp-lbl{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:4px 2px -2px;font-size:13px;font-weight:600;color:var(--vk-name)}
+  .cp-lbl small{font-size:12px;font-weight:400;color:var(--vk-meta)}
+  .cp-seg{align-self:flex-start;margin-top:4px}
+  .cp-amt{display:flex;align-items:center;gap:4px;padding-left:12px;border-radius:12px;background:var(--vk-search);font-size:14px;color:var(--vk-meta)}
+  .cp-amt .pf-i{padding-left:2px}
+  .cp-inl{margin:0;display:inline;font-size:inherit}
+  .cp-row{grid-template-columns:44px minmax(0,1fr) 74px 74px 70px}
+  .cp-ctl{display:flex;gap:2px;justify-content:flex-end}
+  .cp-mini{width:22px;height:22px;border-radius:6px;font-size:11px;color:var(--vk-meta);display:grid;place-items:center}
+  .cp-mini:disabled{opacity:.3;cursor:default}
+  @media (hover:hover){.cp-mini:not(:disabled):hover{background:var(--vk-btn-hov);color:var(--vk-name)}}
+  .cp-foot{border-top:0;padding:14px 0 6px}
+  .cp-foot button:disabled{opacity:.4;cursor:not-allowed}
+  .cp-why{margin:0;text-align:center}
+  @media (min-width:521px){.cp-foot{flex-direction:row;flex-wrap:wrap}.cp-foot>button{flex:1}.cp-foot .cp-why{flex-basis:100%}}
+  @media (max-width:520px){.cp-row{grid-template-columns:34px minmax(0,1fr) 52px 46px 24px;gap:4px;padding:5px}.cp-tool,.cp-tool .pp-app{width:34px;height:34px}.cp-ctl{flex-direction:column;gap:0}.cp-mini{width:22px;height:18px}.cp-thead span:nth-child(5){display:none}}
+  @media (max-width:520px){.cp-thead{font-size:11px}.cp-thead span{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -1963,7 +1980,7 @@
     if (APPS.open) closeApps();
     if (PF.open) closeProfile();
     var keepH = Math.round(cats.getBoundingClientRect().height + 10 + list.getBoundingClientRect().height);
-    if (!CP.d) CP.d = { name: "", desc: "", price: "", vis: "public", src: "", steps: [] };
+    if (!CP.d) CP.d = { name: "", desc: "", paid: false, amount: "", billing: "one-time", vis: "public", src: "", steps: [] };
     CP.shellH = Math.round(document.querySelector(".shell").getBoundingClientRect().height);
     CP.open = true; CP.h = keepH > 100 ? keepH : 410; CP.page = CP.page || 0;
     $("card").classList.add("creating"); cpEl.hidden = false; $("add").setAttribute("aria-pressed", "true"); renderCreate();
@@ -1980,70 +1997,102 @@
   }
   function cpInput(key, ph, cls) {
     var e = h("input", "pf-i" + (cls ? " " + cls : "")); e.placeholder = ph; e.value = CP.d[key] || ""; e.dataset.ck = key;
-    e.addEventListener("input", function () { CP.d[key] = e.value; });
+    e.addEventListener("input", function () { CP.d[key] = e.value; CP.d.tested = CP.d.tested && key !== "src"; refreshFoot(); });
     return e;
   }
+  function cpReady() { var d = CP.d; return !!((d.name || "").trim() && (d.desc || "").trim() && ((d.src || "").trim() || d.file) && (!d.paid || Number(String(d.amount).replace(/[^0-9.]/g, "")) > 0)); }
+  function lbl(text, sub) { var w = h("div", "cp-lbl"); w.appendChild(h("span", null, text)); if (sub) w.appendChild(h("small", null, sub)); return w; }
   function renderCreate() {
-    var d = CP.d, kind = srcKind(d.src);
+    var d = CP.d, kind = srcKind(d.src), uploaded = !!(d.steps.length || (d.src || "").trim() && kind !== "github" || d.file);
     cpEl.innerHTML = "";
-    // 1. Listing
-    var s1 = h("div", "cp-sec"); s1.appendChild(h("p", "cp-h", "Listing information"));
-    s1.appendChild(cpInput("name", "Name (e.g. Skipbait)"));
-    s1.appendChild(cpInput("desc", "Description (e.g. Skip the click bait. Jump to the answer.)"));
-    var two = h("div", "cp-two"), pr = cpInput("price", "Free (or e.g. $9, $9/mo)"), vis = h("select", "pf-i cp-sel");
-    [["public", "Public"], ["private", "Private"]].forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (d.vis === o[0]) op.selected = true; vis.appendChild(op); });
-    vis.addEventListener("change", function () { d.vis = vis.value; });
-    two.appendChild(pr); two.appendChild(vis); s1.appendChild(two);
-    // 2. Upload
+    // 1. Playbook information
+    var s1 = h("div", "cp-sec"); s1.appendChild(h("p", "cp-h", "Playbook information"));
+    s1.appendChild(lbl("Name", "How it shows up in the Voke store")); s1.appendChild(cpInput("name", "e.g. Skipbait"));
+    s1.appendChild(lbl("Description", "What people get from it, in a sentence")); s1.appendChild(cpInput("desc", "e.g. Skip the clickbait. Jump straight to the answer."));
+    var seg = h("div", "pf-seg cp-seg");
+    [["free", "Free"], ["paid", "Paid"]].forEach(function (t) { var b = h("button", (d.paid ? "paid" : "free") === t[0] ? "on" : null, t[1]); b.type = "button"; b.dataset.cprice = t[0]; seg.appendChild(b); });
+    s1.appendChild(seg);
+    var two = h("div", "cp-two");
+    if (d.paid) {
+      var amt = h("label", "cp-amt"); amt.appendChild(h("span", null, "$")); var ai = cpInput("amount", "0.00"); ai.inputMode = "decimal"; amt.appendChild(ai); two.appendChild(amt);
+      two.appendChild(cpSelect("billing", [["one-time", "One-time fee"], ["use", "Per use"], ["month", "Per month"], ["year", "Per year"]]));
+    } else two.appendChild(cpSelect("vis", [["public", "Public"], ["private", "Private"]]));
+    s1.appendChild(two);
+    if (d.paid) s1.appendChild(h("p", "pf-sub2", "Paid playbooks are Public in the store."));
+    // 2. Upload playbook
     var s2 = h("div", "cp-sec"); s2.appendChild(h("p", "cp-h", "Upload playbook"));
-    var lw = h("div", "cp-link"), li = cpInput("src", "Insert YouTube, Loom or GitHub link"); li.id = "cpSrc"; li.inputMode = "url";
+    var lw = h("div", "cp-link"), li = cpInput("src", "Paste a GitHub skill or Loom link"); li.id = "cpSrc"; li.inputMode = "url";
     li.addEventListener("input", function () { clearTimeout(CP.t); CP.t = setTimeout(readSource, 900); });
     li.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); clearTimeout(CP.t); readSource(); } });
-    var up = h("label", "cp-file", "+ Upload file"), fi = document.createElement("input"); fi.type = "file"; fi.hidden = true; fi.accept = ".md,.txt,.markdown,text/*"; up.appendChild(fi);
+    var up = h("label", "cp-file", d.file ? d.file.name : "+ Upload file"), fi = document.createElement("input"); fi.type = "file"; fi.hidden = true; fi.accept = ".md,.txt,.markdown,text/*"; up.appendChild(fi);
     fi.addEventListener("change", function () { var f = fi.files && fi.files[0]; if (f) readFile(f); });
     lw.appendChild(li); lw.appendChild(up); s2.appendChild(lw);
-    var rec = h("button", "cp-rec", "+ Record with Loom"); rec.type = "button"; rec.id = "cpLoom"; s2.appendChild(rec);
-    s2.appendChild(h("p", "pf-sub2", "Talk through each step while you record, then paste the Loom link above. Don't have Loom? Its free plan covers 5-minute videos."));
-    var hm = h("button", "pf-help cp-helpme", "Help me create a playbook."); hm.type = "button"; hm.id = "cpHelp"; s2.appendChild(hm);
+    var rec = h("button", "cp-rec", "Record playbook with Loom"); rec.type = "button"; rec.id = "cpLoom"; s2.appendChild(rec);
+    var tip = h("p", "pf-sub2"); tip.innerHTML = 'Don’t have Loom? <button type="button" class="pf-help cp-inl" id="cpLoomGet">Install Loom for free.</button> Pro tip: talk through each step while you record, then paste the link above when you’re done.';
+    s2.appendChild(tip);
+    var hm = h("button", "pf-help cp-helpme", "Help me create a playbook"); hm.type = "button"; hm.id = "cpHelp"; s2.appendChild(hm);
     if (CP.status) s2.appendChild(h("p", "pf-status" + (CP.busy ? " busy" : ""), CP.status));
-    // 3. Approve
-    var s3 = h("div", "cp-sec"); s3.appendChild(h("p", "cp-h", "Approve playbook"));
-    var tb = h("div", "cp-table"), hd = h("div", "cp-row cp-thead");
-    ["Tool", "Steps", "~Runtime", "~Tool"].forEach(function (x) { hd.appendChild(h("span", null, x)); }); tb.appendChild(hd);
-    if (!d.steps.length) tb.appendChild(h("p", "cp-empty", kind ? "Steps appear here once the source is read." : "Add a source above and the steps fill in here. You can edit every step, tool, time and cost."));
-    d.steps.forEach(function (st, i) {
-      var r = h("div", "cp-row");
-      var tc = h("label", "cp-tool"); tc.appendChild(toolBadge(st.tool)); var sel = h("select");
-      ["Your AI", "Voke"].concat(APPS_LIST.map(function (a) { return a.name; })).forEach(function (n) { var o = document.createElement("option"); o.textContent = n; if (n === st.tool) o.selected = true; sel.appendChild(o); });
-      sel.setAttribute("aria-label", "Tool for step " + (i + 1)); sel.addEventListener("change", function () { st.tool = sel.value; renderCreate(); }); tc.appendChild(sel); r.appendChild(tc);
-      var tw = h("div", "cp-step"); tw.appendChild(h("b", null, (i + 1) + ".")); var ti = h("textarea", "cp-in"); ti.rows = 1; ti.value = st.title; ti.addEventListener("input", function () { st.title = ti.value; ti.style.height = "auto"; ti.style.height = (ti.scrollHeight + 2) + "px"; }); tw.appendChild(ti); r.appendChild(tw);
-      [["runtime", "Instant"], ["cost", "Free"]].forEach(function (k) { var e = h("input", "cp-in cp-sm"); e.value = st[k[0]] || ""; e.placeholder = k[1]; e.addEventListener("input", function () { st[k[0]] = e.value; }); r.appendChild(e); });
-      var x = h("button", "pf-x cp-x", "×"); x.type = "button"; x.dataset.rmstep = i; x.setAttribute("aria-label", "Remove step " + (i + 1)); r.appendChild(x);
-      tb.appendChild(r);
-    });
-    var add = h("button", "pf-add", "+ Add step"); add.type = "button"; add.id = "cpAdd";
-    s3.appendChild(tb); s3.appendChild(add);
-    var secs = [s1, s2, s3];
+    var secs = [s1, s2];
+    // 3. Approve playbook: only once something is uploaded
+    if (uploaded) {
+      var s3 = h("div", "cp-sec"); s3.appendChild(h("p", "cp-h", "Approve playbook"));
+      if (d.bundle) s3.appendChild(h("p", "pf-sub2", d.steps.length + " skills from " + d.bundle + ". Each is saved on its own and linked together as this one playbook."));
+      else if (!d.steps.length) s3.appendChild(h("p", "pf-sub2", "Your AI drafts the steps from your " + (d.file ? "file" : "video") + " when you test it, or add them yourself."));
+      var tb = h("div", "cp-table"), hd = h("div", "cp-row cp-thead");
+      ["Tool", d.bundle ? "Skills" : "Steps", "~Runtime", "~Tool", ""].forEach(function (x) { hd.appendChild(h("span", null, x)); }); tb.appendChild(hd);
+      d.steps.forEach(function (st, i) {
+        var r = h("div", "cp-row");
+        var tc = h("label", "cp-tool"); tc.appendChild(toolBadge(st.tool)); var sel = h("select");
+        ["Your AI", "Voke"].concat(APPS_LIST.map(function (a) { return a.name; })).forEach(function (n) { var o = document.createElement("option"); o.textContent = n; if (n === st.tool) o.selected = true; sel.appendChild(o); });
+        sel.setAttribute("aria-label", "Tool for step " + (i + 1)); sel.addEventListener("change", function () { st.tool = sel.value; renderCreate(); }); tc.appendChild(sel); r.appendChild(tc);
+        var tw = h("div", "cp-step"); tw.appendChild(h("b", null, (i + 1) + ".")); var ti = h("textarea", "cp-in"); ti.rows = 1; ti.value = st.title; ti.placeholder = "Describe the step";
+        ti.addEventListener("input", function () { st.title = ti.value; ti.style.height = "auto"; ti.style.height = (ti.scrollHeight + 2) + "px"; }); tw.appendChild(ti); r.appendChild(tw);
+        [["runtime", "Instant"], ["cost", "Free"]].forEach(function (k) { var e = h("input", "cp-in cp-sm"); e.value = st[k[0]] || ""; e.placeholder = k[1]; e.addEventListener("input", function () { st[k[0]] = e.value; }); r.appendChild(e); });
+        var ctl = h("div", "cp-ctl");
+        [["▲", "up", i === 0], ["▼", "down", i === d.steps.length - 1], ["×", "rm", false]].forEach(function (c) {
+          var b = h("button", "cp-mini", c[0]); b.type = "button"; b.dataset.stepact = c[1]; b.dataset.i = i; b.disabled = c[2];
+          b.setAttribute("aria-label", (c[1] === "rm" ? "Remove" : "Move " + c[1]) + " step " + (i + 1)); ctl.appendChild(b);
+        });
+        r.appendChild(ctl); tb.appendChild(r);
+      });
+      var add = h("button", "pf-add", "+ Add step"); add.type = "button"; add.id = "cpAdd";
+      s3.appendChild(tb); s3.appendChild(add); secs.push(s3);
+    }
+    // Test, then Publish: at the end of the form, usable once the info is complete
+    var foot = h("div", "cp-foot"), ready = cpReady();
+    var ts = h("button", "pf-cta cp-test", d.tested ? "Test again" : "Test playbook"); ts.type = "button"; ts.id = "cpTest"; ts.disabled = !ready;
+    var pb = h("button", "dt-run cp-pub", "Publish"); pb.type = "button"; pb.id = "cpPub"; pb.disabled = !(ready && d.tested);
+    foot.appendChild(ts); foot.appendChild(pb);
+    foot.appendChild(h("p", "pf-sub2 cp-why", !ready ? "Add a name, a description" + (d.paid ? ", a price" : "") + " and upload a playbook to test it." : !d.tested ? "Test it once before publishing." : "Tested. Publish when it did what you wanted."));
+    secs[secs.length - 1].appendChild(foot);
     if (paged) {
-      var wrap = h("div", "cp-pages"); secs.forEach(function (x) { var pg = h("div", "cp-pg"); pg.appendChild(x); wrap.appendChild(pg); }); cpEl.appendChild(wrap);
-      var bar = h("div", "bar"), thumb = h("div", "thumb"); thumb.style.width = "33.333%"; bar.appendChild(thumb); cpEl.appendChild(bar);
-      wrap.addEventListener("scroll", function () { CP.page = Math.round(wrap.scrollLeft / (wrap.clientWidth || 1)); thumb.style.transform = "translateX(" + (wrap.scrollLeft / (wrap.clientWidth || 1) * bar.clientWidth / 3) + "px)"; }, { passive: true });
+      var n = secs.length, wrap = h("div", "cp-pages"); secs.forEach(function (x) { var pg = h("div", "cp-pg"); pg.appendChild(x); wrap.appendChild(pg); }); cpEl.appendChild(wrap);
+      var bar = h("div", "bar"), thumb = h("div", "thumb"); thumb.style.width = (100 / n) + "%"; bar.appendChild(thumb); cpEl.appendChild(bar);
+      if (CP.page >= n) CP.page = n - 1;
+      wrap.addEventListener("scroll", function () { CP.page = Math.round(wrap.scrollLeft / (wrap.clientWidth || 1)); thumb.style.transform = "translateX(" + (wrap.scrollLeft / (wrap.clientWidth || 1) * bar.clientWidth / n) + "px)"; }, { passive: true });
       requestAnimationFrame(function () { if (CP.page) wrap.scrollLeft = CP.page * wrap.clientWidth; });
     } else {
       var sc = h("div", "cp-scroll"); secs.forEach(function (x) { sc.appendChild(x); }); cpEl.appendChild(sc);
+      if (CP.scrollTo) requestAnimationFrame(function () { var t = sc.querySelector(".cp-sec:last-child"); if (t) sc.scrollTop = t.offsetTop - 8; CP.scrollTo = false; });
     }
-    var foot = h("div", "cp-foot");
-    var ts = h("button", "pf-cta cp-test", "Test playbook"); ts.type = "button"; ts.id = "cpTest"; foot.appendChild(ts);
-    var pb = h("button", "dt-run cp-pub", "Publish"); pb.type = "button"; pb.id = "cpPub"; foot.appendChild(pb);
-    cpEl.appendChild(foot);
     var box = paged ? cpEl.querySelector(".cp-pages") : cpEl.querySelector(".cp-scroll");
-    var other = Math.round(foot.getBoundingClientRect().height + (paged ? cpEl.querySelector(".bar").getBoundingClientRect().height + 10 : 0));
-    box.style.height = Math.max(200, CP.h - other) + "px";
-    var gap = (CP.shellH || 0) - document.querySelector(".shell").getBoundingClientRect().height; // match the home card's height
+    box.style.height = Math.max(200, CP.h - (paged ? Math.round(cpEl.querySelector(".bar").getBoundingClientRect().height + 10) : 0)) + "px";
+    var gap = (CP.shellH || 0) - document.querySelector(".shell").getBoundingClientRect().height; // same height as the home card
     if (Math.abs(gap) > 1) box.style.height = Math.max(200, Math.round(box.getBoundingClientRect().height + gap)) + "px";
     function grow() { cpEl.querySelectorAll("textarea.cp-in").forEach(function (t) { t.style.height = "auto"; t.style.height = (t.scrollHeight + 2) + "px"; }); }
     grow(); requestAnimationFrame(grow);
     size();
+  }
+  function cpSelect(key, opts) {
+    var sel = h("select", "pf-i cp-sel");
+    opts.forEach(function (o) { var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; if (CP.d[key] === o[0]) op.selected = true; sel.appendChild(op); });
+    sel.addEventListener("change", function () { CP.d[key] = sel.value; });
+    return sel;
+  }
+  function refreshFoot() { // the Test/Publish state follows the form without re-rendering it
+    var t = $("cpTest"), p = $("cpPub"), w = cpEl.querySelector(".cp-why"), d = CP.d, ready = cpReady(); if (!t) return;
+    t.disabled = !ready; p.disabled = !(ready && d.tested);
+    if (w) w.textContent = !ready ? "Add a name, a description" + (d.paid ? ", a price" : "") + " and upload a playbook to test it." : !d.tested ? "Test it once before publishing." : "Tested. Publish when it did what you wanted.";
   }
   function rc() { // re-render keeping the cursor in the link field
     var f = document.activeElement && document.activeElement.id === "cpSrc";
@@ -2058,45 +2107,63 @@
       CP.busy = true; CP.status = "Reading the GitHub skill…"; rc();
       request("tools/call", { name: "voke", arguments: { action: "intake", url: u } }).then(function (r) {
         var v = (structured(r) || {}).view || {}; CP.busy = false;
-        if (v.kind === "bundle") { CP.status = "That repo holds " + ((v.skills || []).length || "several") + " skills. Paste the link to the one you want."; rc(); return; }
+        if (v.kind === "bundle" && v.skills && v.skills.length) {
+          d.bundle = v.repo; d.repo = v.repo; d.creator = v.creator;
+          if (!d.name) d.name = (v.repo || "").split("/").pop().replace(/[-_]+/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+          d.steps = v.skills.map(function (k) { var paidTool = k.cost && k.cost.lines && k.cost.lines[0];
+            return { tool: paidTool ? paidTool.service : "Your AI", title: k.title + (k.description ? ": " + k.description : ""), runtime: "Instant", cost: paidTool ? "Varies" : "Free", skill: k.name }; });
+          var closed = v.skills.filter(function (k) { return !k.open_license; }).length;
+          CP.status = v.skills.length + " skills by @" + v.creator + " from " + v.repo + ". " + (closed ? closed + " have no open license, so they can only be Private." : "All free to use (open license).");
+          CP.scrollTo = true; CP.page = 2; rc(); return;
+        }
         if (!v.steps) { CP.status = "Couldn't read a skill from that link. Check it's a GitHub skill (a folder with a SKILL.md)."; rc(); return; }
+        d.bundle = ""; d.repo = v.repo; d.license = v.license;
         if (!d.name) d.name = v.title || ""; if (!d.desc) d.desc = v.description || "";
         var lines = (v.cost && v.cost.lines) || [];
         d.steps = v.steps.map(function (st) {
           var tool = st.tools && st.tools.length ? st.tools[0] : "Your AI";
           var line = lines.filter(function (l) { return l.service === tool; })[0];
           return { tool: tool, title: st.title + (st.desc ? ": " + st.desc : ""), runtime: tool === "Your AI" ? "Instant" : "~2 min",
-                   cost: line ? (line.range === "subscription" ? "Your plan" : /^\$0\.00-\$0\.00$/.test(line.range) ? "Free" : line.range.replace("-", "–")) : "Free" };
+                   cost: line ? (line.range === "subscription" ? "Your plan" : /^\$0\.00-\$0\.00$/.test(line.range) ? "Free" : line.range.replace("-", "\u2013")) : "Free" };
         });
-        CP.status = "Built " + d.steps.length + " steps from " + (v.repo || "GitHub") + (v.license ? " · " + v.license + " license" : "") + ". Edit anything below.";
-        CP.page = 2; rc();
+        CP.status = d.steps.length + " steps from " + (v.repo || "GitHub") + ". " + (v.open_license ? (v.license || "Open") + " license: free to use." : "License " + (v.license || "none") + ": it can only be Private, not sold or made Public.");
+        if (!v.open_license) { d.paid = false; d.vis = "private"; }
+        CP.scrollTo = true; CP.page = 2; rc();
       }).catch(function () { CP.busy = false; CP.status = "Couldn't read that link right now."; rc(); });
     } else if (kind === "youtube" || kind === "loom" || kind === "link") {
-      CP.status = (kind === "youtube" ? "YouTube" : kind === "loom" ? "Loom" : "This") + " link added. Your AI builds the steps from it in chat when you tap Test playbook.";
-      rc();
+      CP.status = (kind === "youtube" ? "YouTube" : kind === "loom" ? "Loom" : "This") + " link added.";
+      CP.scrollTo = true; rc();
     }
   }
   function readFile(f) {
     if (f.size > 60000) { CP.status = "That file is too big to read here. Attach it in chat and ask to turn it into a playbook."; renderCreate(); return; }
-    var rd = new FileReader(); rd.onload = function () { CP.d.file = { name: f.name, text: String(rd.result) }; CP.status = "Added " + f.name + ". Your AI builds the steps from it when you tap Test playbook."; renderCreate(); };
+    var rd = new FileReader(); rd.onload = function () { CP.d.file = { name: f.name, text: String(rd.result) }; CP.status = "Added " + f.name + "."; CP.scrollTo = true; renderCreate(); };
     rd.readAsText(f);
   }
   function listingText() {
-    var d = CP.d, L = [];
+    var d = CP.d, L = [], bill = { "one-time": "one-time fee", use: "per use", month: "per month", year: "per year" };
     if (d.name) L.push("Name: " + d.name);
     if (d.desc) L.push("Description: " + d.desc);
-    L.push("Price: " + ((d.price || "").trim() || "Free"));
-    L.push("Visibility: " + (d.vis === "private" ? "Private" : "Public"));
-    if (d.steps.length) L.push("Approved steps (tool · step · runtime · tool cost):\n" + d.steps.map(function (st, i) { return (i + 1) + ". " + st.tool + " · " + st.title + " · " + (st.runtime || "Instant") + " · " + (st.cost || "Free"); }).join("\n"));
+    L.push("Price: " + (d.paid ? "$" + String(d.amount).replace(/[^0-9.]/g, "") + " " + bill[d.billing] : "Free"));
+    L.push("Visibility: " + (d.paid || d.vis !== "private" ? "Public" : "Private"));
+    if (d.bundle) L.push("Source repo holds several skills (" + d.bundle + "): save each on its own and link them as this one playbook.");
+    if (d.steps.length) L.push((d.bundle ? "Skills in order" : "Approved steps") + " (tool · step · runtime · tool cost):\n" + d.steps.map(function (st, i) { return (i + 1) + ". " + st.tool + " · " + st.title + " · " + (st.runtime || "Instant") + " · " + (st.cost || "Free"); }).join("\n"));
     return L.join("\n");
   }
   cpEl.addEventListener("click", function (e) {
     var t = e.target, d = CP.d;
-    var rm = t.closest("[data-rmstep]"); if (rm) { d.steps.splice(Number(rm.dataset.rmstep), 1); renderCreate(); return; }
+    var sa = t.closest("[data-stepact]");
+    if (sa) { var i = Number(sa.dataset.i), j = sa.dataset.stepact === "up" ? i - 1 : i + 1;
+      if (sa.dataset.stepact === "rm") d.steps.splice(i, 1); else if (j >= 0 && j < d.steps.length) { var tmp = d.steps[i]; d.steps[i] = d.steps[j]; d.steps[j] = tmp; }
+      renderCreate(); return; }
+    var pr = t.closest("[data-cprice]"); if (pr) { d.paid = pr.dataset.cprice === "paid"; renderCreate(); return; }
+    if (t.closest("#cpLoomGet")) { openLink("https://www.loom.com/download"); return; }
     if (t.closest("#cpAdd")) { d.steps.push({ tool: "Your AI", title: "", runtime: "Instant", cost: "Free" }); renderCreate(); var ins = cpEl.querySelectorAll("textarea.cp-in"); if (ins.length) ins[ins.length - 1].focus(); return; }
-    if (t.closest("#cpLoom")) { openLink("https://www.loom.com/"); return; }
+    if (t.closest("#cpLoom")) { openLink("https://www.loom.com/record"); return; }
     if (t.closest("#cpHelp")) { send("Help me create a Voke playbook" + (d.name ? " called " + d.name : "") + ". Ask me one question at a time.").catch(function () {}); return; }
     if (t.closest("#cpTest")) {
+      if (!cpReady()) return;
+      d.tested = true; refreshFoot();
       var kind = srcKind(d.src), u = (d.src || "").trim();
       if (kind === "github") { send("/voke test " + u + (d.steps.length ? "\n" + listingText() : "")).catch(function () {}); return; }
       if (u) { send("Turn this into a Voke playbook and test it once: " + u + "\n" + listingText()).catch(function () {}); return; }
@@ -2104,7 +2171,7 @@
       CP.status = "Add a link or a file first, or tap Help me create a playbook."; renderCreate(); return;
     }
     if (t.closest("#cpPub")) {
-      if (!(d.name || "").trim()) { CP.page = 0; CP.status = "Give the playbook a name first."; renderCreate(); var n = cpEl.querySelector('[data-ck="name"]'); if (n) n.focus(); return; }
+      if (!cpReady() || !d.tested) return;
       var src = (d.src || "").trim();
       send("Publish this Voke playbook" + (src ? " from " + src : "") + ".\n" + listingText()).catch(function () {});
       CP.status = "Sent to chat to publish. Public playbooks need one test run first."; renderCreate(); return;
