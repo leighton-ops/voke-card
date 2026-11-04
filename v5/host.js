@@ -41,7 +41,7 @@ window.addEventListener('message',e=>{if(e.source!==f.contentWindow)return;const
  else if(m.method==='ui/notifications/initialized')setTimeout(()=>f.contentWindow.postMessage({jsonrpc:'2.0',method:'ui/notifications/tool-result',params:{structuredContent:page({action:'open',query:''})}},'*'),250);
  else if(m.method==='ui/notifications/size-changed'){if(m.params.height)f.style.height=m.params.height+'px';}
  else if(m.method==='tools/call')setTimeout(()=>reply({result:tool(m.params.name,m.params.arguments||{})}),120);
- else if(m.method==='ui/message'){const c=m.params.content;logSent(Array.isArray(c)?c[0].text:c.text);reply({result:{}});}
+ else if(m.method==='ui/open-link'){try{window.open(m.params.url,'_blank','noopener')}catch(e){}reply({result:{}});return;}if(m.method==='ui/message'){const c=m.params.content;logSent(Array.isArray(c)?c[0].text:c.text);reply({result:{}});}
  else if(m.id!=null)reply({result:{}});
 });
 

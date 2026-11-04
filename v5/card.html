@@ -616,6 +616,15 @@
   .menu .acct .pedit{width:32px;padding:0}
   .profrow{display:flex;align-items:center;gap:4px;padding-right:12px}
   .profrow .prof{flex:1;min-width:0}
+  .pf-cz{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+  .pf-cta{width:auto!important;height:40px!important;padding:0 20px!important;font-size:14px!important}
+  .pf-cz .pf-help{margin-top:0}
+  .pf-sub2{margin:0;font-size:12.5px;line-height:1.45;color:var(--vk-meta)}
+  .pf-ok{margin:0;font-size:14px;font-weight:600;color:light-dark(#4d6b00,var(--vk-brand))}
+  .pf-chip{cursor:default}button.pf-chip{cursor:pointer;color:var(--vk-name)}
+  @media (hover:hover){button.pf-chip:hover{background:var(--vk-btn-hov)}}
+  .pf-plus{font-size:16px;line-height:1;color:var(--vk-meta);margin-left:2px}
+  .pf-tick{color:light-dark(#4d6b00,var(--vk-brand));font-weight:700;margin-left:2px}
 </style>
 </head>
 <body>
@@ -817,7 +826,7 @@
     if (d.font) L.push("Brand font: " + d.font);
     if (d.icp) L.push("Ideal customer: " + d.icp);
     if (d.competitors) L.push("Top competitors: " + d.competitors);
-    if (d.socials && d.socials.length) L.push("Socials: " + d.socials.join(", "));
+    if (d.composio) L.push("App and social steps run through the user's own Composio connector for this profile.");
     L.push("Connected apps: " + (apps.length ? apps.join(", ") : "none yet"));
     return L.join("\n");
   }
@@ -1974,7 +1983,7 @@
     ["meta-ads", "Meta Ads", "ads", "Launch and manage Facebook and Instagram ads"], ["google-ads", "Google Ads", "ads", "Search and YouTube ad campaigns"],
     ["tiktok-ads", "TikTok Ads", "ads", "TikTok ad campaigns"], ["instagram", "Instagram", "social", "Post Reels and read insights"],
     ["tiktok", "TikTok", "social", "Post videos and read analytics"], ["youtube", "YouTube", "social", "Upload videos and read analytics"],
-    ["linkedin", "LinkedIn", "social", "Post and message on LinkedIn"], ["x", "X", "social", "Post and read on X"],
+    ["linkedin", "LinkedIn", "social", "Post and message on LinkedIn"], ["facebook", "Facebook", "social", "Post to Pages and read insights"], ["x", "X", "social", "Post and read on X"],
     ["higgsfield", "Higgsfield", "video", "AI avatars, video and images"], ["elevenlabs", "ElevenLabs", "video", "AI voices and voiceovers"],
     ["vidiq", "vidIQ", "video", "YouTube research and outliers"], ["runway", "Runway", "video", "AI video generation"],
     ["gmail", "Gmail", "email", "Read, draft and send email"], ["instantly", "Instantly", "email", "Cold email: domains, warmup, sequences"],
@@ -1991,7 +2000,7 @@
   var APPS = { open: false, cat: "all", q: "" }, appsEl = $("apps");
   function openApps() {
     if (!menu.hidden) closeMenu();
-    if (PF.open) closeProfile();
+    if (PF.open && !PF.hold) closeProfile();
     if (PG.open) closePage();
     APPS.h = list.offsetParent ? Math.round(list.getBoundingClientRect().height) : 0;
     APPS.shellH = Math.round(document.querySelector(".shell").getBoundingClientRect().height);
@@ -2001,6 +2010,10 @@
   }
   function closeApps() {
     APPS.open = false; appsEl.hidden = true; appsEl.innerHTML = ""; $("store").setAttribute("aria-pressed", "false");
+    if (PF.hold) { // came from the profile editor: go back to it, with whatever was connected
+      PF.hold = false; q.value = APPS.keepQ || ""; q.placeholder = "Search plays..."; q.setAttribute("aria-label", "Search Voke plays");
+      $("card").classList.remove("appsing"); $("card").classList.add("profiling"); pfEl.hidden = false; renderProfile(); return;
+    }
     q.value = APPS.keepQ || ""; q.placeholder = "Search plays..."; q.setAttribute("aria-label", "Search Voke plays");
     $("card").classList.remove("appsing"); draw(); list.scrollTop = APPS.keepTop || 0; size();
   }
@@ -2013,7 +2026,7 @@
   }
   function renderApps() {
     appsEl.innerHTML = "";
-    var mine = connected(), cur = curProfile();
+    var mine = PF.hold ? PF.apps : connected(), cur = PF.hold ? ((PF.d.name || "").trim() || "this profile") : curProfile();
     var cats = h("nav", "cats apps-cats");
     APP_CATS.forEach(function (c) { var b = h("button", APPS.cat === c[0] ? "on" : null, c[1]); b.type = "button"; b.dataset.appcat = c[0]; cats.appendChild(b); });
     appsEl.appendChild(cats);
@@ -2055,10 +2068,12 @@
     var c = e.target.closest("[data-appcat]");
     if (c) { APPS.cat = c.dataset.appcat; renderApps(); return; }
     var b = e.target.closest("[data-app]"); if (!b) return;
-    var a = APPS_LIST.filter(function (x) { return x.id === b.dataset.app; })[0], on = connected().indexOf(a.id) > -1;
+    var a = APPS_LIST.filter(function (x) { return x.id === b.dataset.app; })[0];
+    if (PF.hold) { if (PF.apps.indexOf(a.id) < 0) connectForProfile(a.id); closeApps(); return; }
+    var on = connected().indexOf(a.id) > -1;
     if (on) { setConnected(a.id, false); renderApps(); pushProfile(); return; }
     setConnected(a.id, true); renderApps(); pushProfile();
-    send("Connect " + a.name + " to Voke for my " + curProfile() + " profile.").catch(function () {});
+    send(connectMsg(a.name, curProfile())).catch(function () {});
   });
   $("store").onclick = function () { if (APPS.open) closeApps(); else openApps(); };
 
@@ -2066,7 +2081,8 @@
   // Business: the website pre-fills name, description, logo, colors and font (voke_brand reads the site); every
   // field can be overridden, and "Need help?" asks Claude in chat. Then apps and socials connect through Voke's
   // agent (Composio), the user only approves. Personal: a name, a line about you, apps and socials.
-  var SOCIALS = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["youtube", "YouTube"], ["linkedin", "LinkedIn"], ["x", "X"], ["facebook", "Facebook"]];
+  var POPULAR = ["instagram", "tiktok", "youtube", "linkedin", "facebook", "x", "meta-ads", "gmail", "google-drive", "notion", "slack", "hubspot"];
+  var COMPOSIO_ADD = "https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Composio&connectorUrl=https%3A%2F%2Fconnect.composio.dev%2Fmcp";
   var PF = { open: false, orig: null, d: null }, pfEl = $("pf");
   function openProfile(name) {
     if (!menu.hidden) closeMenu();
@@ -2147,16 +2163,32 @@
       step("Name", [field("", inp("name", "Your name or a label, e.g. Personal"))]);
       step("About you", [field("", inp("description", "What you work on, so plays fit you", true))]);
     }
-    // Apps and socials
-    var mine = PF.apps, apl = h("div", "pf-apps");
-    mine.forEach(function (id) { var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (a) { var c = h("span", "pf-chip"); c.appendChild(appBadge(a.name)); c.appendChild(document.createTextNode(a.name)); apl.appendChild(c); } });
-    var oa = h("button", "pf-add", mine.length ? "Manage apps" : "Connect apps"); oa.type = "button"; oa.id = "pfApps"; apl.appendChild(oa);
-    step("Connect apps", [apl], "Voke connects each one through Composio. You just approve.");
-    var sw2 = h("div", "pf-soc");
-    SOCIALS.forEach(function (x) {
-      var on = d.socials.indexOf(x[0]) > -1, b = h("button", "pf-sbtn" + (on ? " on" : ""), (on ? "✓ " : "") + x[1]); b.type = "button"; b.dataset.social = x[0]; sw2.appendChild(b);
-    });
-    step("Connect socials", [sw2], "Pick the ones you have. Voke connects them when you save; you approve each once.");
+    // 9. Composio holds this business's app sign-ins on its own account (Voke never holds credentials or pays for
+    // its calls). 10. Once it's connected: the profile's apps, one-tap popular ones, and Search apps.
+    var cz = h("div", "pf-cz");
+    if (d.composio) {
+      var okc = h("p", "pf-ok"); okc.innerHTML = "✓ Composio connected"; cz.appendChild(okc);
+      var undo = h("button", "pf-help", "Not connected?"); undo.type = "button"; undo.id = "pfCzUndo"; cz.appendChild(undo);
+    } else if (PF.czPending) {
+      var dn = h("button", "dt-run pf-cta", "I've added Composio"); dn.type = "button"; dn.id = "pfCzDone"; cz.appendChild(dn);
+      cz.appendChild(h("p", "pf-sub2", "In the window that opened, confirm the Composio connector and sign in. Not in Claude? Add this MCP URL in your AI app's connectors: connect.composio.dev/mcp"));
+      var again = h("button", "pf-help", "Open it again"); again.type = "button"; again.id = "pfCz"; cz.appendChild(again);
+    } else {
+      var cc = h("button", "dt-run pf-cta", "Connect Composio"); cc.type = "button"; cc.id = "pfCz"; cz.appendChild(cc);
+      var si = h("button", "pf-help", "Already have Composio? Sign in"); si.type = "button"; si.id = "pfCzHave"; cz.appendChild(si);
+    }
+    step("Connect Composio", [cz], "Composio keeps your app sign-ins safe on your own account, so plays can post, run ads and send email for this " +
+      (biz ? "business" : "profile") + ". You approve each app once; Voke never sees your passwords.");
+    if (d.composio) {
+      var mine = PF.apps, box = h("div", "pf-apps");
+      mine.forEach(function (id) { var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (a) { var c = h("span", "pf-chip on"); c.appendChild(appBadge(a.name)); c.appendChild(document.createTextNode(a.name)); c.appendChild(h("span", "pf-tick", "✓")); box.appendChild(c); } });
+      POPULAR.filter(function (id) { return mine.indexOf(id) < 0; }).forEach(function (id) {
+        var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (!a) return;
+        var c = h("button", "pf-chip"); c.type = "button"; c.dataset.pfapp = id; c.appendChild(appBadge(a.name)); c.appendChild(document.createTextNode(a.name)); c.appendChild(h("span", "pf-plus", "+")); box.appendChild(c);
+      });
+      var sa = h("button", "pf-add", "Search apps"); sa.type = "button"; sa.id = "pfApps"; box.appendChild(sa);
+      step("Apps & socials", [box], mine.length ? "Connected for this profile. Tap any other app to connect it; you just approve." : "Tap the ones you use to connect them; you just approve. Don't see one? Search apps.");
+    }
     pfEl.appendChild(sc);
     var bar = h("div", "pf-bar");
     if (PF.orig && profiles().length > 1) { var del = h("button", "pf-del", "Delete"); del.type = "button"; del.id = "pfDel"; bar.appendChild(del); }
@@ -2178,13 +2210,10 @@
     if (name !== PF.orig && all.indexOf(name) > -1) { PF.status = "There's already a profile called " + name + "."; renderProfile(); return; }
     if (PF.orig && PF.orig !== name) { renameKeys(PF.orig, name); all[all.indexOf(PF.orig)] = name; store("voke-profiles", all); }
     else if (!PF.orig) { all.push(name); store("voke-profiles", all); }
-    var keep = {}; ["type", "website", "description", "logo", "colors", "font", "icp", "competitors", "socials"].forEach(function (k) { if (d[k] != null && d[k] !== "") keep[k] = d[k]; });
+    var keep = {}; ["type", "website", "description", "logo", "colors", "font", "icp", "competitors", "composio"].forEach(function (k) { if (d[k] != null && d[k] !== "") keep[k] = d[k]; });
     store("voke-pdata:" + slug(name), keep);
-    var newSoc = (d.socials || []).filter(function (x) { return PF.apps.indexOf(x) < 0 && x !== "facebook"; });
-    setProfile(name); store("voke-apps:" + slug(name), PF.apps.concat(newSoc));
-    var socNames = (d.socials || []).filter(function (x) { return PF.apps.indexOf(x) < 0; }).map(function (x) { return SOCIALS.filter(function (s) { return s[0] === x; })[0][1]; });
+    setProfile(name); store("voke-apps:" + slug(name), PF.apps.slice());
     PF.status = ""; closeProfile(); paintAvatar(); pushProfile();
-    if (socNames.length) send("Connect " + socNames.join(", ") + " to Voke for my " + name + " profile.").catch(function () {});
   }
   // Runs once the website looks complete (a pause in typing, Enter or leaving the field). Fills empty fields and
   // ones it filled before; anything the user typed stays.
@@ -2211,6 +2240,16 @@
     PF.rendering = true; renderProfile(); PF.rendering = false;
     var w = $("pfWeb"); if (f && w) { w.focus(); w.setSelectionRange(w.value.length, w.value.length); }
   }
+  function openLink(url) {
+    request("ui/open-link", { url: url }).catch(function () { try { window.open(url, "_blank", "noopener"); } catch (e) {} });
+  }
+  // Connecting goes through the user's own Composio connector in chat: Claude runs it and the user approves.
+  function connectMsg(name, prof) { return "Use Composio to connect " + name + " for my " + prof + " profile in Voke."; }
+  function connectForProfile(id) {
+    var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (!a || PF.apps.indexOf(id) > -1) return;
+    PF.apps.push(id);
+    send(connectMsg(a.name, (PF.d.name || "").trim() || "new")).catch(function () {});
+  }
   var HELP = {
     name: function (d) { return "Help me name my business" + (d.description ? ": " + d.description : "") + ". Give 5 short options with a line on each."; },
     description: function (d) { return "Write a one or two sentence description of my business " + (d.name || "") + (d.website ? " (" + d.website + ")" : "") + " for my Voke profile."; },
@@ -2226,8 +2265,11 @@
     var hp = t.closest("[data-help]"); if (hp) { e.preventDefault(); send(HELP[hp.dataset.help](d)).catch(function () {}); return; }
     if (t.closest("[data-addcolor]")) { d.colors.push("#191919"); renderProfile(); return; }
     var rc = t.closest("[data-rmcolor]"); if (rc) { e.preventDefault(); d.colors.splice(Number(rc.dataset.rmcolor), 1); renderProfile(); return; }
-    var so = t.closest("[data-social]"); if (so) { var i = d.socials.indexOf(so.dataset.social); if (i > -1) d.socials.splice(i, 1); else d.socials.push(so.dataset.social); renderProfile(); return; }
-    if (t.closest("#pfApps")) { saveProfile(); if (!PF.open) openApps(); return; }
+    if (t.closest("#pfCz")) { openLink(COMPOSIO_ADD); PF.czPending = true; renderProfile(); return; }
+    if (t.closest("#pfCzHave") || t.closest("#pfCzDone")) { d.composio = true; PF.czPending = false; renderProfile(); return; }
+    if (t.closest("#pfCzUndo")) { d.composio = false; renderProfile(); return; }
+    var pa = t.closest("[data-pfapp]"); if (pa) { connectForProfile(pa.dataset.pfapp); renderProfile(); return; }
+    if (t.closest("#pfApps")) { PF.hold = true; pfEl.hidden = true; $("card").classList.remove("profiling"); openApps(); return; }
     if (t.closest("#pfCancel")) { closeProfile(); return; }
     if (t.closest("#pfSave")) { saveProfile(); return; }
     if (t.closest("#pfDel")) {
