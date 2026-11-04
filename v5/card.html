@@ -2007,8 +2007,8 @@
     cpEl.innerHTML = "";
     // 1. Playbook information
     var s1 = h("div", "cp-sec"); s1.appendChild(h("p", "cp-h", "Playbook information"));
-    s1.appendChild(lbl("Name", "How it shows up in the Voke store")); s1.appendChild(cpInput("name", "e.g. Skipbait"));
-    s1.appendChild(lbl("Description", "What people get from it, in a sentence")); s1.appendChild(cpInput("desc", "e.g. Skip the clickbait. Jump straight to the answer."));
+    s1.appendChild(cpInput("name", "Name (how it shows up in the Voke store)"));
+    s1.appendChild(cpInput("desc", "Description (what people get from it, in a sentence)"));
     var seg = h("div", "pf-seg cp-seg");
     [["free", "Free"], ["paid", "Paid"]].forEach(function (t) { var b = h("button", (d.paid ? "paid" : "free") === t[0] ? "on" : null, t[1]); b.type = "button"; b.dataset.cprice = t[0]; seg.appendChild(b); });
     s1.appendChild(seg);
