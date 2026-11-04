@@ -2579,6 +2579,8 @@
     size();
   }
   paintAvatar();
+  // Preview links can open straight on a screen (e.g. the sign-in flow) for demos.
+  if (SEED.start === "signin" && !account()) setTimeout(function () { openPane("signin", { mode: "signin" }); }, 400);
 
   // ------------------------------------------------------------ apps (the app-store button)
   // The profile's connected apps, then every app Voke can connect, searchable and by category. Connect hands off
