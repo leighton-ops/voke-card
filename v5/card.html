@@ -617,7 +617,8 @@
   .profrow{display:flex;align-items:center;gap:4px;padding-right:12px}
   .profrow .prof{flex:1;min-width:0}
   .pf-cz{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
-  .pf-cta{width:auto!important;height:40px!important;padding:0 20px!important;font-size:14px!important}
+  .pf-cta{height:40px;padding:0 20px;border-radius:999px;font-size:14px;font-weight:600;color:var(--vk-name);background:var(--vk-bg);box-shadow:inset 0 0 0 1px var(--vk-ring)}
+  @media (hover:hover){.pf-cta:hover{background:var(--vk-btn-hov)}}
   .pf-cz .pf-help{margin-top:0}
   .pf-sub2{margin:0;font-size:12.5px;line-height:1.45;color:var(--vk-meta)}
   .pf-ok{margin:0;font-size:14px;font-weight:600;color:light-dark(#4d6b00,var(--vk-brand))}
@@ -2170,15 +2171,15 @@
       var okc = h("p", "pf-ok"); okc.innerHTML = "✓ Composio connected"; cz.appendChild(okc);
       var undo = h("button", "pf-help", "Not connected?"); undo.type = "button"; undo.id = "pfCzUndo"; cz.appendChild(undo);
     } else if (PF.czPending) {
-      var dn = h("button", "dt-run pf-cta", "I've added Composio"); dn.type = "button"; dn.id = "pfCzDone"; cz.appendChild(dn);
+      var dn = h("button", "pf-cta", "I've added Composio"); dn.type = "button"; dn.id = "pfCzDone"; cz.appendChild(dn);
       cz.appendChild(h("p", "pf-sub2", "In the window that opened, confirm the Composio connector and sign in. Not in Claude? Add this MCP URL in your AI app's connectors: connect.composio.dev/mcp"));
       var again = h("button", "pf-help", "Open it again"); again.type = "button"; again.id = "pfCz"; cz.appendChild(again);
     } else {
-      var cc = h("button", "dt-run pf-cta", "Connect Composio"); cc.type = "button"; cc.id = "pfCz"; cz.appendChild(cc);
+      var cc = h("button", "pf-cta", "Connect Composio"); cc.type = "button"; cc.id = "pfCz"; cz.appendChild(cc);
       var si = h("button", "pf-help", "Already have Composio? Sign in"); si.type = "button"; si.id = "pfCzHave"; cz.appendChild(si);
     }
-    step("Connect Composio", [cz], "Composio keeps your app sign-ins safe on your own account, so plays can post, run ads and send email for this " +
-      (biz ? "business" : "profile") + ". You approve each app once; Voke never sees your passwords.");
+    step("Connect your apps", [cz], "One click installs Composio, a secure connector that links all your " + (biz ? "business's " : "") +
+      "apps (Gmail, Slack, Drive and more) and socials (Meta, TikTok and more), so plays can do the work for you. You approve each app once; Voke never sees your passwords.");
     if (d.composio) {
       var mine = PF.apps, box = h("div", "pf-apps");
       mine.forEach(function (id) { var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (a) { var c = h("span", "pf-chip on"); c.appendChild(appBadge(a.name)); c.appendChild(document.createTextNode(a.name)); c.appendChild(h("span", "pf-tick", "✓")); box.appendChild(c); } });
