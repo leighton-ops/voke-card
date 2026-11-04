@@ -586,8 +586,8 @@
   input.pf-i{height:40px}
   .pf-i:focus{box-shadow:inset 0 0 0 1px var(--vk-ring)}
   .pf-row{display:flex;gap:8px}
-  .pf-go{flex:none;height:40px;padding:0 16px;border-radius:999px;background:var(--vk-inv);color:var(--vk-inv-tx);font-size:13px;font-weight:600}
   .pf-status{margin:0;font-size:12.5px;color:var(--vk-meta)}.pf-status:empty{display:none}
+  .pf-status.busy{animation:pulse 1.1s ease-in-out infinite alternate}
   .pf-logo{display:flex;gap:10px;align-items:center}
   .pf-lp{width:52px;height:52px;flex:none;border-radius:12px;background:var(--vk-btn);display:grid;place-items:center;overflow:hidden;font-weight:600;color:var(--vk-meta)}
   .pf-lp img{width:100%;height:100%;object-fit:contain}
@@ -2073,7 +2073,7 @@
     if (PG.open) closePage();
     if (APPS.open) closeApps();
     var keepH = Math.round(cats.getBoundingClientRect().height + 10 + list.getBoundingClientRect().height);
-    PF.open = true; PF.orig = name; PF.h = keepH > 100 ? keepH : 410;
+    PF.open = true; PF.orig = name; PF.h = keepH > 100 ? keepH : 410; PF.auto = {}; PF.last = ""; PF.status = ""; PF.busy = false;
     PF.d = name ? JSON.parse(JSON.stringify(pdata(name))) : { type: "business" };
     PF.d.name = name || ""; PF.d.colors = PF.d.colors || []; PF.d.socials = PF.d.socials || [];
     PF.apps = name ? load("voke-apps:" + slug(name), null) || ((SEED.apps && SEED.apps[name]) || []) : [];
@@ -2091,7 +2091,7 @@
   function inp(key, ph, area) {
     var e = h(area ? "textarea" : "input", "pf-i"); e.placeholder = ph || ""; e.value = PF.d[key] || ""; e.dataset.k = key;
     if (area) e.rows = 3;
-    e.addEventListener("input", function () { PF.d[key] = e.value; });
+    e.addEventListener("input", function () { PF.d[key] = e.value; if (PF.auto) delete PF.auto[key]; });
     return e;
   }
   function renderProfile() {
@@ -2112,9 +2112,11 @@
       body.forEach(function (x) { s.appendChild(x); }); sc.appendChild(s);
     }
     if (biz) {
-      var web = inp("website", "yourbusiness.com"), go = h("button", "pf-go", "Auto-fill"); go.type = "button"; go.id = "pfFill";
-      var row = h("div", "pf-row"); row.appendChild(web); row.appendChild(go);
-      step("Website", [row, h("p", "pf-status", PF.status || "")], "Fills in the next steps for you. You can change anything. No website? Fill them in yourself.");
+      var web = inp("website", "yourbusiness.com"); web.id = "pfWeb"; web.inputMode = "url";
+      web.addEventListener("input", function () { clearTimeout(PF.t); PF.t = setTimeout(function () { autoFill(false); }, 900); });
+      web.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); clearTimeout(PF.t); autoFill(true); } });
+      web.addEventListener("blur", function () { if (PF.rendering) return; clearTimeout(PF.t); autoFill(false); });
+      step("Website", [web, h("p", "pf-status" + (PF.busy ? " busy" : ""), PF.status || "")], "We read your site and fill in the steps below: name, description, logo, colors, font, ideal customer and competitors. Change anything. No website? Fill them in yourself.");
       step("Name", [field("", inp("name", "Business name"), "name")]);
       step("Description", [field("", inp("description", "What the business does, in a sentence or two", true), "description")]);
       var logo = h("div", "pf-logo"), img = h("div", "pf-lp");
@@ -2184,6 +2186,31 @@
     PF.status = ""; closeProfile(); paintAvatar(); pushProfile();
     if (socNames.length) send("Connect " + socNames.join(", ") + " to Voke for my " + name + " profile.").catch(function () {});
   }
+  // Runs once the website looks complete (a pause in typing, Enter or leaving the field). Fills empty fields and
+  // ones it filled before; anything the user typed stays.
+  function autoFill(now) {
+    var d = PF.d, u = (d.website || "").trim().replace(/\/$/, "");
+    if (!PF.open || !/^(https?:\/\/)?[^\s\/.]+\.[^\s]{2,}/i.test(u) || u === PF.last) return;
+    PF.last = u; PF.busy = true; PF.status = "Reading " + u.replace(/^https?:\/\//, "") + "…"; rr();
+    request("tools/call", { name: "voke_brand", arguments: { url: u } }).then(function (r) {
+      if (!PF.open || PF.last !== u) return;
+      var b = structured(r) || {}; PF.busy = false;
+      if (b.error) { PF.status = b.error + " Fill in the steps yourself."; rr(); return; }
+      var keys = ["name", "description", "logo", "font", "icp", "competitors"], got = [];
+      keys.forEach(function (k) { if (b[k] && (!d[k] || PF.auto[k])) { d[k] = b[k]; PF.auto[k] = 1; } if (b[k]) got.push(k); });
+      if (b.colors && b.colors.length && (!d.colors.length || PF.auto.colors)) { d.colors = b.colors.slice(0, 6); PF.auto.colors = 1; }
+      if (b.colors && b.colors.length) got.push("colors");
+      var miss = ["icp", "competitors"].filter(function (k) { return !b[k]; });
+      PF.status = "Filled " + got.length + " of 7 from your site. Check them" + (miss.length ? "; add your " + miss.map(function (k) { return k === "icp" ? "ideal customer" : "competitors"; }).join(" and ") + " (or tap Need help?)" : "") + ".";
+      rr();
+    }).catch(function () { if (PF.last === u) { PF.busy = false; PF.status = "Couldn't read the site. Fill in the steps yourself."; rr(); } });
+  }
+  // Re-render without kicking the cursor out of the website field.
+  function rr() {
+    var f = document.activeElement && document.activeElement.id === "pfWeb";
+    PF.rendering = true; renderProfile(); PF.rendering = false;
+    var w = $("pfWeb"); if (f && w) { w.focus(); w.setSelectionRange(w.value.length, w.value.length); }
+  }
   var HELP = {
     name: function (d) { return "Help me name my business" + (d.description ? ": " + d.description : "") + ". Give 5 short options with a line on each."; },
     description: function (d) { return "Write a one or two sentence description of my business " + (d.name || "") + (d.website ? " (" + d.website + ")" : "") + " for my Voke profile."; },
@@ -2207,20 +2234,6 @@
       var all = profiles().filter(function (x) { return x !== PF.orig; }); store("voke-profiles", all);
       if (curProfile() === PF.orig || all.indexOf(curProfile()) < 0) store("voke-profile", all[0]);
       closeProfile(); paintAvatar(); pushProfile(); return;
-    }
-    if (t.closest("#pfFill")) {
-      if (!(d.website || "").trim()) { PF.status = "Enter the website first."; renderProfile(); return; }
-      PF.status = "Reading " + d.website.trim() + "…"; renderProfile();
-      request("tools/call", { name: "voke_brand", arguments: { url: d.website.trim() } }).then(function (r) {
-        var b = structured(r) || {};
-        if (b.error) { PF.status = b.error + " Fill the steps in yourself."; renderProfile(); return; }
-        ["name", "description", "logo", "font"].forEach(function (k) { if (b[k]) d[k] = b[k]; });
-        if (b.colors && b.colors.length) d.colors = b.colors.slice(0, 6);
-        if (b.website) d.website = b.website.replace(/\/$/, "");
-        var got = ["name", "description", "logo", "colors", "font"].filter(function (k) { return b[k] && (k !== "colors" || b[k].length); }).length;
-        PF.status = "Filled " + got + " of 5 from the site. Check them, then add your ideal customer and competitors.";
-        renderProfile();
-      }).catch(function () { PF.status = "Couldn't read the site. Fill the steps in yourself."; renderProfile(); });
     }
   });
 
