@@ -30,6 +30,8 @@ function tool(name,a){
  if(name==='voke'&&(a.action==='page'||a.action==='open'))return {structuredContent:page(a)};
  if(name==='voke_star'){if(a.name){mine[a.name]=!!a.on;stars[a.name]=Math.max(1,stars[a.name]+(a.on?1:-1));const o={};o[a.name]={count:stars[a.name],starred:mine[a.name]};return {structuredContent:{stars:o}};}
   const o={};(a.names||cards.map(c=>c.name)).forEach(n=>{if(n in stars)o[n]={count:stars[n],starred:mine[n]};});return {structuredContent:{stars:o}};}
+ if(name==='voke'&&a.action==='intake'){const u=String(a.url||'').replace(/\/$/,'');const k=DATA.cards.find(c=>c.source&&u&&(c.source.replace(/\/$/,'')===u));if(!k)return {isError:true,content:[{type:'text',text:'Preview reads GitHub skills already in the library. Try https://github.com/anthropics/knowledge-work-plugins/tree/main/design/skills/design-critique'}]};const d=(DATA.details[k.name]||{}).detail||{steps:[]};const m=u.match(/github\.com\/([^/]+)\/([^/]+)/)||[];return {structuredContent:{view:{kind:'recipe',title:k.title,description:k.description,repo:(m[1]||'')+'/'+(m[2]||''),license:k.license,open_license:/MIT|Apache|BSD/i.test(k.license||''),steps:(d.steps||[]).map(x=>typeof x==='string'?{title:x,tools:[]}:{title:x.title,desc:x.desc,tools:x.tool?[x.tool]:[]}),cost:{lines:[]}}}};}
+ if(name==='voke'&&a.action==='publish'){return {structuredContent:{view:{kind:'status',label:'Published (preview)'}},content:[{type:'text',text:'Published (preview).'}]};}
  if(name==='voke_brand'){const host=String(a.url||'').replace(/^https?:\/\//,'').split('/')[0].replace(/^www\./,'');const w=host.split('.')[0]||'';const nm=w.charAt(0).toUpperCase()+w.slice(1);return {structuredContent:{website:'https://'+host,name:nm,description:'',logo:'',colors:[],font:'',note:'Preview: only the name is guessed here. The live connector reads the real site.'}};}
  if(name==='voke_skill'){const d=DATA.details[a.name];if(!d)return {isError:true,content:[{type:'text',text:'Unknown skill.'}]};return {structuredContent:{skill:withStars(byName[a.name]),detail:d.detail,category_label:d.category_label,license:byName[a.name].license,pairs:d.pairs.map(n=>withStars(byName[n])),similar:d.similar.map(n=>withStars(byName[n]))}};}
  return {isError:true,content:[{type:'text',text:'Not available in the preview.'}]};}
@@ -41,7 +43,8 @@ window.addEventListener('message',e=>{if(e.source!==f.contentWindow)return;const
  else if(m.method==='ui/notifications/initialized')setTimeout(()=>f.contentWindow.postMessage({jsonrpc:'2.0',method:'ui/notifications/tool-result',params:{structuredContent:page({action:'open',query:''})}},'*'),250);
  else if(m.method==='ui/notifications/size-changed'){if(m.params.height)f.style.height=m.params.height+'px';}
  else if(m.method==='tools/call')setTimeout(()=>reply({result:tool(m.params.name,m.params.arguments||{})}),120);
- else if(m.method==='ui/open-link'){try{window.open(m.params.url,'_blank','noopener')}catch(e){}reply({result:{}});return;}if(m.method==='ui/message'){const c=m.params.content;logSent(Array.isArray(c)?c[0].text:c.text);reply({result:{}});}
+ else if(m.method==='ui/open-link'){try{window.open(m.params.url,'_blank','noopener')}catch(e){}reply({result:{}});}
+ else if(m.method==='ui/message'){const c=m.params.content;logSent(Array.isArray(c)?c[0].text:c.text);reply({result:{}});}
  else if(m.id!=null)reply({result:{}});
 });
 

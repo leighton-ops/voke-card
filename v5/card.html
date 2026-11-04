@@ -696,6 +696,53 @@
   .pf-saved{margin-right:auto;font-size:12.5px;color:var(--vk-meta)}
   .pf-del+.pf-saved{margin-left:4px}
   .pf-step>input.pf-i{width:calc(100% - 28px)}
+  /* panes: sign in, checkout, trial, billing, payouts */
+  .paning #cats,.paning #filters,.paning #list,.paning #pager,.paning #menu,.paning #dt,.paning #apps,.paning #pf,.paning #cp{display:none!important}
+  .pane[hidden]{display:none}
+  .pane-body{display:flex;flex-direction:column;gap:12px;padding:6px 4px 16px;box-sizing:border-box}
+  .pane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .pane-head .pf-sub2{margin-top:4px;font-size:13.5px}
+  .pane-x{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--vk-meta);background:var(--vk-btn)}
+  .pane-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .pane-main{width:100%;height:44px;font-size:15px}
+  .pane-link{align-self:center;margin:0;font-size:13px}
+  .pane-fine{text-align:center;margin:0}
+  .pane-err{margin:0;font-size:13px;color:#c0392b}
+  .pane-demo{text-align:center;margin:0;font-style:italic}
+  .pane-code{text-align:center;letter-spacing:.4em;font-size:22px!important;height:52px!important;font-variant-numeric:tabular-nums}
+  .pane-text{margin:0;font-size:14px;line-height:1.5;color:var(--vk-desc)}
+  .pane-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .pane-list li{position:relative;padding-left:26px;font-size:14px;line-height:1.4;color:var(--vk-name)}
+  .pane-list li::before{content:"✓";position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;background:var(--vk-brand);color:#000;font-size:10px;font-weight:700;display:grid;place-items:center}
+  .pane-spin{width:28px;height:28px;margin:8px auto;border-radius:50%;border:3px solid var(--vk-btn);border-top-color:var(--vk-name);animation:spin 0.9s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .pane-sec{display:flex;flex-direction:column}
+  .pane-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px;border-bottom:1px solid var(--vk-line)}
+  .pane-row:last-child{border-bottom:0}
+  .pane-row>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .pane-row b{font-size:14px;font-weight:500;color:var(--vk-name)}.pane-row span{font-size:12.5px;color:var(--vk-meta)}
+  .pane-amt{font-size:14px!important;font-weight:600;color:var(--vk-name)!important;white-space:nowrap}
+  .pane-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .pane-card{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:14px;background:var(--vk-chip)}
+  .pane-card span{font-size:12px;color:var(--vk-meta)}.pane-card b{font-size:18px;color:var(--vk-name)}
+  .guestbox{display:flex;flex-direction:column;gap:6px;padding:10px 12px 12px}
+  .guestbox b{font-size:15px;color:var(--vk-name)}.guestbox>span{font-size:13px;line-height:1.45;color:var(--vk-meta)}
+  .guestbtns{display:flex;gap:8px;margin-top:6px}.guestbtns button{flex:1;height:40px;justify-content:center;padding:0 12px!important;font-size:14px}
+  .menu .guestbtns .dt-run{width:auto}
+  .menu-email{margin:4px 12px 6px;font-size:12px;color:var(--vk-meta)}
+  .av.guest{background:var(--vk-btn)!important;color:var(--vk-icon)}.av.guest svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .pp-owned{margin:0;font-size:13px;font-weight:600;text-align:center;color:light-dark(#4d6b00,var(--vk-brand))}.pp-owned.muted{color:var(--vk-meta);font-weight:500}
+  .nudge{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:var(--vk-chip);font-size:13px;line-height:1.45;color:var(--vk-name)}
+  .nudge-i{font-size:15px;line-height:1.3}
+  .nudge>div{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+  .nudge-go{margin:0;font-size:13px;font-weight:600;color:var(--vk-name)}
+  .picked+.nudge{margin-top:8px}
+  .cp-done{align-items:center;justify-content:center;text-align:center}
+  .cp-check{width:52px;height:52px;border-radius:50%;background:var(--vk-brand);color:#000;display:grid;place-items:center;font-size:24px;font-weight:700}
+  .dt[hidden],.apps[hidden],.pf[hidden],.cp[hidden],.pane[hidden]{display:none!important}
+  .menu:not([hidden]){overflow-y:auto;overscroll-behavior:contain}
+  .menuing #cats,.menuing #filters,.menuing #list,.menuing #pager{display:none!important}
+  .menu{box-sizing:border-box}
 </style>
 </head>
 <body>
@@ -721,6 +768,7 @@
   <section class="apps" id="apps" hidden aria-label="Apps"></section>
   <section class="pf" id="pf" hidden aria-label="Profile"></section>
   <section class="cp" id="cp" hidden aria-label="Create a playbook"></section>
+  <section class="pane" id="pane" hidden></section>
   <footer class="foot">
     <div class="nav"><span class="k"><kbd>↑</kbd><kbd>↓</kbd>Select</span><span class="k"><kbd>↵</kbd>Copy</span></div>
     <span id="count">Powered by Voke</span>
@@ -828,6 +876,8 @@
   function svg(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>'; }
 
   var P = {
+    bank: "M3 10h18M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18M12 3l9 5H3l9-5Z",
+    out: "M15 4h4v16h-4M10 16l-4-4 4-4M6 12h11",
     pencil: "M4 20h4L19 9l-4-4L4 16v4ZM14 6l4 4",
     eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12ZM12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z",
     bookmark: "M7 3.5h10a1 1 0 0 1 1 1V20l-6-3.8L6 20V4.5a1 1 0 0 1 1-1Z",
@@ -1503,6 +1553,7 @@
   }
   function run(k, el) {
     if (el.dataset.busy) return;
+    if (priceText(k) && !owns(k)) { openPage(k.name, k); openPane("checkout", { card: k }); return; } // paid: checkout first
     el.dataset.busy = "1";
     var text = "/voke " + String(k.title || k.name).toLowerCase();
     copyText(text).then(function (ok) {
@@ -1570,7 +1621,7 @@
 
   function runCommand(k) { return "/voke " + String(k.title || k.name).toLowerCase(); }
   function copyFrom(k, after, key, trial) {
-    dt.querySelectorAll(".picked").forEach(function (x) { x.remove(); });
+    dt.querySelectorAll(".picked, .picked + .nudge").forEach(function (x) { x.remove(); });
     dt.querySelectorAll(".skill.on").forEach(function (x) { x.classList.remove("on"); });
     var dr0 = $("dtRun"); if (dr0) dr0.classList.remove("on");
     if (PG.picked === key) { PG.picked = null; fitPages(); size(); return; }
@@ -1584,6 +1635,7 @@
         ? "<span class=\"ck\">" + svg("M5 12l4 4L19 6") + "</span><span><b class=\"t\">" + (trial ? "Free trial ready!" : "Copied!") + "</b>Paste <b>" + esc(k.title || k.name) + "</b> into the chat below and press enter.</span>"
         : "Copy is blocked here. Copy this, then paste it into the message box below and send: <input class=\"cmd\" readonly value=\"" + esc(text) + "\">";
       after.after(n);
+      if (ok && key === "run" && needsProfile()) n.after(nudge("That took a few questions. Add your brand once and next time it's zero."));
       if (after.classList.contains("skill")) after.classList.add("on");
       var f = n.querySelector("input.cmd");
       if (f) { f.addEventListener("focus", function () { f.select(); }); f.focus(); f.select(); }
@@ -1819,7 +1871,10 @@
     var run = h("button", "dt-run"); run.type = "button"; run.id = "dtRun";
     run.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Run play' + (price ? " · " + esc(price) : "") + "</span>";
     ctas.appendChild(run);
-    if (price) { var tr = h("button", "pp-trial", "Use 1 free trial"); tr.type = "button"; tr.id = "dtTrial"; ctas.appendChild(tr); }
+    if (price && owns(k)) { run.querySelector("span").textContent = "Run play"; ctas.appendChild(h("p", "pp-owned", "✓ You own this playbook")); }
+    else if (price && !trialUsed(k)) { var tr = h("button", "pp-trial", "Use 1 free trial"); tr.type = "button"; tr.id = "dtTrial"; ctas.appendChild(tr); }
+    else if (price) ctas.appendChild(h("p", "pp-owned muted", "Free trial used"));
+    if (needsProfile()) ctas.appendChild(nudge("Make it yours: add your brand once and every play writes like you."));
     var media = mediaBlock(k, d);
     // Tabs
     var tabsBox = h("div", "pp-tabsbox");
@@ -1889,8 +1944,12 @@
     if (cr) { closePage(); q.value = ""; S.view = ""; setFilter("creator", { key: cr.dataset.creator, label: cr.dataset.creator }); return; }
     var rr = t.closest("[data-run]");
     if (rr && rr.closest(".skill")) { var kx = cardByName(rr.dataset.run); if (kx) copyFrom(kx, rr.closest(".skill"), "rel:" + kx.name); return; }
-    if (t.closest("#dtRun")) { copyFrom(PG.card, dt.querySelector(".pp-ctas"), "run"); return; }
-    if (t.closest("#dtTrial")) { copyFrom(PG.card, dt.querySelector(".pp-ctas"), "trial", true); return; }
+    if (t.closest("#dtRun")) {
+      if (priceText(PG.card) && !owns(PG.card)) { openPane("checkout", { card: PG.card }); return; } // paid: Stripe checkout first
+      copyFrom(PG.card, dt.querySelector(".pp-ctas"), "run"); return;
+    }
+    if (t.closest("#dtTrial")) { openPane("trial", { card: PG.card }); return; }
+    if (t.closest("[data-nudge]")) { openProfile(account() || profiles().length > 1 ? curProfile() : null); return; }
     var sh = t.closest("[data-shot]");
     if (sh) { PG.shot = Number(sh.dataset.shot); renderPage(); return; }
     var tb = t.closest("[data-tab]");
@@ -2015,6 +2074,17 @@
   function cpReady() { var d = CP.d; return !!((d.name || "").trim() && (d.desc || "").trim() && ((d.src || "").trim() || d.file) && (!d.paid || Number(String(d.amount).replace(/[^0-9.]/g, "")) > 0)); }
   function lbl(text, sub) { var w = h("div", "cp-lbl"); w.appendChild(h("span", null, text)); if (sub) w.appendChild(h("small", null, sub)); return w; }
   function renderCreate() {
+    if (CP.done) { // published
+      cpEl.innerHTML = ""; var box = h("div", "pane-body cp-done");
+      box.appendChild(h("div", "cp-check", "✓")); box.appendChild(h("h2", "pp-t", CP.done.name + " is live"));
+      box.appendChild(h("p", "pf-sub2", "It's in the Voke store under your name. Anyone can run it with /voke " + CP.done.name.toLowerCase() + "."));
+      var a = h("button", "dt-run pane-main", "Create another playbook"); a.type = "button"; a.id = "cpAgain"; box.appendChild(a);
+      var v2 = h("button", "pf-cta pane-main", "Back to plays"); v2.type = "button"; v2.id = "cpBack"; box.appendChild(v2);
+      cpEl.appendChild(box); box.style.minHeight = Math.max(200, CP.h) + "px";
+      var g2 = (CP.shellH || 0) - document.querySelector(".shell").getBoundingClientRect().height;
+      if (g2 > 1) box.style.minHeight = Math.round(box.getBoundingClientRect().height + g2) + "px";
+      size(); return;
+    }
     var d = CP.d, kind = srcKind(d.src), uploaded = !!(d.steps.length || (d.src || "").trim() && kind !== "github" || d.file);
     cpEl.innerHTML = "";
     // 1. Playbook information
@@ -2163,8 +2233,21 @@
     if (d.steps.length) L.push((d.bundle ? "Skills in order" : "Approved steps") + " (tool · step · runtime · tool cost):\n" + d.steps.map(function (st, i) { return (i + 1) + ". " + st.tool + " · " + st.title + " · " + (st.runtime || "Instant") + " · " + (st.cost || "Free"); }).join("\n"));
     return L.join("\n");
   }
+  // GitHub playbooks publish straight to the Voke server (the same publish GitHub to Skill uses: metadata, license,
+  // files, creator, stars, and repos with several skills saved one by one and linked as one playbook).
+  function publishGithub() {
+    var d = CP.d; CP.busy = true; CP.status = "Publishing…"; renderCreate();
+    request("tools/call", { name: "voke", arguments: { action: "publish", url: d.src.trim(), title: d.bundle ? "" : d.name, visibility: d.paid || d.vis !== "private" ? "public" : "private",
+      description: d.desc, category: "community", tags: "" } }).then(function (r) {
+      CP.busy = false; var v = (structured(r) || {}).view || {}, txt = ((r.content || [])[0] || {}).text || "";
+      if (r.isError || /^Not published/i.test(txt)) { CP.status = (txt.split("\n")[0] || "Couldn't publish.").replace(/Tell the user.*$/, ""); renderCreate(); return; }
+      CP.done = { name: d.name, label: v.label || "Published" }; renderCreate();
+    }).catch(function () { CP.busy = false; CP.status = "Couldn't reach Voke to publish. Try again."; renderCreate(); });
+  }
   cpEl.addEventListener("click", function (e) {
     var t = e.target, d = CP.d;
+    if (t.closest("#cpAgain")) { CP.done = null; CP.d = null; CP.status = ""; CP.page = 0; closeCreate(); openCreate(); return; }
+    if (t.closest("#cpBack")) { CP.done = null; CP.d = null; CP.status = ""; closeCreate(); return; }
     var sa = t.closest("[data-stepact]");
     if (sa) { var i = Number(sa.dataset.i), j = sa.dataset.stepact === "up" ? i - 1 : i + 1;
       if (sa.dataset.stepact === "rm") d.steps.splice(i, 1); else if (j >= 0 && j < d.steps.length) { var tmp = d.steps[i]; d.steps[i] = d.steps[j]; d.steps[j] = tmp; }
@@ -2185,17 +2268,243 @@
     }
     if (t.closest("#cpPub")) {
       if (!cpReady() || !d.tested) return;
+      if (!account()) { needAccount("Publishing puts your playbook under your name, so you need a free Voke account.", function () { $("cpPub").click(); }); return; }
+      if (srcKind(d.src) === "github") { publishGithub(); return; }
       var src = (d.src || "").trim();
       send("Publish this Voke playbook" + (src ? " from " + src : "") + ".\n" + listingText()).catch(function () {});
       CP.status = "Sent to chat to publish. Public playbooks need one test run first."; renderCreate(); return;
     }
   });
 
+  // ------------------------------------------------------------ account (email + code, no passwords)
+  // Signed out is a full guest: plays run, saves stay in this browser. Signing in (or paying, which creates the
+  // account from the Stripe email) keeps profiles, saves and purchases on every device. The server tools are
+  // voke_auth / voke_checkout / voke_billing / voke_payouts; until a server has them the card runs a labelled demo.
+  function account() { return load("voke-account", null); }
+  function viewBtn(key, label, n, icon) { // Saved / Favorited list views; the open one turns into "All Plays"
+    var on = S.view === key;
+    var b = button(on ? "All Plays" : label + " (" + n + ")", null, function () { S.view = on ? "" : key; if (S.view) S.filters = {}; closeMenu(); fetchPage(false); });
+    b.insertAdjacentHTML("afterbegin", svg(on ? P.other : icon)); return b;
+  }
+  function server(tool, args, demo) { // the real tool when the server has it, else the demo answer
+    return request("tools/call", { name: tool, arguments: args }).then(function (r) {
+      var d = structured(r); if (!d || r.isError || r.is_error) throw new Error("no tool"); return d;
+    }).catch(function () { var x = demo(); x.demo = true; return x; });
+  }
+  function signedIn(email, how) {
+    store("voke-account", { email: email, since: new Date().toISOString().slice(0, 10) });
+    paintAvatar(); draw(); pushProfile();
+  }
+  function signOut() {
+    store("voke-account", null); paintAvatar(); draw();
+    PANE.flash = "Signed out. Plays still work as a guest."; openPane("flash");
+  }
+  function owned() { return load("voke-owned", []); }
+  function owns(k) { return owned().some(function (o) { return o.name === k.name; }); }
+  function trialUsed(k) { return (load("voke-trials", [])).indexOf(k.name) > -1; }
+  function needsProfile() { var d = pdata(curProfile()); return !(d.description || d.website); }
+
+  var PANE = { open: false }, paneEl = $("pane");
+  function openPane(kind, opts) {
+    if (!menu.hidden) closeMenu();
+    PANE.open = true; PANE.kind = kind; PANE.o = opts || {}; PANE.step = PANE.o.step || "start"; PANE.err = "";
+    PANE.shellH = homeH || Math.round(document.querySelector(".shell").getBoundingClientRect().height);
+    $("card").classList.add("paning"); paneEl.hidden = false; renderPane();
+  }
+  function closePane(after) {
+    PANE.open = false; paneEl.hidden = true; paneEl.innerHTML = ""; $("card").classList.remove("paning");
+    if (!PG.open && !APPS.open && !PF.open && !CP.open) draw();
+    size(); if (after) after();
+  }
+  function paneHead(title, sub) {
+    var hd = h("div", "pane-head"); var t = h("div"); t.appendChild(h("h2", "pp-t", title)); if (sub) t.appendChild(h("p", "pf-sub2", sub)); hd.appendChild(t);
+    var x = h("button", "pane-x"); x.type = "button"; x.id = "paneX"; x.setAttribute("aria-label", "Close"); x.innerHTML = svg("M6 6l12 12M18 6L6 18"); hd.appendChild(x);
+    return hd;
+  }
+  function money(n) { return "$" + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, ""); }
+  function billLabel(p) { return !p ? "" : p.billing === "month" ? "per month" : p.billing === "year" ? "per year" : p.billing === "use" ? "per use" : "one-time"; }
+  function renderPane() {
+    var o = PANE.o, k = PANE.kind, box = h("div", "pane-body");
+    paneEl.innerHTML = "";
+    if (k === "flash") { box.appendChild(paneHead(PANE.flash || "Done")); var ok = button("OK", "dt-run pane-main", function () { closePane(); }); box.appendChild(ok); }
+    if (k === "signin") paneSignin(box, o);
+    if (k === "checkout") paneCheckout(box, o);
+    if (k === "trial") paneTrial(box, o);
+    if (k === "billing") paneBilling(box);
+    if (k === "payouts") panePayouts(box);
+    paneEl.appendChild(box);
+    box.style.height = "auto";
+    var gap = (PANE.shellH || 0) - document.querySelector(".shell").getBoundingClientRect().height; // the card keeps its height
+    if (gap > 0) box.style.minHeight = Math.round(box.getBoundingClientRect().height + gap) + "px";
+    else if (gap < 0) { box.style.height = Math.max(200, Math.round(box.getBoundingClientRect().height + gap)) + "px"; box.style.overflowY = "auto"; }
+    var f = paneEl.querySelector("input"); if (f && !PANE.noFocus) f.focus();
+    size();
+  }
+  // Sign in / create account: email, then a 6-digit code. Also used when a guest saves a profile or publishes.
+  function paneSignin(box, o) {
+    var up = o.mode === "signup";
+    if (PANE.step === "start") {
+      box.appendChild(paneHead(up ? "Create your free Voke account" : "Sign in to Voke", o.why || (up ? "No password. We email you a 6-digit code." : "We'll email you a 6-digit code. No password.")));
+      var e = h("input", "pf-i"); e.type = "email"; e.placeholder = "you@company.com"; e.autocomplete = "email"; e.value = PANE.email || ""; e.id = "paneEmail";
+      box.appendChild(e);
+      var go = button("Email me a code", "dt-run pane-main", sendCode); go.id = "paneGo"; box.appendChild(go);
+      if (PANE.err) box.appendChild(h("p", "pane-err", PANE.err));
+      var sw = button(up ? "Already have an account? Sign in" : "New to Voke? Create a free account", "pf-help pane-link", function () { PANE.o.mode = up ? "signin" : "signup"; PANE.err = ""; renderPane(); });
+      box.appendChild(sw);
+      box.appendChild(h("p", "pf-sub2 pane-fine", "By continuing you agree to Voke's Terms and Privacy Policy."));
+      e.addEventListener("keydown", function (ev) { if (ev.key === "Enter") sendCode(); });
+    } else {
+      box.appendChild(paneHead("Check your email", "We sent a 6-digit code to " + PANE.email + "."));
+      var c = h("input", "pf-i pane-code"); c.inputMode = "numeric"; c.autocomplete = "one-time-code"; c.maxLength = 6; c.placeholder = "••••••"; c.id = "paneCode";
+      box.appendChild(c);
+      var vb = button("Verify and sign in", "dt-run pane-main", verifyCode); box.appendChild(vb);
+      if (PANE.err) box.appendChild(h("p", "pane-err", PANE.err));
+      if (PANE.demo) box.appendChild(h("p", "pf-sub2 pane-demo", "Demo: any 6 digits work until the server sends real codes."));
+      box.appendChild(button("Use a different email", "pf-help pane-link", function () { PANE.step = "start"; PANE.err = ""; renderPane(); }));
+      c.addEventListener("input", function () { c.value = c.value.replace(/\D/g, ""); if (c.value.length === 6) verifyCode(); });
+    }
+  }
+  function sendCode() {
+    var e = ($("paneEmail") || {}).value || ""; e = e.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { PANE.err = "Enter a valid email."; renderPane(); return; }
+    PANE.email = e;
+    server("voke_auth", { action: "start", email: e, voter: voter }, function () { return { sent: true }; }).then(function (r) { PANE.demo = !!r.demo; PANE.step = "code"; PANE.err = ""; renderPane(); });
+  }
+  function verifyCode() {
+    var c = (($("paneCode") || {}).value || "").trim();
+    if (!/^\d{6}$/.test(c)) { PANE.err = "Enter the 6-digit code."; renderPane(); return; }
+    server("voke_auth", { action: "verify", email: PANE.email, code: c, voter: voter }, function () { return { ok: true, email: PANE.email }; }).then(function (r) {
+      if (!r.ok) { PANE.err = r.error || "That code didn't work. Try again or resend."; renderPane(); return; }
+      signedIn(r.email || PANE.email);
+      var then = PANE.o.then; closePane(); if (then) then();
+    });
+  }
+  function needAccount(why, then) { if (account()) { then(); return; } openPane("signin", { mode: "signup", why: why, then: then }); }
+  // Paid playbooks: Stripe hosts the payment page (Voke never sees a card). The email used there becomes the
+  // Voke account, so a guest who pays is signed in without a sign-up form.
+  function paneCheckout(box, o) {
+    var k = o.card, p = k.price || {};
+    if (PANE.step === "start") {
+      box.appendChild(paneHead("Get " + (k.title || k.name), money(p.amount) + " " + billLabel(p) + (p.billing === "month" || p.billing === "year" ? ", cancel anytime" : "")));
+      var ul = h("ul", "pane-list");
+      ["Runs the full playbook in your AI, start to finish", "Uses your profile's brand and apps when you have one", p.billing === "once" || !p.billing ? "Yours to run again any time" : "Every run while you're subscribed"].forEach(function (x) { ul.appendChild(h("li", null, x)); });
+      box.appendChild(ul);
+      var go = button("Continue to secure checkout", "dt-run pane-main", startCheckout); box.appendChild(go);
+      box.appendChild(h("p", "pf-sub2 pane-fine", "Payment is handled by Stripe in a new tab. " + (account() ? "Receipt goes to " + account().email + "." : "Your Voke account is created from the email you pay with.")));
+    } else if (PANE.step === "waiting") {
+      box.appendChild(paneHead("Finish paying in the Stripe tab", "This updates on its own once the payment goes through."));
+      box.appendChild(h("div", "pane-spin"));
+      box.appendChild(button("I've paid, check now", "pf-cta pane-main", checkPaid));
+      if (PANE.demo) box.appendChild(button("Simulate a successful payment (demo)", "pf-help pane-link", function () { finishPaid(account() ? account().email : "you@company.com"); }));
+      box.appendChild(button("Open checkout again", "pf-help pane-link", function () { if (PANE.url) openLink(PANE.url); }));
+    } else {
+      box.appendChild(paneHead("You own " + (k.title || k.name), "Receipt sent to " + PANE.email + "." + (PANE.created ? " We created your Voke account with that email, so you're signed in." : "")));
+      var run = button("Run play now", "dt-run pane-main", function () { closePane(function () { if (PG.open) copyFrom(PG.card, dt.querySelector(".pp-ctas"), "run"); }); });
+      box.appendChild(run);
+      if (needsProfile()) box.appendChild(nudge("Make it run on autopilot: add your brand once and this play uses it every time."));
+    }
+  }
+  function startCheckout() {
+    var k = PANE.o.card;
+    server("voke_checkout", { name: k.name, voter: voter, email: account() ? account().email : "" }, function () { return { url: "https://checkout.stripe.com/" }; }).then(function (r) {
+      PANE.demo = !!r.demo; PANE.url = r.url; PANE.session = r.session; if (!r.demo) openLink(r.url);
+      PANE.step = "waiting"; renderPane();
+      clearInterval(PANE.poll); if (!r.demo) PANE.poll = setInterval(checkPaid, 4000);
+    });
+  }
+  function checkPaid() {
+    server("voke_checkout", { action: "status", session: PANE.session || "", voter: voter }, function () { return { paid: false }; }).then(function (r) { if (r.paid) finishPaid(r.email); });
+  }
+  function finishPaid(email) {
+    clearInterval(PANE.poll);
+    var k = PANE.o.card, list = owned().filter(function (x) { return x.name !== k.name; });
+    list.unshift({ name: k.name, title: k.title || k.name, price: k.price, date: new Date().toISOString().slice(0, 10) }); store("voke-owned", list);
+    PANE.created = !account(); PANE.email = email; if (!account()) signedIn(email);
+    PANE.step = "done"; renderPane(); if (PG.open) renderPage();
+  }
+  function paneTrial(box, o) {
+    var k = o.card;
+    box.appendChild(paneHead("Use your free trial", "One full run of " + (k.title || k.name) + ", on us."));
+    box.appendChild(h("p", "pane-text", "Your trial is a complete run, so you see the real result before you buy. Using it means a later purchase of this playbook isn't refundable."));
+    box.appendChild(button("Use my free trial", "dt-run pane-main", function () {
+      var t = load("voke-trials", []); if (t.indexOf(k.name) < 0) t.push(k.name); store("voke-trials", t);
+      closePane(function () { if (PG.open) { renderPage(); copyFrom(PG.card, dt.querySelector(".pp-ctas"), "trial", true); } });
+    }));
+    box.appendChild(button("Not now", "pf-help pane-link", function () { closePane(); }));
+  }
+  function nudge(text) {
+    var n = h("div", "nudge"); n.appendChild(h("span", "nudge-i", "✨")); var t = h("div"); t.appendChild(h("span", null, text));
+    var b = h("button", "pf-help nudge-go", "Set up my profile"); b.type = "button"; b.dataset.nudge = "1"; t.appendChild(b); n.appendChild(t); return n;
+  }
+  function paneBilling(box) {
+    if (!account()) { box.appendChild(paneHead("Billing", "Sign in to see purchases and subscriptions.")); box.appendChild(button("Sign in", "dt-run pane-main", function () { openPane("signin", { mode: "signin", then: function () { openPane("billing"); } }); })); return; }
+    box.appendChild(paneHead("Billing", account().email));
+    var subs = owned().filter(function (o) { return o.price && (o.price.billing === "month" || o.price.billing === "year"); }), buys = owned().filter(function (o) { return subs.indexOf(o) < 0; });
+    var s1 = h("div", "pane-sec"); s1.appendChild(h("p", "dt-h", "Subscriptions"));
+    if (!subs.length) s1.appendChild(h("p", "pf-sub2", "No subscriptions."));
+    subs.forEach(function (o) { s1.appendChild(lineRow(o.title, money(o.price.amount) + " " + billLabel(o.price), "Renews " + addMonths(o.date, o.price.billing === "year" ? 12 : 1))); });
+    var s2 = h("div", "pane-sec"); s2.appendChild(h("p", "dt-h", "Purchases"));
+    if (!buys.length) s2.appendChild(h("p", "pf-sub2", "No purchases yet. Paid playbooks you buy show up here."));
+    buys.forEach(function (o) { s2.appendChild(lineRow(o.title, o.price ? money(o.price.amount) : "Free", "Bought " + o.date)); });
+    box.appendChild(s1); box.appendChild(s2);
+    box.appendChild(button("Manage billing on Stripe", "pf-cta pane-main", function () {
+      server("voke_billing", { action: "portal", voter: voter }, function () { return { url: "https://billing.stripe.com/" }; }).then(function (r) { openLink(r.url); });
+    }));
+    box.appendChild(h("p", "pf-sub2 pane-fine", "Update your card, download receipts or cancel a subscription on Stripe."));
+  }
+  function addMonths(d, n) { var x = new Date(d + "T12:00:00"); x.setMonth(x.getMonth() + n); return x.toISOString().slice(0, 10); }
+  function lineRow(a, b, c) { var r = h("div", "pane-row"); var l = h("div"); l.appendChild(h("b", null, a)); if (c) l.appendChild(h("span", null, c)); r.appendChild(l); r.appendChild(h("span", "pane-amt", b)); return r; }
+  // Creator payouts: Stripe Connect holds the creator's bank details and pays them; Voke shows the numbers.
+  function panePayouts(box) {
+    if (!account()) { box.appendChild(paneHead("Creator payouts", "Sign in to sell playbooks and get paid.")); box.appendChild(button("Sign in", "dt-run pane-main", function () { openPane("signin", { mode: "signin", then: function () { openPane("payouts"); } }); })); return; }
+    var st = load("voke-payouts", { status: "none" });
+    if (st.status === "none") {
+      box.appendChild(paneHead("Get paid for your playbooks", "Sell playbooks in the Voke store and keep 70% of every sale."));
+      var ul = h("ul", "pane-list");
+      ["Set your price: one-time, per use, monthly or yearly", "Voke handles checkout, receipts and refunds", "Stripe pays you out to your bank, usually weekly"].forEach(function (x) { ul.appendChild(h("li", null, x)); });
+      box.appendChild(ul);
+      box.appendChild(button("Set up payouts with Stripe", "dt-run pane-main", function () {
+        server("voke_payouts", { action: "onboard", voter: voter }, function () { return { url: "https://connect.stripe.com/" }; }).then(function (r) {
+          if (!r.demo) openLink(r.url); store("voke-payouts", { status: r.demo ? "active" : "pending", demo: !!r.demo }); renderPane();
+        });
+      }));
+      box.appendChild(h("p", "pf-sub2 pane-fine", "Takes about 5 minutes on Stripe: your bank account and tax details. Voke never sees them."));
+      return;
+    }
+    if (st.status === "pending") {
+      box.appendChild(paneHead("Finish setting up on Stripe", "Your payout setup is open in a new tab. This page updates once Stripe confirms."));
+      box.appendChild(button("Continue setup on Stripe", "dt-run pane-main", function () { server("voke_payouts", { action: "onboard", voter: voter }, function () { return { url: "https://connect.stripe.com/" }; }).then(function (r) { openLink(r.url); }); }));
+      return;
+    }
+    var d = PAYDEMO;
+    box.appendChild(paneHead("Creator payouts", st.demo ? "Demo numbers until your first sale" : account().email));
+    var cards = h("div", "pane-cards");
+    [["Available", money(d.available)], ["On the way", money(d.pending)], ["Next payout", d.next]].forEach(function (x) { var c = h("div", "pane-card"); c.appendChild(h("span", null, x[0])); c.appendChild(h("b", null, x[1])); cards.appendChild(c); });
+    box.appendChild(cards);
+    var s1 = h("div", "pane-sec"); s1.appendChild(h("p", "dt-h", "Your playbooks"));
+    d.plays.forEach(function (x) { s1.appendChild(lineRow(x.title, money(x.earned), x.status + " · " + x.price + " · " + x.sales + " sales · " + x.runs + " runs")); });
+    var s2 = h("div", "pane-sec"); s2.appendChild(h("p", "dt-h", "Payout history"));
+    d.history.forEach(function (x) { s2.appendChild(lineRow("Paid to bank ••" + x.bank, money(x.amount), x.date)); });
+    box.appendChild(s1); box.appendChild(s2);
+    box.appendChild(button("Update bank or tax details on Stripe", "pf-cta pane-main", function () { server("voke_payouts", { action: "dashboard", voter: voter }, function () { return { url: "https://connect.stripe.com/express_login" }; }).then(function (r) { openLink(r.url); }); }));
+    box.appendChild(h("p", "pf-sub2 pane-fine", "You keep 70% of each sale after Stripe's processing fee; Voke keeps 30%."));
+  }
+  var PAYDEMO = { available: 412.3, pending: 96.6, next: "Nov 10", plays: [
+      { title: "Skipbait", status: "Published", price: "Free", sales: 0, runs: 1840, earned: 0 },
+      { title: "Ads Engine", status: "Published", price: "$19", sales: 31, runs: 212, earned: 412.3 },
+      { title: "Reel Remake", status: "Tested", price: "$9/mo", sales: 0, runs: 3, earned: 0 }],
+    history: [{ amount: 288.4, date: "Oct 27", bank: "4521" }, { amount: 154.0, date: "Oct 20", bank: "4521" }] };
+  paneEl.addEventListener("click", function (e) {
+    if (e.target.closest("#paneX")) { clearInterval(PANE.poll); closePane(); return; }
+    if (e.target.closest("[data-nudge]")) { closePane(function () { openProfile(account() || profiles().length > 1 ? curProfile() : null); }); }
+  });
+
   // Account menu (the avatar, like Google): switch profile at the top, then the account items. Saved plays and
   // connected apps follow the profile that's signed in.
   function paintAvatar() {
-    var c = curProfile(), av = $("av");
-    av.textContent = initials(c); av.style.background = profColor(c);
+    var c = curProfile(), av = $("av"), a = account();
+    if (!a) { av.innerHTML = svg(P.user); av.style.background = ""; av.classList.add("guest"); $("dots").setAttribute("aria-label", "Sign in"); return; }
+    av.classList.remove("guest"); av.textContent = initials(c); av.style.background = profColor(c);
     $("dots").setAttribute("aria-label", "Account: " + c);
   }
   function avatar(n, cls) { var a = h("span", "av" + (cls ? " " + cls : ""), initials(n)); a.style.background = profColor(n); return a; }
@@ -2204,14 +2513,33 @@
     if (APPS.open) renderApps();
     else if (S.view === "saved") fetchPage(false); else draw();
   }
-  function closeMenu() { menu.hidden = true; var d = $("dots"); d.setAttribute("aria-expanded", "false"); d.blur(); size(); }
+  function closeMenu() { menu.hidden = true; $("card").classList.remove("menuing"); var d = $("dots"); d.setAttribute("aria-expanded", "false"); d.blur(); size(); }
   $("dots").onclick = function () {
     if (!menu.hidden) { closeMenu(); return; }
     if (PG.open) closePage();
     if (APPS.open) closeApps();
     if (PF.open) closeProfile();
     if (CP.open) closeCreate();
+    if (PANE.open) closePane();
     menu.innerHTML = "";
+    var dark = document.documentElement.dataset.theme === "dark";
+    var tb = button(dark ? "Light mode" : "Dark mode", null, function () { closeMenu(); toggleTheme(); });
+    tb.insertAdjacentHTML("afterbegin", dark
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>');
+    if (!account()) { // guest: everything works; signing in keeps it on every device
+      var g = h("div", "guestbox");
+      g.appendChild(h("b", null, "You're using Voke as a guest"));
+      g.appendChild(h("span", null, "Plays run fine without an account. Sign in to keep your profiles, saved plays and purchases on every device and AI app."));
+      var gb = h("div", "guestbtns");
+      var si = button("Sign in", "dt-run gsi", function () { closeMenu(); openPane("signin", { mode: "signin" }); });
+      var su = button("Create free account", "pf-cta", function () { closeMenu(); openPane("signin", { mode: "signup" }); });
+      gb.appendChild(si); gb.appendChild(su); g.appendChild(gb); menu.appendChild(g); menu.appendChild(h("hr"));
+      var gp = button("Set up a profile", null, function () { closeMenu(); openProfile(null); }); gp.insertAdjacentHTML("afterbegin", svg(P.user)); menu.appendChild(gp);
+      menu.appendChild(viewBtn("saved", "Saved Plays", savedSet().length, P.bookmark));
+      menu.appendChild(h("hr")); menu.appendChild(tb);
+      openMenuFit(); return;
+    }
     var cur = curProfile(), others = profiles().filter(function (x) { return x !== cur; });
     function editBtn(n) { var e = button("", "pedit", function (ev) { ev.stopPropagation(); closeMenu(); openProfile(n); }); e.innerHTML = svg(P.pencil); e.setAttribute("aria-label", "Edit " + n); return e; }
     var me = h("div", "acct"); me.appendChild(avatar(cur, "lg"));
@@ -2227,28 +2555,29 @@
     menu.appendChild(add); menu.appendChild(h("hr"));
     var pb = button("Edit profile", null, function () { closeMenu(); openProfile(curProfile()); });
     pb.insertAdjacentHTML("afterbegin", svg(P.user));
-    var bb = button("Billing", null, function () { closeMenu(); send("/voke billing").catch(function () {}); });
+    var bb = button("Billing", null, function () { closeMenu(); openPane("billing"); });
     bb.insertAdjacentHTML("afterbegin", svg(P.card));
-    // Saved and Favorited are list views; the one that's open turns into "All Plays".
-    function viewButton(key, label, n, icon) {
-      var on = S.view === key;
-      var b = button(on ? "All Plays" : label + " (" + n + ")", null, function () {
-        S.view = on ? "" : key; if (S.view) S.filters = {}; closeMenu(); fetchPage(false);
-      });
-      b.insertAdjacentHTML("afterbegin", svg(on ? P.other : icon));
-      return b;
-    }
-    menu.appendChild(pb); menu.appendChild(bb); menu.appendChild(h("hr"));
-    menu.appendChild(viewButton("saved", "Saved Plays", savedSet().length, P.bookmark));
-    menu.appendChild(viewButton("favs", "Favorited Plays", S.favs.length, P.star));
-    var dark = document.documentElement.dataset.theme === "dark";
-    var tb = button(dark ? "Light mode" : "Dark mode", null, function () { closeMenu(); toggleTheme(); });
-    tb.insertAdjacentHTML("afterbegin", dark
-      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
-      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>');
+    var yb = button("Creator payouts", null, function () { closeMenu(); openPane("payouts"); });
+    yb.insertAdjacentHTML("afterbegin", svg(P.bank));
+    menu.appendChild(pb); menu.appendChild(bb); menu.appendChild(yb); menu.appendChild(h("hr"));
+    menu.appendChild(viewBtn("saved", "Saved Plays", savedSet().length, P.bookmark));
+    menu.appendChild(viewBtn("favs", "Favorited Plays", S.favs.length, P.star));
     menu.appendChild(h("hr")); menu.appendChild(tb);
-    menu.hidden = false; $("dots").setAttribute("aria-expanded", "true"); size();
+    var so = button("Sign out", null, function () { closeMenu(); signOut(); });
+    so.insertAdjacentHTML("afterbegin", svg(P.out));
+    var em = h("p", "menu-email", "Signed in as " + account().email);
+    menu.appendChild(so); menu.appendChild(em);
+    openMenuFit();
   };
+  // The menu opens within the card's usual height and scrolls if it's longer.
+  function openMenuFit() {
+    var shell = document.querySelector(".shell"), before = Math.round(shell.getBoundingClientRect().height);
+    menu.style.maxHeight = menu.style.minHeight = "";
+    menu.hidden = false; $("dots").setAttribute("aria-expanded", "true"); $("card").classList.add("menuing");
+    var mh = menu.getBoundingClientRect().height, gap = before - shell.getBoundingClientRect().height;
+    if (before > 200) { var want = Math.max(160, Math.round(mh + gap)) + "px"; menu.style.maxHeight = want; menu.style.minHeight = want; }
+    size();
+  }
   paintAvatar();
 
   // ------------------------------------------------------------ apps (the app-store button)
@@ -2527,6 +2856,7 @@
     clearTimeout(PF.st);
     if (!autoSave()) { if (!(PF.d.name || "").trim()) { PF.page = 0; PF.status = "Add a name first."; renderProfile(); var f = pfEl.querySelector('[data-k="name"]'); if (f) f.focus(); } return; }
     var name = PF.orig; setProfile(name); PF.status = ""; closeProfile(); paintAvatar(); pushProfile();
+    if (!account()) openPane("signin", { mode: "signup", why: "Your " + name + " profile is saved in this browser. Create a free account to use it on every device and AI app." });
   }
   // Runs once the website looks complete (a pause in typing, Enter or leaving the field). Fills empty fields and
   // ones it filled before; anything the user typed stays.
@@ -2606,8 +2936,10 @@
     var want = Math.ceil(r.bottom - top) + "px";
     if (list.style.height !== want) list.style.height = want;
   }
+  var homeH = 0; // the card's height on the plays list; other screens match it
   function size() {
     fitList();
+    if (list.offsetParent !== null && !$("card").className.match(/menuing|paning|detailing|appsing|profiling|creating/)) homeH = Math.round(document.querySelector(".shell").getBoundingClientRect().height);
     var hgt = document.body.classList.contains("hidden") ? 0 : Math.ceil(document.documentElement.getBoundingClientRect().height);
     if (ready && hgt !== lastH) {
       lastH = hgt;
