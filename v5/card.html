@@ -566,6 +566,56 @@
   .apps-pages::-webkit-scrollbar{display:none}
   .apps-pg{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
   .apps .bar{margin:2px 6px 12px}
+  /* profile editor */
+  .profiling #cats,.profiling #filters,.profiling #list,.profiling #pager,.profiling #menu{display:none}
+  .pf{display:flex;flex-direction:column;gap:0}.pf[hidden]{display:none}
+  .pf-scroll{overflow-y:auto;overscroll-behavior:contain;padding:2px 4px 8px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;scrollbar-color:var(--vk-line) transparent}
+  .pf-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .pf-seg{display:flex;padding:3px;border-radius:999px;background:var(--vk-btn)}
+  .pf-seg button{height:30px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--vk-meta)}
+  .pf-seg button.on{background:var(--vk-bg);color:var(--vk-name);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .pf-step{display:flex;flex-direction:column;gap:6px}
+  .pf-st{margin:0;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--vk-name)}
+  .pf-st b{width:20px;height:20px;border-radius:50%;background:var(--vk-btn);display:grid;place-items:center;font-size:11px;font-weight:600;color:var(--vk-meta)}
+  .pf-sub{margin:-2px 0 2px 28px;font-size:12.5px;line-height:1.4;color:var(--vk-meta)}
+  .pf-step>*:not(.pf-st):not(.pf-sub){margin-left:28px}
+  .pf-f{display:flex;flex-direction:column;gap:4px}
+  .pf-l{display:flex;justify-content:flex-end;min-height:0}.pf-l>span:empty{display:none}
+  .pf-help{font-size:12px;color:var(--vk-meta);text-decoration:underline;text-underline-offset:2px;padding:0;margin-top:-26px}
+  .pf-i{width:100%;box-sizing:border-box;border:0;border-radius:12px;background:var(--vk-search);color:var(--vk-name);font:inherit;font-size:14px;padding:10px 12px;outline:none;resize:vertical}
+  input.pf-i{height:40px}
+  .pf-i:focus{box-shadow:inset 0 0 0 1px var(--vk-ring)}
+  .pf-row{display:flex;gap:8px}
+  .pf-go{flex:none;height:40px;padding:0 16px;border-radius:999px;background:var(--vk-inv);color:var(--vk-inv-tx);font-size:13px;font-weight:600}
+  .pf-status{margin:0;font-size:12.5px;color:var(--vk-meta)}.pf-status:empty{display:none}
+  .pf-logo{display:flex;gap:10px;align-items:center}
+  .pf-lp{width:52px;height:52px;flex:none;border-radius:12px;background:var(--vk-btn);display:grid;place-items:center;overflow:hidden;font-weight:600;color:var(--vk-meta)}
+  .pf-lp img{width:100%;height:100%;object-fit:contain}
+  .pf-lc{flex:1;display:flex;gap:8px;min-width:0}
+  .pf-up{flex:none;height:40px;padding:0 14px;border-radius:999px;display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--vk-name);box-shadow:inset 0 0 0 1px var(--vk-ring);cursor:pointer}
+  .pf-colors{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .pf-cg{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 6px 0 4px;border-radius:999px;background:var(--vk-search)}
+  .pf-sw{width:28px;height:28px;border-radius:50%;position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);cursor:pointer}
+  .pf-sw input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .pf-hex{font-size:12px;font-family:ui-monospace,monospace;color:var(--vk-name)}
+  .pf-x{width:20px;height:20px;border-radius:50%;font-size:14px;line-height:1;color:var(--vk-meta)}
+  .pf-add{height:36px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--vk-name);box-shadow:inset 0 0 0 1px var(--vk-ring)}
+  .pf-apps,.pf-soc{display:flex;flex-wrap:wrap;gap:8px}
+  .pf-chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 4px;border-radius:999px;background:var(--vk-search);font-size:13px;color:var(--vk-name)}
+  .pf-chip .pp-app{width:28px;height:28px;border-radius:50%;font-size:10px}
+  .pf-sbtn{height:36px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--vk-name);background:var(--vk-btn)}
+  .pf-sbtn.on{background:var(--vk-inv);color:var(--vk-inv-tx)}
+  .pf-bar{display:flex;align-items:center;gap:8px;padding:10px 4px 12px;border-top:1px solid var(--vk-line)}
+  .pf-del{margin-right:auto;height:40px;padding:0 12px;font-size:13px;color:#c0392b}
+  .pf-cancel{margin-left:auto;height:40px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:500;color:var(--vk-name)}
+  .pf-del+.pf-cancel{margin-left:0}
+  .pf-bar .pf-save{width:auto;height:40px;padding:0 20px;font-size:14px}
+  .acct .pedit,.profrow .pedit{margin-left:auto;width:32px;height:32px;padding:0;border-radius:50%;display:grid;place-items:center;color:var(--vk-meta);flex:none}
+  .acct .pedit svg,.profrow .pedit svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  @media (hover:hover){.pedit:hover{background:var(--vk-btn-hov)}}
+  .menu .acct .pedit{width:32px;padding:0}
+  .profrow{display:flex;align-items:center;gap:4px;padding-right:12px}
+  .profrow .prof{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -589,6 +639,7 @@
   </div>
   <section class="dt" id="dt" hidden aria-label="Play page"></section>
   <section class="apps" id="apps" hidden aria-label="Apps"></section>
+  <section class="pf" id="pf" hidden aria-label="Profile"></section>
   <footer class="foot">
     <div class="nav"><span class="k"><kbd>↑</kbd><kbd>↓</kbd>Select</span><span class="k"><kbd>↵</kbd>Copy</span></div>
     <span id="count">Powered by Voke</span>
@@ -696,6 +747,7 @@
   function svg(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + d + '"/></svg>'; }
 
   var P = {
+    pencil: "M4 20h4L19 9l-4-4L4 16v4ZM14 6l4 4",
     eye: "M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12ZM12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z",
     bookmark: "M7 3.5h10a1 1 0 0 1 1 1V20l-6-3.8L6 20V4.5a1 1 0 0 1 1-1Z",
     user: "M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2",
@@ -752,6 +804,24 @@
     store(appsKey(), v);
   }
   function profColor(n) { var x = 0, t = String(n); for (var j = 0; j < t.length; j++) x = (x * 31 + t.charCodeAt(j)) | 0; return "hsl(" + (Math.abs(x) % 360) + " 55% 42%)"; }
+  function pdata(n) { var d = load("voke-pdata:" + slug(n), null); if (!d) d = (SEED.pdata && SEED.pdata[n]) || {}; d.type = d.type || (slug(n) === "personal" ? "personal" : "business"); return d; }
+  // The signed-in profile goes into the chat's context, so any play that needs a brand, customers, competitors or
+  // connected apps uses this profile's (e.g. signed in as Shipforce, an ad play writes for Shipforce).
+  function profileContext() {
+    var n = curProfile(), d = pdata(n), apps = connected().map(function (id) { var a = (APPS_LIST || []).filter(function (x) { return x.id === id; })[0]; return a ? a.name : id; });
+    var L = ["Active Voke profile: " + n + " (" + d.type + "). Use this profile for any Voke play that needs brand or business details, and its connected apps for any tool step."];
+    if (d.website) L.push("Website: " + d.website);
+    if (d.description) L.push((d.type === "personal" ? "About: " : "Description: ") + d.description);
+    if (d.logo && !/^data:/.test(d.logo)) L.push("Logo: " + d.logo);
+    if (d.colors && d.colors.length) L.push("Brand colors: " + d.colors.join(", "));
+    if (d.font) L.push("Brand font: " + d.font);
+    if (d.icp) L.push("Ideal customer: " + d.icp);
+    if (d.competitors) L.push("Top competitors: " + d.competitors);
+    if (d.socials && d.socials.length) L.push("Socials: " + d.socials.join(", "));
+    L.push("Connected apps: " + (apps.length ? apps.join(", ") : "none yet"));
+    return L.join("\n");
+  }
+  function pushProfile() { if (!ready) return; request("ui/update-model-context", { content: [{ type: "text", text: profileContext() }] }).catch(function () {}); }
   function initials(n) { var w = String(n).trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 1)).toUpperCase(); }
 
   // A card may carry price {amount, billing: "once"|"month"}; free skills have none.
@@ -1798,6 +1868,7 @@
   q.addEventListener("input", function () { if (APPS.open) { APPS.q = q.value; renderApps(); return; } if (PG.open) closePage(); clearTimeout(timer); S.enterPending = false; var t = timer = setTimeout(function () { whenIdle(function () { if (timer !== t) return; timer = null; fetchPage(false); }); }, 180); });
   document.addEventListener("keydown", function (e) {
     if (S.static || e.defaultPrevented) return;
+    if (PF.open) { if (e.key === "Escape") closeProfile(); return; }
     if (APPS.open) { if (e.key === "Escape") closeApps(); return; }
     if (PG.open) { if (e.key === "Escape") closePage(); return; }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -1844,7 +1915,7 @@
   }
   function avatar(n, cls) { var a = h("span", "av" + (cls ? " " + cls : ""), initials(n)); a.style.background = profColor(n); return a; }
   function switchProfile(n) {
-    setProfile(n); paintAvatar(); closeMenu();
+    setProfile(n); paintAvatar(); closeMenu(); pushProfile();
     if (APPS.open) renderApps();
     else if (S.view === "saved") fetchPage(false); else draw();
   }
@@ -1853,26 +1924,22 @@
     if (!menu.hidden) { closeMenu(); return; }
     if (PG.open) closePage();
     if (APPS.open) closeApps();
+    if (PF.open) closeProfile();
     menu.innerHTML = "";
     var cur = curProfile(), others = profiles().filter(function (x) { return x !== cur; });
+    function editBtn(n) { var e = button("", "pedit", function (ev) { ev.stopPropagation(); closeMenu(); openProfile(n); }); e.innerHTML = svg(P.pencil); e.setAttribute("aria-label", "Edit " + n); return e; }
     var me = h("div", "acct"); me.appendChild(avatar(cur, "lg"));
-    var who = h("div"); who.appendChild(h("b", null, cur)); who.appendChild(h("span", null, "Signed in · " + savedSet().length + " saved · " + connected().length + " apps"));
-    me.appendChild(who); menu.appendChild(me);
+    var who = h("div"); who.appendChild(h("b", null, cur)); who.appendChild(h("span", null, (pdata(cur).type === "personal" ? "Personal" : "Business") + " · " + savedSet().length + " saved · " + connected().length + " apps"));
+    me.appendChild(who); me.appendChild(editBtn(cur)); menu.appendChild(me);
     others.forEach(function (n) {
+      var row = h("div", "profrow");
       var b = button("", "prof", function () { switchProfile(n); });
-      b.appendChild(avatar(n)); b.appendChild(h("span", null, n)); menu.appendChild(b);
+      b.appendChild(avatar(n)); b.appendChild(h("span", null, n)); row.appendChild(b); row.appendChild(editBtn(n)); menu.appendChild(row);
     });
-    var add = button("Add profile", "prof", function () {
-      var f = h("input", "newprof"); f.placeholder = "Profile name, e.g. Shipforce"; f.maxLength = 40;
-      add.replaceWith(f); f.focus(); size();
-      f.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" && f.value.trim()) switchProfile(f.value.trim());
-        if (e.key === "Escape") closeMenu();
-      });
-    });
+    var add = button("Add profile", "prof", function () { closeMenu(); openProfile(null); });
     add.insertAdjacentHTML("afterbegin", '<span class="av plus">' + svg("M12 5v14M5 12h14") + '</span>');
     menu.appendChild(add); menu.appendChild(h("hr"));
-    var pb = button("Profile", null, function () { closeMenu(); send("/voke profile").catch(function () {}); });
+    var pb = button("Edit profile", null, function () { closeMenu(); openProfile(curProfile()); });
     pb.insertAdjacentHTML("afterbegin", svg(P.user));
     var bb = button("Billing", null, function () { closeMenu(); send("/voke billing").catch(function () {}); });
     bb.insertAdjacentHTML("afterbegin", svg(P.card));
@@ -1924,6 +1991,7 @@
   var APPS = { open: false, cat: "all", q: "" }, appsEl = $("apps");
   function openApps() {
     if (!menu.hidden) closeMenu();
+    if (PF.open) closeProfile();
     if (PG.open) closePage();
     APPS.h = list.offsetParent ? Math.round(list.getBoundingClientRect().height) : 0;
     APPS.shellH = Math.round(document.querySelector(".shell").getBoundingClientRect().height);
@@ -1988,11 +2056,174 @@
     if (c) { APPS.cat = c.dataset.appcat; renderApps(); return; }
     var b = e.target.closest("[data-app]"); if (!b) return;
     var a = APPS_LIST.filter(function (x) { return x.id === b.dataset.app; })[0], on = connected().indexOf(a.id) > -1;
-    if (on) { setConnected(a.id, false); renderApps(); return; }
-    setConnected(a.id, true); renderApps();
+    if (on) { setConnected(a.id, false); renderApps(); pushProfile(); return; }
+    setConnected(a.id, true); renderApps(); pushProfile();
     send("Connect " + a.name + " to Voke for my " + curProfile() + " profile.").catch(function () {});
   });
   $("store").onclick = function () { if (APPS.open) closeApps(); else openApps(); };
+
+  // ------------------------------------------------------------ add / edit profile
+  // Business: the website pre-fills name, description, logo, colors and font (voke_brand reads the site); every
+  // field can be overridden, and "Need help?" asks Claude in chat. Then apps and socials connect through Voke's
+  // agent (Composio), the user only approves. Personal: a name, a line about you, apps and socials.
+  var SOCIALS = [["instagram", "Instagram"], ["tiktok", "TikTok"], ["youtube", "YouTube"], ["linkedin", "LinkedIn"], ["x", "X"], ["facebook", "Facebook"]];
+  var PF = { open: false, orig: null, d: null }, pfEl = $("pf");
+  function openProfile(name) {
+    if (!menu.hidden) closeMenu();
+    if (PG.open) closePage();
+    if (APPS.open) closeApps();
+    var keepH = Math.round(cats.getBoundingClientRect().height + 10 + list.getBoundingClientRect().height);
+    PF.open = true; PF.orig = name; PF.h = keepH > 100 ? keepH : 410;
+    PF.d = name ? JSON.parse(JSON.stringify(pdata(name))) : { type: "business" };
+    PF.d.name = name || ""; PF.d.colors = PF.d.colors || []; PF.d.socials = PF.d.socials || [];
+    PF.apps = name ? load("voke-apps:" + slug(name), null) || ((SEED.apps && SEED.apps[name]) || []) : [];
+    $("card").classList.add("profiling"); pfEl.hidden = false; renderProfile();
+  }
+  function closeProfile() {
+    PF.open = false; pfEl.hidden = true; pfEl.innerHTML = "";
+    $("card").classList.remove("profiling"); draw(); size();
+  }
+  function field(label, el, help) {
+    var w = h("label", "pf-f"), top = h("span", "pf-l"); top.appendChild(h("span", null, label));
+    if (help) { var a = h("button", "pf-help", "Need help?"); a.type = "button"; a.dataset.help = help; top.appendChild(a); }
+    w.appendChild(top); w.appendChild(el); return w;
+  }
+  function inp(key, ph, area) {
+    var e = h(area ? "textarea" : "input", "pf-i"); e.placeholder = ph || ""; e.value = PF.d[key] || ""; e.dataset.k = key;
+    if (area) e.rows = 3;
+    e.addEventListener("input", function () { PF.d[key] = e.value; });
+    return e;
+  }
+  function renderProfile() {
+    var d = PF.d, biz = d.type !== "personal";
+    pfEl.innerHTML = "";
+    var sc = h("div", "pf-scroll"); sc.style.height = PF.h + "px";
+    var head = h("div", "pf-head");
+    head.appendChild(h("h2", "pp-t", PF.orig ? "Edit profile" : "Add profile"));
+    var seg = h("div", "pf-seg");
+    [["business", "Business"], ["personal", "Personal"]].forEach(function (t) {
+      var b = h("button", d.type === t[0] || (!d.type && t[0] === "business") ? "on" : null, t[1]); b.type = "button"; b.dataset.ptype = t[0]; seg.appendChild(b);
+    });
+    head.appendChild(seg); sc.appendChild(head);
+    var n = 0;
+    function step(title, body, sub) {
+      var s = h("div", "pf-step"); var t = h("p", "pf-st"); t.appendChild(h("b", null, String(++n))); t.appendChild(document.createTextNode(title)); s.appendChild(t);
+      if (sub) s.appendChild(h("p", "pf-sub", sub));
+      body.forEach(function (x) { s.appendChild(x); }); sc.appendChild(s);
+    }
+    if (biz) {
+      var web = inp("website", "yourbusiness.com"), go = h("button", "pf-go", "Auto-fill"); go.type = "button"; go.id = "pfFill";
+      var row = h("div", "pf-row"); row.appendChild(web); row.appendChild(go);
+      step("Website", [row, h("p", "pf-status", PF.status || "")], "Fills in the next steps for you. You can change anything. No website? Fill them in yourself.");
+      step("Name", [field("", inp("name", "Business name"), "name")]);
+      step("Description", [field("", inp("description", "What the business does, in a sentence or two", true), "description")]);
+      var logo = h("div", "pf-logo"), img = h("div", "pf-lp");
+      if (d.logo) { var im = document.createElement("img"); im.src = d.logo; im.alt = ""; img.appendChild(im); } else img.appendChild(document.createTextNode(initials(d.name || "?")));
+      logo.appendChild(img);
+      var lu = inp("logo", "Logo image URL"); lu.addEventListener("change", renderProfile);
+      var up = h("label", "pf-up", "Upload"); var fi = document.createElement("input"); fi.type = "file"; fi.accept = "image/*"; fi.hidden = true; up.appendChild(fi);
+      fi.addEventListener("change", function () {
+        var f = fi.files && fi.files[0]; if (!f) return;
+        if (f.size > 400000) { PF.status = "That image is over 400 KB. Use a smaller file or paste a URL."; renderProfile(); return; }
+        var rd = new FileReader(); rd.onload = function () { d.logo = rd.result; renderProfile(); }; rd.readAsDataURL(f);
+      });
+      var lc = h("div", "pf-lc"); lc.appendChild(lu); lc.appendChild(up); logo.appendChild(lc);
+      step("Logo", [field("", logo, "logo")]);
+      var cw = h("div", "pf-colors");
+      d.colors.forEach(function (c, i) {
+        var sw = h("label", "pf-sw"), ci = document.createElement("input"); ci.type = "color"; ci.value = c; sw.style.background = c;
+        ci.addEventListener("input", function () { d.colors[i] = ci.value.toUpperCase(); sw.style.background = ci.value; var hx = sw.parentNode && sw.parentNode.querySelector(".pf-hex"); if (hx) hx.textContent = d.colors[i]; });
+        sw.appendChild(ci); var x = h("button", "pf-x", "×"); x.type = "button"; x.dataset.rmcolor = i;
+        var g = h("span", "pf-cg"); g.appendChild(sw); g.appendChild(h("span", "pf-hex", c)); g.appendChild(x); cw.appendChild(g);
+      });
+      if (d.colors.length < 6) { var ac = h("button", "pf-add", "+ Add color"); ac.type = "button"; ac.dataset.addcolor = "1"; cw.appendChild(ac); }
+      step("Brand colors", [field("", cw, "colors")]);
+      step("Brand font", [field("", inp("font", "e.g. Inter"), "font")]);
+      step("Ideal customer", [field("", inp("icp", "Who buys from you, what they need, why they choose you", true), "icp")]);
+      step("Top competitors", [field("", inp("competitors", "e.g. Competitor A, Competitor B", true), "competitors")]);
+    } else {
+      step("Name", [field("", inp("name", "Your name or a label, e.g. Personal"))]);
+      step("About you", [field("", inp("description", "What you work on, so plays fit you", true))]);
+    }
+    // Apps and socials
+    var mine = PF.apps, apl = h("div", "pf-apps");
+    mine.forEach(function (id) { var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (a) { var c = h("span", "pf-chip"); c.appendChild(appBadge(a.name)); c.appendChild(document.createTextNode(a.name)); apl.appendChild(c); } });
+    var oa = h("button", "pf-add", mine.length ? "Manage apps" : "Connect apps"); oa.type = "button"; oa.id = "pfApps"; apl.appendChild(oa);
+    step("Connect apps", [apl], "Voke connects each one through Composio. You just approve.");
+    var sw2 = h("div", "pf-soc");
+    SOCIALS.forEach(function (x) {
+      var on = d.socials.indexOf(x[0]) > -1, b = h("button", "pf-sbtn" + (on ? " on" : ""), (on ? "✓ " : "") + x[1]); b.type = "button"; b.dataset.social = x[0]; sw2.appendChild(b);
+    });
+    step("Connect socials", [sw2], "Pick the ones you have. Voke connects them when you save; you approve each once.");
+    pfEl.appendChild(sc);
+    var bar = h("div", "pf-bar");
+    if (PF.orig && profiles().length > 1) { var del = h("button", "pf-del", "Delete"); del.type = "button"; del.id = "pfDel"; bar.appendChild(del); }
+    var cn = h("button", "pf-cancel", "Cancel"); cn.type = "button"; cn.id = "pfCancel"; bar.appendChild(cn);
+    var sv = h("button", "dt-run pf-save", PF.orig ? "Save" : "Save profile"); sv.type = "button"; sv.id = "pfSave"; bar.appendChild(sv);
+    pfEl.appendChild(bar);
+    sc.style.height = Math.max(160, PF.h - Math.round(bar.getBoundingClientRect().height)) + "px"; // same card height as the list
+    size();
+  }
+  function renameKeys(from, to) {
+    ["voke-pdata:", "voke-apps:"].forEach(function (k) { var v = load(k + slug(from), null); if (v != null) store(k + slug(to), v); });
+    var sv = slug(from) === "personal" ? "voke-saved" : "voke-saved:" + slug(from), tv = slug(to) === "personal" ? "voke-saved" : "voke-saved:" + slug(to);
+    var v2 = load(sv, null); if (v2 != null) store(tv, v2);
+  }
+  function saveProfile() {
+    var d = PF.d, name = (d.name || "").trim();
+    if (!name) { PF.status = "Add a name first."; renderProfile(); var f = pfEl.querySelector('[data-k="name"]'); if (f) f.focus(); return; }
+    var all = profiles();
+    if (name !== PF.orig && all.indexOf(name) > -1) { PF.status = "There's already a profile called " + name + "."; renderProfile(); return; }
+    if (PF.orig && PF.orig !== name) { renameKeys(PF.orig, name); all[all.indexOf(PF.orig)] = name; store("voke-profiles", all); }
+    else if (!PF.orig) { all.push(name); store("voke-profiles", all); }
+    var keep = {}; ["type", "website", "description", "logo", "colors", "font", "icp", "competitors", "socials"].forEach(function (k) { if (d[k] != null && d[k] !== "") keep[k] = d[k]; });
+    store("voke-pdata:" + slug(name), keep);
+    var newSoc = (d.socials || []).filter(function (x) { return PF.apps.indexOf(x) < 0 && x !== "facebook"; });
+    setProfile(name); store("voke-apps:" + slug(name), PF.apps.concat(newSoc));
+    var socNames = (d.socials || []).filter(function (x) { return PF.apps.indexOf(x) < 0; }).map(function (x) { return SOCIALS.filter(function (s) { return s[0] === x; })[0][1]; });
+    PF.status = ""; closeProfile(); paintAvatar(); pushProfile();
+    if (socNames.length) send("Connect " + socNames.join(", ") + " to Voke for my " + name + " profile.").catch(function () {});
+  }
+  var HELP = {
+    name: function (d) { return "Help me name my business" + (d.description ? ": " + d.description : "") + ". Give 5 short options with a line on each."; },
+    description: function (d) { return "Write a one or two sentence description of my business " + (d.name || "") + (d.website ? " (" + d.website + ")" : "") + " for my Voke profile."; },
+    logo: function (d) { return "Help me design a logo for " + (d.name || "my business") + (d.description ? " (" + d.description + ")" : "") + ": write a short brief, then give me the logo as an SVG."; },
+    colors: function (d) { return "Suggest brand colors (3-4 hex codes) for " + (d.name || "my business") + (d.description ? ": " + d.description : "") + ", with a line on each."; },
+    font: function (d) { return "Suggest a brand font (a free Google Font) for " + (d.name || "my business") + " and say why."; },
+    icp: function (d) { return "Help me write the ideal customer description for " + (d.name || "my business") + (d.website ? " (" + d.website + ")" : "") + (d.description ? ": " + d.description : "") + ". Keep it to 2-3 sentences for my Voke profile."; },
+    competitors: function (d) { return "Find the top 3-5 competitors of " + (d.name || "my business") + (d.website ? " (" + d.website + ")" : "") + (d.description ? ": " + d.description : "") + ". List them with their websites."; }
+  };
+  pfEl.addEventListener("click", function (e) {
+    var t = e.target, d = PF.d;
+    var pt = t.closest("[data-ptype]"); if (pt) { d.type = pt.dataset.ptype; renderProfile(); return; }
+    var hp = t.closest("[data-help]"); if (hp) { e.preventDefault(); send(HELP[hp.dataset.help](d)).catch(function () {}); return; }
+    if (t.closest("[data-addcolor]")) { d.colors.push("#191919"); renderProfile(); return; }
+    var rc = t.closest("[data-rmcolor]"); if (rc) { e.preventDefault(); d.colors.splice(Number(rc.dataset.rmcolor), 1); renderProfile(); return; }
+    var so = t.closest("[data-social]"); if (so) { var i = d.socials.indexOf(so.dataset.social); if (i > -1) d.socials.splice(i, 1); else d.socials.push(so.dataset.social); renderProfile(); return; }
+    if (t.closest("#pfApps")) { saveProfile(); if (!PF.open) openApps(); return; }
+    if (t.closest("#pfCancel")) { closeProfile(); return; }
+    if (t.closest("#pfSave")) { saveProfile(); return; }
+    if (t.closest("#pfDel")) {
+      var all = profiles().filter(function (x) { return x !== PF.orig; }); store("voke-profiles", all);
+      if (curProfile() === PF.orig || all.indexOf(curProfile()) < 0) store("voke-profile", all[0]);
+      closeProfile(); paintAvatar(); pushProfile(); return;
+    }
+    if (t.closest("#pfFill")) {
+      if (!(d.website || "").trim()) { PF.status = "Enter the website first."; renderProfile(); return; }
+      PF.status = "Reading " + d.website.trim() + "…"; renderProfile();
+      request("tools/call", { name: "voke_brand", arguments: { url: d.website.trim() } }).then(function (r) {
+        var b = structured(r) || {};
+        if (b.error) { PF.status = b.error + " Fill the steps in yourself."; renderProfile(); return; }
+        ["name", "description", "logo", "font"].forEach(function (k) { if (b[k]) d[k] = b[k]; });
+        if (b.colors && b.colors.length) d.colors = b.colors.slice(0, 6);
+        if (b.website) d.website = b.website.replace(/\/$/, "");
+        var got = ["name", "description", "logo", "colors", "font"].filter(function (k) { return b[k] && (k !== "colors" || b[k].length); }).length;
+        PF.status = "Filled " + got + " of 5 from the site. Check them, then add your ideal customer and competitors.";
+        renderProfile();
+      }).catch(function () { PF.status = "Couldn't read the site. Fill the steps in yourself."; renderProfile(); });
+    }
+  });
+
 
   // ------------------------------------------------------------ sizing
   var lastH = -1;
@@ -2026,7 +2257,7 @@
     applyContext(res && res.hostContext);
     lastH = -1; ready = true;
     notify("ui/notifications/initialized", {});
-    size();
+    size(); pushProfile();
   }).catch(function () { if (!ready) { ready = true; notify("ui/notifications/initialized", {}); } size(); });
   // Some hosts answer initialize late or not at all; don't leave the card at zero height meanwhile.
   setTimeout(function () { if (!ready) { ready = true; size(); } }, 1500);
