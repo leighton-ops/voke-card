@@ -526,6 +526,35 @@
   html[data-theme=light] body .pp .dt-run{background:#fff;color:#191919;box-shadow:inset 0 0 0 1px var(--vk-ring)}
   html[data-theme=light] body .pp .dt-run.on{background:#191919!important;color:#fff!important;box-shadow:none!important}
   .pp .dt-run{transition:transform .15s ease,background-color .15s ease}
+  /* account avatar + profile menu */
+  .head #dots.avb{padding:0;background:transparent;box-shadow:none}
+  .avb .av{width:32px;height:32px;font-size:14px}
+  .head #dots.avb[aria-expanded=true] .av,.head #dots.avb:hover .av{box-shadow:0 0 0 3px var(--vk-btn-hov)}
+  .av{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;color:#fff;font-size:12px;font-weight:600;letter-spacing:.02em}
+  .av.lg{width:40px;height:40px;font-size:16px}.av.sm{width:18px;height:18px;font-size:9px;vertical-align:-4px}
+  .av.plus{background:var(--vk-btn-hov);color:var(--vk-name)}.av.plus svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .acct{display:flex;align-items:center;gap:12px;padding:8px 12px 12px}
+  .acct>div{display:flex;flex-direction:column;gap:2px;min-width:0}.acct b{font-size:15px;color:var(--vk-name)}.acct>div>span{font-size:12.5px;color:var(--vk-meta)}
+  .menu button.prof{padding:8px 12px}
+  .newprof{width:100%;box-sizing:border-box;height:40px;margin:4px 0;padding:0 12px;border:0;border-radius:10px;background:var(--vk-bg);color:var(--vk-name);font:inherit;font-size:14px;outline:none;box-shadow:inset 0 0 0 1px var(--vk-ring)}
+  .detailing #menu{display:none}
+  /* apps view */
+  .apps{display:flex;flex-direction:column;gap:12px;padding:8px 2px 14px}.apps[hidden]{display:none}
+  .apps-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .apps-sub{margin:0;font-size:13px;color:var(--vk-meta)}
+  .apps-q{height:40px}
+  .apps-cats{display:flex}
+  .app-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;column-gap:12px;padding:8px 6px;border-radius:12px}
+  @media (hover:hover){.app-row:hover{background:var(--vk-hov)}}
+  .app-mid{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .app-mid b{font-size:15px;font-weight:500;color:var(--vk-name)}.app-mid span{font-size:13px;color:var(--vk-meta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .app-add,.app-on{height:32px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap}
+  .app-add{background:var(--vk-bg);color:var(--vk-name);box-shadow:inset 0 0 0 1px var(--vk-ring)}
+  .app-on{background:var(--vk-btn);color:light-dark(#4d6b00,var(--vk-brand))}
+  @media (hover:hover){.app-add:hover{background:light-dark(#191919,var(--vk-brand));color:light-dark(#fff,#000);box-shadow:none}.app-on:hover{background:var(--vk-btn-hov)}}
+  .apps .dt-sec{border-top:0;padding-top:0}
+  .apps-foot{margin:0 6px}
+  .detailing .head #store[aria-pressed=true]{background:var(--vk-btn-hov)}
 </style>
 </head>
 <body>
@@ -536,8 +565,8 @@
     <div class="mark" aria-hidden="true"><svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg></div>
     <label class="field"><input class="search" id="q" type="search" placeholder="Search plays..." autocomplete="off" spellcheck="false" aria-label="Search Voke plays" aria-controls="list"></label>
     <button class="hb add" id="add" type="button" aria-label="Create a play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button class="hb" id="store" type="button" aria-label="Browse all plays"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><path d="M17 13.5v7M13.5 17h7"/></svg></button>
-    <button class="dots" id="dots" type="button" aria-label="Menu" aria-expanded="false"><svg class="d" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="hb" id="store" type="button" aria-label="Apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><path d="M17 13.5v7M13.5 17h7"/></svg></button>
+    <button class="dots avb" id="dots" type="button" aria-label="Account" aria-expanded="false"><span class="av" id="av"></span></button>
   </header>
   <div class="menu" id="menu" hidden></div>
   <nav class="cats" id="cats" aria-label="Categories"></nav>
@@ -548,6 +577,7 @@
     <nav class="nums" id="pgNums" aria-label="Pages"></nav>
   </div>
   <section class="dt" id="dt" hidden aria-label="Play page"></section>
+  <section class="apps" id="apps" hidden aria-label="Apps"></section>
   <footer class="foot">
     <div class="nav"><span class="k"><kbd>↑</kbd><kbd>↓</kbd>Select</span><span class="k"><kbd>↵</kbd>Copy</span></div>
     <span id="count">Powered by Voke</span>
@@ -676,20 +706,42 @@
     return key ? key.replace(/-/g, " ").replace(/^./, function (c) { return c.toUpperCase(); }) : "";
   }
 
-  // Saved skills live in this browser only; the chat-level shortcut is made by the voke skill.
-  // Sandboxed hosts can block storage, so a memory copy keeps saves working for this card at least.
-  var SAVED_KEY = "voke-saved", memSaved = null;
-  function savedSet() {
-    if (memSaved) return memSaved.slice();
-    try { var v = JSON.parse(localStorage.getItem(SAVED_KEY) || "[]"); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+  // Profiles, like Google accounts: one person, several hats (Personal, a company...). Saved plays and connected
+  // apps belong to the profile that's signed in. Kept in this browser for now (accounts aren't on the server
+  // yet); sandboxed hosts can block storage, so a memory copy keeps things working for this card at least.
+  var SEED = window.VOKE_SEED || {}, mem = {};
+  function load(key, dflt) {
+    if (key in mem) return JSON.parse(mem[key]);
+    try { var v = localStorage.getItem(key); if (v != null) return JSON.parse(v); } catch (e) {}
+    return dflt;
   }
+  function store(key, val) {
+    var j = JSON.stringify(val);
+    try { localStorage.setItem(key, j); delete mem[key]; } catch (e) { mem[key] = j; }
+  }
+  function slug(n) { return String(n).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "personal"; }
+  function profiles() { var v = load("voke-profiles", null); return Array.isArray(v) && v.length ? v : (SEED.profiles || ["Personal"]).slice(); }
+  function curProfile() { var c = load("voke-profile", null), all = profiles(); return all.indexOf(c) > -1 ? c : all[0]; }
+  function setProfile(n) { var all = profiles(); if (all.indexOf(n) < 0) { all.push(n); store("voke-profiles", all); } store("voke-profile", n); }
+  // Personal keeps the original key so saves made before profiles existed stay put.
+  function savedKey() { var c = curProfile(); return slug(c) === "personal" ? "voke-saved" : "voke-saved:" + slug(c); }
+  function savedSet() { var v = load(savedKey(), null); if (!Array.isArray(v)) v = (SEED.saved && SEED.saved[curProfile()]) || []; return v.slice(); }
   function isSaved(n) { return savedSet().indexOf(n) > -1; }
   function toggleSaved(n) {
     var v = savedSet(), i = v.indexOf(n);
     if (i > -1) v.splice(i, 1); else v.unshift(n);
-    try { localStorage.setItem(SAVED_KEY, JSON.stringify(v)); memSaved = null; } catch (e) { memSaved = v; }
+    store(savedKey(), v);
     return i < 0;
   }
+  function appsKey() { return "voke-apps:" + slug(curProfile()); }
+  function connected() { var v = load(appsKey(), null); if (!Array.isArray(v)) v = (SEED.apps && SEED.apps[curProfile()]) || []; return v.slice(); }
+  function setConnected(id, on) {
+    var v = connected(), i = v.indexOf(id);
+    if (on && i < 0) v.push(id); if (!on && i > -1) v.splice(i, 1);
+    store(appsKey(), v);
+  }
+  function profColor(n) { var x = 0, t = String(n); for (var j = 0; j < t.length; j++) x = (x * 31 + t.charCodeAt(j)) | 0; return "hsl(" + (Math.abs(x) % 360) + " 55% 42%)"; }
+  function initials(n) { var w = String(n).trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 1)).toUpperCase(); }
 
   // A card may carry price {amount, billing: "once"|"month"}; free skills have none.
   function priceText(k) { var p = k.price; if (!p || !p.amount) return ""; var a = "$" + (Math.round(p.amount * 100) / 100).toString().replace(/\.(\d)$/, ".$10"); return p.billing === "month" ? a + "/mo" : a; }
@@ -1349,6 +1401,7 @@
   }
   // Back: to the skill page this one was opened from, else to the list.
   $("bk").onclick = function () {
+    if (APPS.open) { closeApps(); return; }
     var prev = PG.stack.pop();
     if (prev) { var keep = PG.stack; openPage(prev.name, prev, false); PG.stack = keep; } else closePage();
   };
@@ -1761,12 +1814,7 @@
     try { localStorage.setItem("voke-theme", userTheme); } catch (e) {}
     setTheme();
   }
-  // App-store button: back to the full library (every play, no search or filters).
-  $("store").onclick = function () {
-    if (!menu.hidden) closeMenu();
-    if (PG.open) closePage();
-    q.value = ""; clearFilters(); list.scrollTop = 0;
-  };
+
   // + starts GitHub to Skill in chat, Voke's way to add a skill.
   $("add").onclick = function () {
     var b = this;
@@ -1775,11 +1823,43 @@
       var n = h("p", "note"); n.innerHTML = "Couldn’t send from here. Type <code>/voke github to skill</code> in chat."; b.closest(".head").after(n); size();
     });
   };
-  // ☰ menu: saved skills view
-  function closeMenu() { menu.hidden = true; var d = $("dots"); d.setAttribute("aria-expanded", "false"); d.setAttribute("aria-label", "Menu"); d.blur(); size(); }
+  // Account menu (the avatar, like Google): switch profile at the top, then the account items. Saved plays and
+  // connected apps follow the profile that's signed in.
+  function paintAvatar() {
+    var c = curProfile(), av = $("av");
+    av.textContent = initials(c); av.style.background = profColor(c);
+    $("dots").setAttribute("aria-label", "Account: " + c);
+  }
+  function avatar(n, cls) { var a = h("span", "av" + (cls ? " " + cls : ""), initials(n)); a.style.background = profColor(n); return a; }
+  function switchProfile(n) {
+    setProfile(n); paintAvatar(); closeMenu();
+    if (APPS.open) renderApps();
+    else if (S.view === "saved") fetchPage(false); else draw();
+  }
+  function closeMenu() { menu.hidden = true; var d = $("dots"); d.setAttribute("aria-expanded", "false"); d.blur(); size(); }
   $("dots").onclick = function () {
     if (!menu.hidden) { closeMenu(); return; }
+    if (PG.open) closePage();
+    if (APPS.open) closeApps();
     menu.innerHTML = "";
+    var cur = curProfile(), others = profiles().filter(function (x) { return x !== cur; });
+    var me = h("div", "acct"); me.appendChild(avatar(cur, "lg"));
+    var who = h("div"); who.appendChild(h("b", null, cur)); who.appendChild(h("span", null, "Signed in · " + savedSet().length + " saved · " + connected().length + " apps"));
+    me.appendChild(who); menu.appendChild(me);
+    others.forEach(function (n) {
+      var b = button("", "prof", function () { switchProfile(n); });
+      b.appendChild(avatar(n)); b.appendChild(h("span", null, n)); menu.appendChild(b);
+    });
+    var add = button("Add profile", "prof", function () {
+      var f = h("input", "newprof"); f.placeholder = "Profile name, e.g. Shipforce"; f.maxLength = 40;
+      add.replaceWith(f); f.focus(); size();
+      f.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && f.value.trim()) switchProfile(f.value.trim());
+        if (e.key === "Escape") closeMenu();
+      });
+    });
+    add.insertAdjacentHTML("afterbegin", '<span class="av plus">' + svg("M12 5v14M5 12h14") + '</span>');
+    menu.appendChild(add); menu.appendChild(h("hr"));
     var pb = button("Profile", null, function () { closeMenu(); send("/voke profile").catch(function () {}); });
     pb.insertAdjacentHTML("afterbegin", svg(P.user));
     var bb = button("Billing", null, function () { closeMenu(); send("/voke billing").catch(function () {}); });
@@ -1802,8 +1882,89 @@
       ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
       : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>');
     menu.appendChild(h("hr")); menu.appendChild(tb);
-    menu.hidden = false; $("dots").setAttribute("aria-expanded", "true"); $("dots").setAttribute("aria-label", "Close menu"); size();
+    menu.hidden = false; $("dots").setAttribute("aria-expanded", "true"); size();
   };
+  paintAvatar();
+
+  // ------------------------------------------------------------ apps (the app-store button)
+  // The profile's connected apps, then every app Voke can connect, searchable and by category. Connect hands off
+  // to chat, where Voke's agent connects it (the user just approves); the card marks it connected for this profile.
+  var APP_CATS = [["all", "All"], ["connected", "Connected"], ["ads", "Ads"], ["social", "Social"], ["video", "Video & AI"],
+    ["email", "Email"], ["sales", "Sales & CRM"], ["work", "Productivity"], ["data", "Data"], ["pay", "Payments"], ["design", "Design"]];
+  var APPS_LIST = [
+    ["meta-ads", "Meta Ads", "ads", "Launch and manage Facebook and Instagram ads"], ["google-ads", "Google Ads", "ads", "Search and YouTube ad campaigns"],
+    ["tiktok-ads", "TikTok Ads", "ads", "TikTok ad campaigns"], ["instagram", "Instagram", "social", "Post Reels and read insights"],
+    ["tiktok", "TikTok", "social", "Post videos and read analytics"], ["youtube", "YouTube", "social", "Upload videos and read analytics"],
+    ["linkedin", "LinkedIn", "social", "Post and message on LinkedIn"], ["x", "X", "social", "Post and read on X"],
+    ["higgsfield", "Higgsfield", "video", "AI avatars, video and images"], ["elevenlabs", "ElevenLabs", "video", "AI voices and voiceovers"],
+    ["vidiq", "vidIQ", "video", "YouTube research and outliers"], ["runway", "Runway", "video", "AI video generation"],
+    ["gmail", "Gmail", "email", "Read, draft and send email"], ["instantly", "Instantly", "email", "Cold email: domains, warmup, sequences"],
+    ["beehiiv", "Beehiiv", "email", "Newsletters and email lists"], ["front", "Front", "email", "Shared inbox for teams"],
+    ["gohighlevel", "GoHighLevel", "sales", "CRM, pipelines and follow-ups"], ["hubspot", "HubSpot", "sales", "CRM and deals"],
+    ["apollo", "Apollo", "sales", "Find leads and verified emails"], ["notion", "Notion", "work", "Docs, wikis and databases"],
+    ["google-drive", "Google Drive", "work", "Files and folders"], ["google-calendar", "Google Calendar", "work", "Events and scheduling"],
+    ["slack", "Slack", "work", "Messages and channels"], ["granola", "Granola", "work", "Meeting notes"],
+    ["google-sheets", "Google Sheets", "data", "Spreadsheets"], ["supabase", "Supabase", "data", "Database and auth"],
+    ["apify", "Apify", "data", "Scrape any site"], ["stripe", "Stripe", "pay", "Payments and subscriptions"],
+    ["shopify", "Shopify", "pay", "Store, products and orders"], ["canva", "Canva", "design", "Designs and brand kits"],
+    ["figma", "Figma", "design", "Design files"]
+  ].map(function (a) { return { id: a[0], name: a[1], cat: a[2], desc: a[3] }; });
+  var APPS = { open: false, cat: "all", q: "" }, appsEl = $("apps");
+  function openApps() {
+    if (!menu.hidden) closeMenu();
+    if (PG.open) closePage();
+    APPS.open = true; APPS.keepTop = list.scrollTop; $("store").setAttribute("aria-pressed", "true");
+    $("card").classList.add("detailing"); appsEl.hidden = false; renderApps();
+  }
+  function closeApps() {
+    APPS.open = false; appsEl.hidden = true; appsEl.innerHTML = ""; $("store").setAttribute("aria-pressed", "false");
+    $("card").classList.remove("detailing"); draw(); list.scrollTop = APPS.keepTop || 0; size();
+  }
+  function appRow(a, on) {
+    var r = h("div", "app-row"); r.appendChild(appBadge(a.name));
+    var mid = h("div", "app-mid"); mid.appendChild(h("b", null, a.name)); mid.appendChild(h("span", null, a.desc)); r.appendChild(mid);
+    var b = h("button", on ? "app-on" : "app-add", on ? "✓ Connected" : "Connect"); b.type = "button"; b.dataset.app = a.id;
+    if (on) b.setAttribute("aria-label", "Disconnect " + a.name);
+    r.appendChild(b); return r;
+  }
+  function renderApps() {
+    var keepFocus = document.activeElement && document.activeElement.id === "appQ";
+    appsEl.innerHTML = "";
+    var mine = connected(), cur = curProfile();
+    var top = h("div", "apps-top");
+    top.appendChild(h("h2", "pp-t", "Apps"));
+    var sub = h("p", "apps-sub"); sub.appendChild(avatar(cur, "sm")); sub.appendChild(document.createTextNode(" " + cur + " · " + mine.length + " connected")); top.appendChild(sub);
+    appsEl.appendChild(top);
+    var f = h("label", "field apps-q"), inp = h("input", "search"); inp.id = "appQ"; inp.type = "search"; inp.placeholder = "Search apps..."; inp.value = APPS.q;
+    inp.setAttribute("aria-label", "Search apps"); f.appendChild(inp); appsEl.appendChild(f);
+    inp.addEventListener("input", function () { APPS.q = inp.value; renderApps(); });
+    var cats = h("nav", "cats apps-cats");
+    APP_CATS.forEach(function (c) { var b = h("button", APPS.cat === c[0] ? "on" : null, c[1]); b.type = "button"; b.dataset.appcat = c[0]; cats.appendChild(b); });
+    appsEl.appendChild(cats);
+    var qq = APPS.q.trim().toLowerCase();
+    var match = APPS_LIST.filter(function (a) {
+      if (qq && (a.name + " " + a.desc + " " + a.cat).toLowerCase().indexOf(qq) < 0) return false;
+      if (APPS.cat === "connected") return mine.indexOf(a.id) > -1;
+      return APPS.cat === "all" || a.cat === APPS.cat;
+    });
+    var on = match.filter(function (a) { return mine.indexOf(a.id) > -1; }), off = match.filter(function (a) { return mine.indexOf(a.id) < 0; });
+    if (on.length) { var s1 = sec("Connected"); on.forEach(function (a) { s1.appendChild(appRow(a, true)); }); appsEl.appendChild(s1); }
+    if (off.length && APPS.cat !== "connected") { var s2 = sec(on.length ? "Explore" : "Explore apps"); off.forEach(function (a) { s2.appendChild(appRow(a, false)); }); appsEl.appendChild(s2); }
+    if (!on.length && !off.length) appsEl.appendChild(h("p", "note", APPS.cat === "connected" ? "No apps connected to " + cur + " yet." : "No apps match. Try another word."));
+    appsEl.appendChild(h("p", "dt-sub apps-foot", "Voke's agent connects each app for you: you approve once, per profile."));
+    if (keepFocus) { var n = $("appQ"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
+    size();
+  }
+  appsEl.addEventListener("click", function (e) {
+    var c = e.target.closest("[data-appcat]");
+    if (c) { APPS.cat = c.dataset.appcat; renderApps(); return; }
+    var b = e.target.closest("[data-app]"); if (!b) return;
+    var a = APPS_LIST.filter(function (x) { return x.id === b.dataset.app; })[0], on = connected().indexOf(a.id) > -1;
+    if (on) { setConnected(a.id, false); renderApps(); return; }
+    setConnected(a.id, true); renderApps();
+    send("Connect " + a.name + " to Voke for my " + curProfile() + " profile.").catch(function () {});
+  });
+  $("store").onclick = function () { if (APPS.open) closeApps(); else openApps(); };
 
   // ------------------------------------------------------------ sizing
   var lastH = -1;

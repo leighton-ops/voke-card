@@ -7,7 +7,7 @@ const mount=document.getElementById('voke-v4');
 const f=document.createElement('iframe');f.title='Voke';f.setAttribute('allow','clipboard-write');
 f.style.cssText='display:block;width:100%;height:732px;border:0;background:transparent';
 mount.innerHTML='';mount.appendChild(f);
-fetch(BASE+'card.html').then(r=>r.text()).then(t=>{f.srcdoc=t;}).catch(()=>{mount.textContent='Couldn’t load the Voke card.';});
+fetch(BASE+'card.html').then(r=>r.text()).then(t=>{f.srcdoc=t.replace('<head>','<head><script>window.VOKE_SEED='+JSON.stringify(DATA.seed||{})+'<\/script>');}).catch(()=>{mount.textContent='Couldn’t load the Voke card.';});
 const cards=DATA.cards,byName=Object.fromEntries(cards.map(c=>[c.name,c]));
 const stars={},mine={};cards.forEach(c=>{stars[c.name]=c.stars||1;mine[c.name]=false;});
 const norm=s=>String(s||'').toLowerCase();
