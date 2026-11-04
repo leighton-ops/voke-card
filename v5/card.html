@@ -1230,6 +1230,7 @@
 
   // ------------------------------------------------------------ data
   function absorb(d, append) {
+    if (d && d.composio) setCz(true);   // Claude saw the user's Composio tools in chat: show app connections as on
     S.loading = false; S.more = false; S.error = false;
     S.query = d.query || "";
     if (!S.gen && d.mode === "shortlist") { S.mode = "shortlist"; S.shortQuery = d.query || ""; }
