@@ -225,6 +225,32 @@
   .status .logo svg.vmark{width:11px;height:11px}
   .logo:has(svg.vmark){padding-bottom:0}
   .status .logo{width:22px;height:22px;font-size:12px}
+  /* Connect card: shown after the user says yes to connecting an app. Step 1 (once): app connections. Step 2: the app. */
+  .cn{padding:14px 14px 12px;display:flex;flex-direction:column;gap:12px}
+  .cn-head{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;color:var(--vk-tx)}
+  .cn-head .logo{width:26px;height:26px}
+  .cn-step{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--vk-search)}
+  .cn-step.off{opacity:.5}
+  .cn-n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--vk-bg);color:var(--vk-tx)}
+  .cn-step.done .cn-n{background:var(--vk-brand);color:#121212}
+  .cn-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .cn-mid b{font-size:14px;color:var(--vk-tx);font-weight:600}
+  .cn-mid span{font-size:12.5px;line-height:1.4;color:var(--vk-meta)}
+  .cn-step .pf-cta{height:34px;padding:0 16px;font-size:13px;flex:none}
+  .cn-step .pf-cta:disabled{opacity:.45;cursor:default}
+  .cn-link{font-size:12px;color:var(--vk-meta);text-decoration:underline;text-underline-offset:2px;padding:0;background:none}
+  .cn-foot{margin:0;font-size:11.5px;line-height:1.45;color:var(--vk-meta)}
+  /* App Store: the one-time switch, the primary call to action until it's on */
+  .apps-setup{display:flex;flex-direction:column;gap:8px;margin:4px 0 14px;padding:14px;border-radius:16px;background:var(--vk-search)}
+  .apps-setup b{font-size:15px;color:var(--vk-tx)}
+  .apps-setup p{margin:0;font-size:13px;line-height:1.45;color:var(--vk-meta)}
+  .apps-setup .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .apps-setup .pf-cta{height:36px;font-size:13.5px;margin:0}
+  .cn .pf-cta,.apps-setup .pf-cta,.apps-setup .row>*{margin:0!important}
+  .cn-go{background:light-dark(#191919,var(--vk-brand))!important;color:light-dark(#fff,#000)!important;box-shadow:none!important}
+  [data-theme=dark] .cn-go{background:var(--vk-brand)!important;color:#000!important}
+  [data-theme=light] .cn-go{background:#191919!important;color:#fff!important}
+  .cn-go:hover{filter:brightness(1.08)}
   .shell.solo{padding:10px}
   .static .list{height:auto;max-height:420px}
   body.hidden .shell{display:none}
@@ -1132,12 +1158,62 @@
       "Public needs one test run of any skill here; Private doesn’t.") + (v.signed_in ? "" : " Private needs your personal Voke link.")));
   }
 
+  // App connections (the user's own Composio connector) are one switch for the whole account: the profile editor,
+  // the App Store and the connect card all read it. Claude knows whether the connector is in the chat and says so.
+  function czOn() { return !!load("voke-cz", false) || !!SEED.composio || (typeof connected === "function" && connected().length > 0); }
+  function setCz(on) { store("voke-cz", !!on); }
+  var CN = { pending: false };
+  function connectCard(v, card) {
+    var apps = (v.apps && v.apps.length ? v.apps : ["your app"]), app = apps.join(" + ");
+    if (v.composio) setCz(true);
+    var on = czOn(), box = h("div", "cn");
+    var head = h("div", "cn-head"), logo = h("div", "logo");
+    logo.innerHTML = '<svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg>';
+    head.appendChild(logo); head.appendChild(h("span", null, "Connect " + app)); box.appendChild(head);
+    // 1. App connections, once.
+    var s1 = h("div", "cn-step" + (on ? " done" : "")), m1 = h("div", "cn-mid");
+    s1.appendChild(h("span", "cn-n", on ? "✓" : "1"));
+    m1.appendChild(h("b", null, on ? "App connections are on" : "Turn on app connections"));
+    m1.appendChild(h("span", null, on ? "Every app you connect works in Claude." : CN.pending ?
+      "In the window that opened, tap Add, then sign in (it's free)." : "One time, free. Then any app connects in one click."));
+    s1.appendChild(m1);
+    if (!on) {
+      if (CN.pending) {
+        var col = h("div", "cn-mid"); col.style.flex = "none"; col.style.alignItems = "flex-end";
+        var dn = h("button", "pf-cta cn-go", "Done"); dn.type = "button"; dn.onclick = function () { CN.pending = false; setCz(true); rerender(); };
+        var ag = h("button", "cn-link", "Open it again"); ag.type = "button"; ag.onclick = function () { openLink(COMPOSIO_ADD); };
+        col.appendChild(dn); col.appendChild(ag); s1.appendChild(col);
+      } else {
+        var go = h("button", "pf-cta cn-go", "Turn on"); go.type = "button"; go.onclick = function () { openLink(COMPOSIO_ADD); CN.pending = true; rerender(); };
+        s1.appendChild(go);
+      }
+    }
+    box.appendChild(s1);
+    // 2. The app itself: Claude starts its sign-in through the connector and gives the user the link.
+    var s2 = h("div", "cn-step" + (on ? "" : " off")), m2 = h("div", "cn-mid");
+    s2.appendChild(h("span", "cn-n", "2"));
+    m2.appendChild(h("b", null, "Sign in to " + app));
+    m2.appendChild(h("span", null, on ? "Claude gives you a secure sign-in link. You approve once." : "Next, after app connections are on."));
+    s2.appendChild(m2);
+    var c2 = h("button", on ? "pf-cta cn-go" : "pf-cta", "Continue"); c2.type = "button"; c2.disabled = !on;
+    c2.onclick = function () {
+      c2.disabled = true; c2.textContent = "Sent";
+      send(v.composio ? "Continue: connect " + app + "." : "App connections are on. Connect " + app + ".").catch(function () {});
+    };
+    s2.appendChild(c2); box.appendChild(s2);
+    box.appendChild(h("p", "cn-foot", "Secure app connections by Composio, on your own account. Voke never sees your passwords."));
+    card.appendChild(box);
+    function rerender() { card.innerHTML = ""; connectCard(v, card); size(); }
+  }
+
   function showView(v) {
     var card = $("card");
     card.classList.add("static");
     if (v.kind === "recipe" || v.kind === "bundle") {
       card.innerHTML = "";
       (v.kind === "recipe" ? recipe : bundle)(v, card);
+    } else if (v.kind === "connect") {
+      card.innerHTML = ""; card.classList.add("solo"); connectCard(v, card);
     } else if (v.kind === "status" || v.kind === "note") {
       card.innerHTML = ""; card.classList.add("solo");
       var line = h("div", "status"), logo = h("div", "logo"); logo.innerHTML = '<svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg>'; logo.setAttribute("aria-hidden", "true");
@@ -2660,6 +2736,7 @@
       appsEl.appendChild(empty); size(); return;
     }
     // Same size as the plays list: desktop scrolls down inside the list's height, phones swipe pages of 5.
+    if (paged && !czOn()) appsEl.appendChild(setupBanner());
     if (paged) {
       var rows = on.map(function (a) { return appRow(a, true); }).concat(off.map(function (a) { return appRow(a, false); }));
       var wrap = h("div", "apps-pages"), n = Math.ceil(rows.length / 5);
@@ -2674,6 +2751,7 @@
       if (gap > 0) wrap.style.height = Math.round(wrap.getBoundingClientRect().height + gap) + "px";
     } else {
       var sc = h("div", "apps-scroll"); sc.style.height = (APPS.h || 368) + "px";
+      if (!czOn()) sc.appendChild(setupBanner());
       if (on.length) { var s1 = sec("Connected"); on.forEach(function (a) { s1.appendChild(appRow(a, true)); }); sc.appendChild(s1); }
       if (off.length) { var s2 = sec("Explore"); off.forEach(function (a) { s2.appendChild(appRow(a, false)); }); sc.appendChild(s2); }
       sc.appendChild(h("p", "dt-sub apps-foot", "Voke's agent connects each app for you: you approve once, per profile."));
@@ -2681,11 +2759,33 @@
     }
     size();
   }
+  function setupBanner() {
+    var b = h("div", "apps-setup");
+    b.appendChild(h("b", null, CN.pending ? "Finish turning on app connections" : "Turn on app connections"));
+    b.appendChild(h("p", null, CN.pending ? "In the window that opened, tap Add, then sign in. It's free." :
+      "One time, free. Then Gmail, Slack, Mailchimp and 500+ apps connect in one click, and plays can do the work for you."));
+    var row = h("div", "row");
+    var go = h("button", "pf-cta cn-go", CN.pending ? "Done" : "Turn on"); go.type = "button"; go.id = "czGo"; row.appendChild(go);
+    if (CN.pending) { var ag = h("button", "cn-link", "Open it again"); ag.type = "button"; ag.id = "czAgain"; row.appendChild(ag); }
+    b.appendChild(row);
+    b.appendChild(h("p", "cn-foot", "Secure app connections by Composio, on your own account. Voke never sees your passwords."));
+    return b;
+  }
   appsEl.addEventListener("click", function (e) {
+    if (e.target.closest("#czGo")) {
+      if (CN.pending) {
+        CN.pending = false; setCz(true);
+        var w = CN.after && APPS_LIST.filter(function (x) { return x.id === CN.after; })[0]; CN.after = "";
+        if (w) { setConnected(w.id, true); pushProfile(); send(connectMsg(w.name, curProfile())).catch(function () {}); }
+      } else { openLink(COMPOSIO_ADD); CN.pending = true; }
+      renderApps(); return;
+    }
+    if (e.target.closest("#czAgain")) { openLink(COMPOSIO_ADD); return; }
     var c = e.target.closest("[data-appcat]");
     if (c) { APPS.cat = c.dataset.appcat; renderApps(); return; }
     var b = e.target.closest("[data-app]"); if (!b) return;
     var a = APPS_LIST.filter(function (x) { return x.id === b.dataset.app; })[0];
+    if (!czOn() && !PF.hold) { openLink(COMPOSIO_ADD); CN.pending = true; CN.after = a.id; renderApps(); appsEl.scrollTop = 0; return; }
     if (PF.hold) { if (PF.apps.indexOf(a.id) < 0) connectForProfile(a.id); closeApps(); return; }
     var on = connected().indexOf(a.id) > -1;
     if (on) { setConnected(a.id, false); renderApps(); pushProfile(); return; }
@@ -2790,19 +2890,20 @@
     // its calls). 10. Once it's connected: the profile's apps, one-tap popular ones, and Search apps.
     sect("Apps");
     var cz = h("div", "pf-cz");
+    if (czOn()) d.composio = true;
     if (d.composio) {
-      var okc = h("p", "pf-ok"); okc.innerHTML = "✓ Composio connected"; cz.appendChild(okc);
-      var undo = h("button", "pf-help", "Not connected?"); undo.type = "button"; undo.id = "pfCzUndo"; cz.appendChild(undo);
+      var okc = h("p", "pf-ok"); okc.innerHTML = "✓ App connections are on"; cz.appendChild(okc);
+      var undo = h("button", "pf-help", "Not working?"); undo.type = "button"; undo.id = "pfCzUndo"; cz.appendChild(undo);
     } else if (PF.czPending) {
-      var dn = h("button", "pf-cta", "I've added Composio"); dn.type = "button"; dn.id = "pfCzDone"; cz.appendChild(dn);
-      cz.appendChild(h("p", "pf-sub2", "In the window that opened, confirm the Composio connector and sign in. Not in Claude? Add this MCP URL in your AI app's connectors: connect.composio.dev/mcp"));
+      var dn = h("button", "pf-cta", "Done"); dn.type = "button"; dn.id = "pfCzDone"; cz.appendChild(dn);
+      cz.appendChild(h("p", "pf-sub2", "In the window that opened, tap Add, then sign in (it's free). Not in Claude? Add this MCP URL in your AI app's connectors: connect.composio.dev/mcp"));
       var again = h("button", "pf-help", "Open it again"); again.type = "button"; again.id = "pfCz"; cz.appendChild(again);
     } else {
-      var cc = h("button", "pf-cta", "Connect Composio"); cc.type = "button"; cc.id = "pfCz"; cz.appendChild(cc);
-      var si = h("button", "pf-help", "Already have Composio? Sign in"); si.type = "button"; si.id = "pfCzHave"; cz.appendChild(si);
+      var cc = h("button", "pf-cta", "Turn on app connections"); cc.type = "button"; cc.id = "pfCz"; cz.appendChild(cc);
+      var si = h("button", "pf-help", "Already turned on? Skip"); si.type = "button"; si.id = "pfCzHave"; cz.appendChild(si);
     }
-    step("Connect your apps", [cz], "One click installs Composio, a secure connector that links all your " + (biz ? "business's " : "") +
-      "apps (Gmail, Slack, Drive and more) and socials (Meta, TikTok and more), so plays can do the work for you. You approve each app once; Voke never sees your passwords.");
+    step("Connect your apps", [cz], "One time, free: link all your " + (biz ? "business's " : "") +
+      "apps (Gmail, Slack, Drive and more) and socials (Meta, TikTok and more), so plays can do the work for you. You approve each app once. Secure connections by Composio; Voke never sees your passwords.");
     if (d.composio) {
       var mine = PF.apps, box = h("div", "pf-apps");
       mine.forEach(function (id) { var a = APPS_LIST.filter(function (x) { return x.id === id; })[0]; if (a) { var c = h("span", "pf-chip on"); c.appendChild(appBadge(a.name)); c.appendChild(document.createTextNode(a.name)); c.appendChild(h("span", "pf-tick", "✓")); box.appendChild(c); } });
@@ -2920,8 +3021,8 @@
     if (t.closest("[data-addcolor]")) { d.colors.push("#191919"); renderProfile(); return; }
     var rc = t.closest("[data-rmcolor]"); if (rc) { e.preventDefault(); d.colors.splice(Number(rc.dataset.rmcolor), 1); renderProfile(); return; }
     if (t.closest("#pfCz")) { openLink(COMPOSIO_ADD); PF.czPending = true; renderProfile(); return; }
-    if (t.closest("#pfCzHave") || t.closest("#pfCzDone")) { d.composio = true; PF.czPending = false; renderProfile(); return; }
-    if (t.closest("#pfCzUndo")) { d.composio = false; renderProfile(); return; }
+    if (t.closest("#pfCzHave") || t.closest("#pfCzDone")) { d.composio = true; setCz(true); PF.czPending = false; renderProfile(); return; }
+    if (t.closest("#pfCzUndo")) { d.composio = false; setCz(false); renderProfile(); return; }
     var pa = t.closest("[data-pfapp]"); if (pa) { connectForProfile(pa.dataset.pfapp); renderProfile(); return; }
     if (t.closest("#pfApps")) { PF.hold = true; pfEl.hidden = true; $("card").classList.remove("profiling"); openApps(); return; }
     if (t.closest("#pfCancel")) { closeProfile(); return; }

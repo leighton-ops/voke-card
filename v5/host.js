@@ -40,7 +40,7 @@ const theme=(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
 window.addEventListener('message',e=>{if(e.source!==f.contentWindow)return;const m=e.data;if(!m||m.jsonrpc!=='2.0')return;
  const reply=x=>f.contentWindow.postMessage(Object.assign({jsonrpc:'2.0',id:m.id},x),'*');
  if(m.method==='ui/initialize')reply({result:{hostContext:{theme}}});
- else if(m.method==='ui/notifications/initialized')setTimeout(()=>f.contentWindow.postMessage({jsonrpc:'2.0',method:'ui/notifications/tool-result',params:{structuredContent:page({action:'open',query:''})}},'*'),250);
+ else if(m.method==='ui/notifications/initialized')setTimeout(()=>f.contentWindow.postMessage({jsonrpc:'2.0',method:'ui/notifications/tool-result',params:{structuredContent:(DATA.seed&&DATA.seed.view)?{view:DATA.seed.view}:page({action:'open',query:''})}},'*'),250);
  else if(m.method==='ui/notifications/size-changed'){if(m.params.height)f.style.height=m.params.height+'px';}
  else if(m.method==='tools/call')setTimeout(()=>reply({result:tool(m.params.name,m.params.arguments||{})}),120);
  else if(m.method==='ui/open-link'){try{window.open(m.params.url,'_blank','noopener')}catch(e){}reply({result:{}});}
