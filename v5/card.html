@@ -240,6 +240,12 @@
   .cn-step .pf-cta:disabled{opacity:.45;cursor:default}
   .cn-link{font-size:12px;color:var(--vk-meta);text-decoration:underline;text-underline-offset:2px;padding:0;background:none}
   .cn-foot{margin:0;font-size:11.5px;line-height:1.45;color:var(--vk-meta)}
+  .cn > .cn-link{align-self:flex-start;margin-top:-4px}
+  .cn-acct{background:transparent;box-shadow:inset 0 0 0 1px var(--vk-ring);flex-wrap:wrap}
+  .cn-acct .cn-mid{min-width:220px}
+  .cn-acts{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none;margin-left:auto}
+  .cn-in{margin-top:8px;height:38px;max-width:280px}
+  .cn > .cn-link{text-align:left}
   /* App Store: the one-time switch, the primary call to action until it's on */
   .apps-setup{display:flex;flex-direction:column;gap:8px;margin:4px 0 14px;padding:14px;border-radius:16px;background:var(--vk-search)}
   .apps-setup b{font-size:15px;color:var(--vk-tx)}
@@ -1195,12 +1201,66 @@
     m2.appendChild(h("b", null, "Sign in to " + app));
     m2.appendChild(h("span", null, on ? "Claude gives you a secure sign-in link. You approve once." : "Next, after app connections are on."));
     s2.appendChild(m2);
-    var c2 = h("button", on ? "pf-cta cn-go" : "pf-cta", "Continue"); c2.type = "button"; c2.disabled = !on;
+    var c2 = h("button", on ? "pf-cta cn-go" : "pf-cta", CN.sent ? "Sent" : "Continue"); c2.type = "button"; c2.disabled = !on || CN.sent;
     c2.onclick = function () {
-      c2.disabled = true; c2.textContent = "Sent";
+      CN.sent = true;
       send(v.composio ? "Continue: connect " + app + "." : "App connections are on. Connect " + app + ".").catch(function () {});
+      rerender();
     };
     s2.appendChild(c2); box.appendChild(s2);
+    // Claude can need a fresh chat before a just-added connector's tools appear: hand over the task to paste.
+    if (CN.sent && !v.composio) {
+      var nc = h("button", "cn-link", CN.copied ? "Copied. Paste it in a new chat to pick up where you left off." :
+        "Composio not showing up? Continue in a new chat"); nc.type = "button";
+      nc.onclick = function () { copyText(v.resume || ("Connect " + app + " through Composio.")).then(function () { CN.copied = true; rerender(); }); };
+      box.appendChild(nc);
+    }
+    // No account: offer one once, right after app connections pay off, so they carry to every chat. Sign-up runs
+    // right in this card (email, then a 6-digit code): this compact card has no room for the full widget's panes.
+    if (CN.acct === "done") {
+      var okr = h("p", "pf-ok"); okr.textContent = "✓ Account created. Your " + app + " connection works across your chats."; box.appendChild(okr);
+    } else if (on && !v.signed_in && !account() && (CN.acct || !load("voke-nudge-acct", false))) {
+      var nb = h("div", "cn-step cn-acct"), nm = h("div", "cn-mid");
+      if (!CN.acct) {
+        nm.appendChild(h("b", null, "Want this " + app + " connection to work across your chats?"));
+        nm.appendChild(h("span", null, "Create your free Voke account."));
+        nb.appendChild(nm);
+        var col2 = h("div", "cn-acts");
+        var mk = h("button", "pf-cta cn-go", "Create account"); mk.type = "button";
+        mk.onclick = function () { store("voke-nudge-acct", true); CN.acct = "email"; rerender(); };
+        var nn = h("button", "cn-link", "Not now"); nn.type = "button"; nn.onclick = function () { store("voke-nudge-acct", true); rerender(); };
+        col2.appendChild(mk); col2.appendChild(nn); nb.appendChild(col2);
+      } else {
+        var code = CN.acct === "code";
+        nm.appendChild(h("b", null, code ? "Check " + CN.email : "Your email"));
+        nm.appendChild(h("span", null, CN.err || (code ? "Enter the 6-digit code we sent." : "We'll send a 6-digit code. No password.")));
+        var fi = h("input", "pf-i cn-in"); fi.id = "cnIn";
+        if (code) { fi.inputMode = "numeric"; fi.autocomplete = "one-time-code"; fi.maxLength = 6; fi.placeholder = "••••••"; }
+        else { fi.type = "email"; fi.autocomplete = "email"; fi.placeholder = "you@company.com"; fi.value = CN.email || ""; }
+        nm.appendChild(fi); nb.appendChild(nm);
+        var go2 = h("button", "pf-cta cn-go", code ? "Verify" : "Send code"); go2.type = "button";
+        go2.onclick = function () {
+          var val = (fi.value || "").trim();
+          if (!code) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { CN.err = "Enter a valid email."; rerender(); return; }
+            CN.email = val.toLowerCase(); CN.err = "";
+            server("voke_auth", { action: "start", email: CN.email, voter: voter }, function () { return { sent: true }; })
+              .then(function () { CN.acct = "code"; rerender(); });
+          } else {
+            if (!/^\d{6}$/.test(val)) { CN.err = "Enter the 6-digit code."; rerender(); return; }
+            server("voke_auth", { action: "verify", email: CN.email, code: val, voter: voter }, function () { return { ok: true, email: CN.email }; })
+              .then(function (r) {
+                if (!r.ok) { CN.err = r.error || "That code didn't work. Try again."; rerender(); return; }
+                store("voke-account", { email: r.email || CN.email, since: new Date().toISOString().slice(0, 10) });
+                CN.acct = "done"; CN.err = ""; rerender();
+              });
+          }
+        };
+        var col3 = h("div", "cn-acts"); col3.appendChild(go2); nb.appendChild(col3);
+        setTimeout(function () { var x = $("cnIn"); if (x) x.focus(); }, 0);
+      }
+      box.appendChild(nb);
+    }
     box.appendChild(h("p", "cn-foot", "Secure app connections by Composio, on your own account. Voke never sees your passwords."));
     card.appendChild(box);
     function rerender() { card.innerHTML = ""; connectCard(v, card); size(); }
