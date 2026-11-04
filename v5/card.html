@@ -743,6 +743,10 @@
   .menu:not([hidden]){overflow-y:auto;overscroll-behavior:contain}
   .menuing #cats,.menuing #filters,.menuing #list,.menuing #pager{display:none!important}
   .menu{box-sizing:border-box}
+  /* back arrow replaces the logo on every screen that isn't the plays list */
+  .detailing .head .mark,.paning .head .mark,.appsing .head .mark,.profiling .head .mark,.creating .head .mark{display:none}
+  .detailing .bk,.paning .bk,.appsing .bk,.profiling .bk,.creating .bk{display:grid}
+  .head #bk{width:36px;height:36px;border-radius:50%;color:var(--vk-icon)}
 </style>
 </head>
 <body>
@@ -1613,8 +1617,13 @@
     draw(); list.scrollTop = PG.keepTop; size();
   }
   // Back: to the skill page this one was opened from, else to the list.
+  // One back arrow for every screen: it sits where the logo is and steps back one level.
   $("bk").onclick = function () {
+    if (PANE.open) { clearInterval(PANE.poll); closePane(); return; }
+    if (CP.open) { closeCreate(); return; }
+    if (PF.open) { clearTimeout(PF.st); autoSave(); closeProfile(); return; }
     if (APPS.open) { closeApps(); return; }
+    if (!PG.open) return;
     var prev = PG.stack.pop();
     if (prev) { var keep = PG.stack; openPage(prev.name, prev, false); PG.stack = keep; } else closePage();
   };
@@ -2318,7 +2327,6 @@
   }
   function paneHead(title, sub) {
     var hd = h("div", "pane-head"); var t = h("div"); t.appendChild(h("h2", "pp-t", title)); if (sub) t.appendChild(h("p", "pf-sub2", sub)); hd.appendChild(t);
-    var x = h("button", "pane-x"); x.type = "button"; x.id = "paneX"; x.setAttribute("aria-label", "Close"); x.innerHTML = svg("M6 6l12 12M18 6L6 18"); hd.appendChild(x);
     return hd;
   }
   function money(n) { return "$" + (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, ""); }
