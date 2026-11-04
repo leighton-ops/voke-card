@@ -414,8 +414,8 @@
   /* Search, category pills, light/dark and menu buttons share the search bar's fill, no outline (#f0f0ef light, #2A2A2A dark). */
   :root{--vk-search:light-dark(#f0f0ef,#2A2A2A);--vk-chip:light-dark(#f0f0ef,#2A2A2A);--vk-chip-line:transparent;--vk-btn:light-dark(#f0f0ef,#2A2A2A);--vk-btn-hov:light-dark(#e6e5e2,#333333)}
   .cats button:not(.on){background:var(--vk-chip);border-color:var(--vk-chip-line)}
-  .head #theme,.head #dots,.head #bk{background:var(--vk-btn);box-shadow:inset 0 0 0 1px var(--vk-chip-line)}
-  @media (hover:hover){.head #theme:hover,.head #dots:hover,.head #bk:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
+  .head #store,.head #dots,.head #bk{background:var(--vk-btn);box-shadow:inset 0 0 0 1px var(--vk-chip-line)}
+  @media (hover:hover){.head #store:hover,.head #dots:hover,.head #bk:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
   .head #dots[aria-expanded=true]{background:var(--vk-btn-hov)}
 
   /* Search bar hovers like the pills. A hovered row's Run play takes the row's hover fill; hovering the button
@@ -536,7 +536,7 @@
     <div class="mark" aria-hidden="true"><svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg></div>
     <label class="field"><input class="search" id="q" type="search" placeholder="Search plays..." autocomplete="off" spellcheck="false" aria-label="Search Voke plays" aria-controls="list"></label>
     <button class="hb add" id="add" type="button" aria-label="Create a play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button class="hb" id="theme" type="button" aria-label="Switch to dark mode"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+    <button class="hb" id="store" type="button" aria-label="Browse all plays"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><path d="M17 13.5v7M13.5 17h7"/></svg></button>
     <button class="dots" id="dots" type="button" aria-label="Menu" aria-expanded="false"><svg class="d" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </header>
   <div class="menu" id="menu" hidden></div>
@@ -1756,10 +1756,16 @@
   [50, 250, 600, 1200].forEach(function (t) { setTimeout(function () { if (document.activeElement === document.body) grab(); }, t); });
   window.addEventListener("focus", function () { if (document.activeElement === document.body) grab(); });
 
-  $("theme").onclick = function () {
+  function toggleTheme() {
     userTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     try { localStorage.setItem("voke-theme", userTheme); } catch (e) {}
     setTheme();
+  }
+  // App-store button: back to the full library (every play, no search or filters).
+  $("store").onclick = function () {
+    if (!menu.hidden) closeMenu();
+    if (PG.open) closePage();
+    q.value = ""; clearFilters(); list.scrollTop = 0;
   };
   // + starts GitHub to Skill in chat, Voke's way to add a skill.
   $("add").onclick = function () {
@@ -1790,6 +1796,12 @@
     menu.appendChild(pb); menu.appendChild(bb); menu.appendChild(h("hr"));
     menu.appendChild(viewButton("saved", "Saved Plays", savedSet().length, P.bookmark));
     menu.appendChild(viewButton("favs", "Favorited Plays", S.favs.length, P.star));
+    var dark = document.documentElement.dataset.theme === "dark";
+    var tb = button(dark ? "Light mode" : "Dark mode", null, function () { closeMenu(); toggleTheme(); });
+    tb.insertAdjacentHTML("afterbegin", dark
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>');
+    menu.appendChild(h("hr")); menu.appendChild(tb);
     menu.hidden = false; $("dots").setAttribute("aria-expanded", "true"); $("dots").setAttribute("aria-label", "Close menu"); size();
   };
 
