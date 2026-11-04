@@ -414,8 +414,8 @@
   /* Search, category pills, light/dark and menu buttons share the search bar's fill, no outline (#f0f0ef light, #2A2A2A dark). */
   :root{--vk-search:light-dark(#f0f0ef,#2A2A2A);--vk-chip:light-dark(#f0f0ef,#2A2A2A);--vk-chip-line:transparent;--vk-btn:light-dark(#f0f0ef,#2A2A2A);--vk-btn-hov:light-dark(#e6e5e2,#333333)}
   .cats button:not(.on){background:var(--vk-chip);border-color:var(--vk-chip-line)}
-  .head #store,.head #dots,.head #bk{background:var(--vk-btn);box-shadow:inset 0 0 0 1px var(--vk-chip-line)}
-  @media (hover:hover){.head #store:hover,.head #dots:hover,.head #bk:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
+  .head #store,.head #add,.head #dots,.head #bk{background:var(--vk-btn);box-shadow:inset 0 0 0 1px var(--vk-chip-line)}
+  @media (hover:hover){.head #store:hover,.head #add:hover,.head #dots:hover,.head #bk:hover,.cats button:not(.on):hover{background:var(--vk-btn-hov)}}
   .head #dots[aria-expanded=true]{background:var(--vk-btn-hov)}
 
   /* Search bar hovers like the pills. A hovered row's Run play takes the row's hover fill; hovering the button
@@ -427,7 +427,6 @@
 
   /* + button hover: a brighter yellow and a slight lift, never the grey hover of the other buttons. */
   .head .hb.add{transition:transform .12s,background-color .12s}
-  @media (hover:hover){.head .hb.add:hover{background:#e9ff94!important;color:var(--vk-brand-tx);filter:none;transform:scale(1.06)}}
 
   /* After Run play is clicked, the button stays yellow (the hover color) instead of turning black. */
   .skill:has(+ .picked) .runb,.skill.pl:has(+ .picked) .prun{background:var(--vk-brand)!important;color:#000!important;box-shadow:none!important}
@@ -555,6 +554,8 @@
   .apps .dt-sec{border-top:0;padding-top:0}
   .apps-foot{margin:0 6px}
   .detailing .head #store[aria-pressed=true]{background:var(--vk-btn-hov)}
+  .head .hb.add{background:var(--vk-btn);color:var(--vk-icon);box-shadow:inset 0 0 0 1px var(--vk-chip-line);filter:none}
+  .head .hb.add svg{stroke-width:2}
 </style>
 </head>
 <body>
@@ -565,7 +566,7 @@
     <div class="mark" aria-hidden="true"><svg class="vmark" viewBox="-15 -15 300 300" aria-hidden="true"><path d="M0 3.5H80.4L116.7 128.2 78.5 240ZM197.8 3.5H270L183.6 265H112Z"/></svg></div>
     <label class="field"><input class="search" id="q" type="search" placeholder="Search plays..." autocomplete="off" spellcheck="false" aria-label="Search Voke plays" aria-controls="list"></label>
     <button class="hb add" id="add" type="button" aria-label="Create a play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button class="hb" id="store" type="button" aria-label="Apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><path d="M17 13.5v7M13.5 17h7"/></svg></button>
+    <button class="hb" id="store" type="button" aria-label="Apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.8"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.8"/></svg></button>
     <button class="dots avb" id="dots" type="button" aria-label="Account" aria-expanded="false"><span class="av" id="av"></span></button>
   </header>
   <div class="menu" id="menu" hidden></div>
@@ -1784,9 +1785,10 @@
   document.querySelectorAll("[data-dir]").forEach(function (b) { b.onclick = function () { move(Number(b.dataset.dir)); }; });
 
   var timer = null;
-  q.addEventListener("input", function () { if (PG.open) closePage(); clearTimeout(timer); S.enterPending = false; var t = timer = setTimeout(function () { whenIdle(function () { if (timer !== t) return; timer = null; fetchPage(false); }); }, 180); });
+  q.addEventListener("input", function () { if (APPS.open) { APPS.q = q.value; renderApps(); return; } if (PG.open) closePage(); clearTimeout(timer); S.enterPending = false; var t = timer = setTimeout(function () { whenIdle(function () { if (timer !== t) return; timer = null; fetchPage(false); }); }, 180); });
   document.addEventListener("keydown", function (e) {
     if (S.static || e.defaultPrevented) return;
+    if (APPS.open) { if (e.key === "Escape") closeApps(); return; }
     if (PG.open) { if (e.key === "Escape") closePage(); return; }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault(); mouseMoved = false; move(e.key === "ArrowDown" ? 1 : -1);
@@ -1914,10 +1916,12 @@
     if (!menu.hidden) closeMenu();
     if (PG.open) closePage();
     APPS.open = true; APPS.keepTop = list.scrollTop; $("store").setAttribute("aria-pressed", "true");
+    APPS.keepQ = q.value; APPS.q = ""; q.value = ""; q.placeholder = "Search apps..."; q.setAttribute("aria-label", "Search apps");
     $("card").classList.add("detailing"); appsEl.hidden = false; renderApps();
   }
   function closeApps() {
     APPS.open = false; appsEl.hidden = true; appsEl.innerHTML = ""; $("store").setAttribute("aria-pressed", "false");
+    q.value = APPS.keepQ || ""; q.placeholder = "Search plays..."; q.setAttribute("aria-label", "Search Voke plays");
     $("card").classList.remove("detailing"); draw(); list.scrollTop = APPS.keepTop || 0; size();
   }
   function appRow(a, on) {
@@ -1928,16 +1932,12 @@
     r.appendChild(b); return r;
   }
   function renderApps() {
-    var keepFocus = document.activeElement && document.activeElement.id === "appQ";
     appsEl.innerHTML = "";
     var mine = connected(), cur = curProfile();
     var top = h("div", "apps-top");
     top.appendChild(h("h2", "pp-t", "Apps"));
     var sub = h("p", "apps-sub"); sub.appendChild(avatar(cur, "sm")); sub.appendChild(document.createTextNode(" " + cur + " · " + mine.length + " connected")); top.appendChild(sub);
     appsEl.appendChild(top);
-    var f = h("label", "field apps-q"), inp = h("input", "search"); inp.id = "appQ"; inp.type = "search"; inp.placeholder = "Search apps..."; inp.value = APPS.q;
-    inp.setAttribute("aria-label", "Search apps"); f.appendChild(inp); appsEl.appendChild(f);
-    inp.addEventListener("input", function () { APPS.q = inp.value; renderApps(); });
     var cats = h("nav", "cats apps-cats");
     APP_CATS.forEach(function (c) { var b = h("button", APPS.cat === c[0] ? "on" : null, c[1]); b.type = "button"; b.dataset.appcat = c[0]; cats.appendChild(b); });
     appsEl.appendChild(cats);
@@ -1952,7 +1952,6 @@
     if (off.length && APPS.cat !== "connected") { var s2 = sec(on.length ? "Explore" : "Explore apps"); off.forEach(function (a) { s2.appendChild(appRow(a, false)); }); appsEl.appendChild(s2); }
     if (!on.length && !off.length) appsEl.appendChild(h("p", "note", APPS.cat === "connected" ? "No apps connected to " + cur + " yet." : "No apps match. Try another word."));
     appsEl.appendChild(h("p", "dt-sub apps-foot", "Voke's agent connects each app for you: you approve once, per profile."));
-    if (keepFocus) { var n = $("appQ"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
     size();
   }
   appsEl.addEventListener("click", function (e) {
