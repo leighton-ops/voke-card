@@ -683,6 +683,19 @@
   @media (max-width:520px){.cp-row{grid-template-columns:34px minmax(0,1fr) 52px 46px 24px;gap:4px;padding:5px}.cp-tool,.cp-tool .pp-app{width:34px;height:34px}.cp-ctl{flex-direction:column;gap:0}.cp-mini{width:22px;height:18px}.cp-thead span:nth-child(5){display:none}}
   @media (max-width:520px){.cp-thead{font-size:11px}.cp-thead span{white-space:nowrap}}
   .cp-foot,.cp .cp-foot{flex-direction:column!important;flex-wrap:nowrap!important}.cp-foot>button{flex:none!important;width:100%}
+  .pf-head{padding:2px 4px 8px}
+  .pf-sect{display:flex;flex-direction:column;gap:14px}
+  .pf-scroll .pf-sect+.pf-sect{padding-top:14px;border-top:1px solid var(--vk-line)}
+  .pf-sh{margin:0}
+  .vk-pages .pf-sh{display:none}
+  .pf-tabs{display:flex;gap:22px;border-bottom:1px solid var(--vk-line);padding:0 4px;margin-bottom:8px}
+  .pf-tabs button{height:34px;padding:0;font-size:14px;font-weight:500;color:var(--vk-meta);position:relative}
+  .pf-tabs button.on{color:var(--vk-name);font-weight:600}
+  .pf-tabs button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--vk-name)}
+  .pf .cp-pg{padding:2px 4px 8px;display:flex;flex-direction:column}
+  .pf-saved{margin-right:auto;font-size:12.5px;color:var(--vk-meta)}
+  .pf-del+.pf-saved{margin-left:4px}
+  .pf-step>input.pf-i{width:calc(100% - 28px)}
 </style>
 </head>
 <body>
@@ -2355,7 +2368,8 @@
     if (PG.open) closePage();
     if (APPS.open) closeApps();
     var keepH = Math.round(cats.getBoundingClientRect().height + 10 + list.getBoundingClientRect().height);
-    PF.open = true; PF.orig = name; PF.h = keepH > 100 ? keepH : 410; PF.auto = {}; PF.last = ""; PF.status = ""; PF.busy = false;
+    PF.shellH = Math.round(document.querySelector(".shell").getBoundingClientRect().height);
+    PF.open = true; PF.orig = name; PF.h = keepH > 100 ? keepH : 410; PF.auto = {}; PF.last = ""; PF.status = ""; PF.busy = false; PF.page = 0; PF.saved = "";
     PF.d = name ? JSON.parse(JSON.stringify(pdata(name))) : { type: "business" };
     PF.d.name = name || ""; PF.d.colors = PF.d.colors || []; PF.d.socials = PF.d.socials || [];
     PF.apps = name ? load("voke-apps:" + slug(name), null) || ((SEED.apps && SEED.apps[name]) || []) : [];
@@ -2373,7 +2387,7 @@
   function inp(key, ph, area) {
     var e = h(area ? "textarea" : "input", "pf-i"); e.placeholder = ph || ""; e.value = PF.d[key] || ""; e.dataset.k = key;
     if (area) e.rows = 3;
-    e.addEventListener("input", function () { PF.d[key] = e.value; if (PF.auto) delete PF.auto[key]; });
+    e.addEventListener("input", function () { PF.d[key] = e.value; if (PF.auto) delete PF.auto[key]; queueSave(); });
     return e;
   }
   function renderProfile() {
@@ -2386,13 +2400,16 @@
     [["business", "Business"], ["personal", "Personal"]].forEach(function (t) {
       var b = h("button", d.type === t[0] || (!d.type && t[0] === "business") ? "on" : null, t[1]); b.type = "button"; b.dataset.ptype = t[0]; seg.appendChild(b);
     });
-    head.appendChild(seg); sc.appendChild(head);
-    var n = 0;
+    head.appendChild(seg);
+    // Sections: Brand, Market (business only), Apps. Desktop scrolls through them; phones swipe one per page.
+    var n = 0, sections = [], cur = null;
+    function sect(title) { cur = h("div", "pf-sect"); cur.appendChild(h("p", "cp-h pf-sh", title)); sections.push(cur); }
     function step(title, body, sub) {
       var s = h("div", "pf-step"); var t = h("p", "pf-st"); t.appendChild(h("b", null, String(++n))); t.appendChild(document.createTextNode(title)); s.appendChild(t);
       if (sub) s.appendChild(h("p", "pf-sub", sub));
-      body.forEach(function (x) { s.appendChild(x); }); sc.appendChild(s);
+      body.forEach(function (x) { s.appendChild(x); }); cur.appendChild(s);
     }
+    sect("Brand");
     if (biz) {
       var web = inp("website", "yourbusiness.com"); web.id = "pfWeb"; web.inputMode = "url";
       web.addEventListener("input", function () { clearTimeout(PF.t); PF.t = setTimeout(function () { autoFill(false); }, 900); });
@@ -2416,13 +2433,14 @@
       var cw = h("div", "pf-colors");
       d.colors.forEach(function (c, i) {
         var sw = h("label", "pf-sw"), ci = document.createElement("input"); ci.type = "color"; ci.value = c; sw.style.background = c;
-        ci.addEventListener("input", function () { d.colors[i] = ci.value.toUpperCase(); sw.style.background = ci.value; var hx = sw.parentNode && sw.parentNode.querySelector(".pf-hex"); if (hx) hx.textContent = d.colors[i]; });
+        ci.addEventListener("input", function () { d.colors[i] = ci.value.toUpperCase(); sw.style.background = ci.value; var hx = sw.parentNode && sw.parentNode.querySelector(".pf-hex"); if (hx) hx.textContent = d.colors[i]; queueSave(); });
         sw.appendChild(ci); var x = h("button", "pf-x", "×"); x.type = "button"; x.dataset.rmcolor = i;
         var g = h("span", "pf-cg"); g.appendChild(sw); g.appendChild(h("span", "pf-hex", c)); g.appendChild(x); cw.appendChild(g);
       });
       if (d.colors.length < 6) { var ac = h("button", "pf-add", "+ Add color"); ac.type = "button"; ac.dataset.addcolor = "1"; cw.appendChild(ac); }
       step("Brand colors", [field("", cw, "colors")]);
       step("Brand font", [field("", inp("font", "e.g. Inter"), "font")]);
+      sect("Market");
       step("Ideal customer (optional)", [field("", inp("icp", "Who buys from you, what they need, why they choose you", true), "icp")]);
       step("Top competitors (optional)", [field("", inp("competitors", "e.g. Competitor A, Competitor B", true), "competitors")]);
     } else {
@@ -2431,6 +2449,7 @@
     }
     // 9. Composio holds this business's app sign-ins on its own account (Voke never holds credentials or pays for
     // its calls). 10. Once it's connected: the profile's apps, one-tap popular ones, and Search apps.
+    sect("Apps");
     var cz = h("div", "pf-cz");
     if (d.composio) {
       var okc = h("p", "pf-ok"); okc.innerHTML = "✓ Composio connected"; cz.appendChild(okc);
@@ -2455,13 +2474,27 @@
       var sa = h("button", "pf-add", "Search apps"); sa.type = "button"; sa.id = "pfApps"; box.appendChild(sa);
       step("Apps & socials", [box], mine.length ? "Connected for this profile. Tap any other app to connect it; you just approve." : "Tap the ones you use to connect them; you just approve. Don't see one? Search apps.");
     }
-    pfEl.appendChild(sc);
+    pfEl.appendChild(head);
+    var box;
+    if (paged) {
+      var wrap = h("div", "cp-pages"), N = sections.length; sections.forEach(function (x) { var pg = h("div", "cp-pg"); pg.appendChild(x); wrap.appendChild(pg); });
+      var tabs = h("div", "pf-tabs"); sections.forEach(function (x, i) { var b = h("button", i === (PF.page || 0) ? "on" : null, x.firstChild.textContent); b.type = "button"; b.dataset.pfpage = i; tabs.appendChild(b); });
+      pfEl.appendChild(tabs); pfEl.appendChild(wrap); box = wrap;
+      wrap.addEventListener("scroll", function () { var c = Math.round(wrap.scrollLeft / (wrap.clientWidth || 1)); if (c !== PF.page) { PF.page = c; tabs.querySelectorAll("button").forEach(function (b, i) { b.classList.toggle("on", i === c); }); } }, { passive: true });
+      requestAnimationFrame(function () { if (PF.page) wrap.scrollLeft = PF.page * wrap.clientWidth; });
+    } else {
+      sections.forEach(function (x) { sc.appendChild(x); }); pfEl.appendChild(sc); box = sc;
+    }
     var bar = h("div", "pf-bar");
     if (PF.orig && profiles().length > 1) { var del = h("button", "pf-del", "Delete"); del.type = "button"; del.id = "pfDel"; bar.appendChild(del); }
-    var cn = h("button", "pf-cancel", "Cancel"); cn.type = "button"; cn.id = "pfCancel"; bar.appendChild(cn);
-    var sv = h("button", "dt-run pf-save", PF.orig ? "Save" : "Save profile"); sv.type = "button"; sv.id = "pfSave"; bar.appendChild(sv);
+    bar.appendChild(h("span", "pf-saved", PF.saved || ""));
+    var sv = h("button", "dt-run pf-save", "Done"); sv.type = "button"; sv.id = "pfSave"; bar.appendChild(sv);
     pfEl.appendChild(bar);
-    sc.style.height = Math.max(160, PF.h - Math.round(bar.getBoundingClientRect().height)) + "px"; // same card height as the list
+    // Same card height as the plays list.
+    box.style.height = Math.max(160, PF.h - Math.round(bar.getBoundingClientRect().height + head.getBoundingClientRect().height + (paged ? pfEl.querySelector(".pf-tabs").getBoundingClientRect().height + 8 : 0))) + "px";
+    var gap = (PF.shellH || 0) - document.querySelector(".shell").getBoundingClientRect().height;
+    if (Math.abs(gap) > 1) box.style.height = Math.max(160, Math.round(box.getBoundingClientRect().height + gap)) + "px";
+    queueSave();
     size();
   }
   function renameKeys(from, to) {
@@ -2469,17 +2502,31 @@
     var sv = slug(from) === "personal" ? "voke-saved" : "voke-saved:" + slug(from), tv = slug(to) === "personal" ? "voke-saved" : "voke-saved:" + slug(to);
     var v2 = load(sv, null); if (v2 != null) store(tv, v2);
   }
-  function saveProfile() {
+  // Everything saves as you go (a short pause after each change). Done just closes and signs in to the profile.
+  function queueSave() { clearTimeout(PF.st); PF.st = setTimeout(autoSave, 500); }
+  function paintSaved() { var e = pfEl.querySelector(".pf-saved"); if (e) e.textContent = PF.saved || ""; }
+  function autoSave() {
+    if (!PF.open) return false;
     var d = PF.d, name = (d.name || "").trim();
-    if (!name) { PF.status = "Add a name first."; renderProfile(); var f = pfEl.querySelector('[data-k="name"]'); if (f) f.focus(); return; }
+    if (!name) { PF.saved = PF.orig ? "" : "Add a name to save"; paintSaved(); return false; }
     var all = profiles();
-    if (name !== PF.orig && all.indexOf(name) > -1) { PF.status = "There's already a profile called " + name + "."; renderProfile(); return; }
-    if (PF.orig && PF.orig !== name) { renameKeys(PF.orig, name); all[all.indexOf(PF.orig)] = name; store("voke-profiles", all); }
-    else if (!PF.orig) { all.push(name); store("voke-profiles", all); }
+    if (name !== PF.orig && all.indexOf(name) > -1) { PF.saved = "There's already a profile called " + name; paintSaved(); return false; }
+    if (PF.orig && PF.orig !== name) {
+      renameKeys(PF.orig, name); all[all.indexOf(PF.orig)] = name; store("voke-profiles", all);
+      if (load("voke-profile", null) === PF.orig) store("voke-profile", name);
+    } else if (!PF.orig) { all.push(name); store("voke-profiles", all); }
+    PF.orig = name;
     var keep = {}; ["type", "website", "description", "logo", "colors", "font", "icp", "competitors", "composio"].forEach(function (k) { if (d[k] != null && d[k] !== "") keep[k] = d[k]; });
-    store("voke-pdata:" + slug(name), keep);
-    setProfile(name); store("voke-apps:" + slug(name), PF.apps.slice());
-    PF.status = ""; closeProfile(); paintAvatar(); pushProfile();
+    store("voke-pdata:" + slug(name), keep); store("voke-apps:" + slug(name), PF.apps.slice());
+    PF.saved = "Saved"; paintSaved(); paintAvatar();
+    if (curProfile() === name) pushProfile();
+    var t = pfEl.querySelector(".pf-head .pp-t"); if (t) t.textContent = "Edit profile";
+    return true;
+  }
+  function saveProfile() {
+    clearTimeout(PF.st);
+    if (!autoSave()) { if (!(PF.d.name || "").trim()) { PF.page = 0; PF.status = "Add a name first."; renderProfile(); var f = pfEl.querySelector('[data-k="name"]'); if (f) f.focus(); } return; }
+    var name = PF.orig; setProfile(name); PF.status = ""; closeProfile(); paintAvatar(); pushProfile();
   }
   // Runs once the website looks complete (a pause in typing, Enter or leaving the field). Fills empty fields and
   // ones it filled before; anything the user typed stays.
@@ -2527,7 +2574,8 @@
   };
   pfEl.addEventListener("click", function (e) {
     var t = e.target, d = PF.d;
-    var pt = t.closest("[data-ptype]"); if (pt) { d.type = pt.dataset.ptype; renderProfile(); return; }
+    var pt = t.closest("[data-ptype]"); if (pt) { d.type = pt.dataset.ptype; PF.page = 0; renderProfile(); return; }
+    var pp = t.closest("[data-pfpage]"); if (pp) { var w = pfEl.querySelector(".cp-pages"); if (w) w.scrollTo({ left: Number(pp.dataset.pfpage) * w.clientWidth, behavior: "smooth" }); return; }
     var hp = t.closest("[data-help]"); if (hp) { e.preventDefault(); send(HELP[hp.dataset.help](d)).catch(function () {}); return; }
     if (t.closest("[data-addcolor]")) { d.colors.push("#191919"); renderProfile(); return; }
     var rc = t.closest("[data-rmcolor]"); if (rc) { e.preventDefault(); d.colors.splice(Number(rc.dataset.rmcolor), 1); renderProfile(); return; }
