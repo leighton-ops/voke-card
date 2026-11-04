@@ -553,7 +553,9 @@
   @media (hover:hover){.app-add:hover{background:light-dark(#191919,var(--vk-brand));color:light-dark(#fff,#000);box-shadow:none}.app-on:hover{background:var(--vk-btn-hov)}}
   .apps .dt-sec{border-top:0;padding-top:0}
   .apps-foot{margin:0 6px}
-  .detailing .head #store[aria-pressed=true]{background:var(--vk-btn-hov)}
+  .head #store[aria-pressed=true]{background:var(--vk-btn-hov)}
+  .appsing #cats,.appsing #filters,.appsing #list,.appsing #pager,.appsing #menu{display:none}
+  .apps{padding-top:0}
   .head .hb.add{background:var(--vk-btn);color:var(--vk-icon);box-shadow:inset 0 0 0 1px var(--vk-chip-line);filter:none}
   .head .hb.add svg{stroke-width:2}
 </style>
@@ -1917,12 +1919,12 @@
     if (PG.open) closePage();
     APPS.open = true; APPS.keepTop = list.scrollTop; $("store").setAttribute("aria-pressed", "true");
     APPS.keepQ = q.value; APPS.q = ""; q.value = ""; q.placeholder = "Search apps..."; q.setAttribute("aria-label", "Search apps");
-    $("card").classList.add("detailing"); appsEl.hidden = false; renderApps();
+    $("card").classList.add("appsing"); appsEl.hidden = false; renderApps();
   }
   function closeApps() {
     APPS.open = false; appsEl.hidden = true; appsEl.innerHTML = ""; $("store").setAttribute("aria-pressed", "false");
     q.value = APPS.keepQ || ""; q.placeholder = "Search plays..."; q.setAttribute("aria-label", "Search Voke plays");
-    $("card").classList.remove("detailing"); draw(); list.scrollTop = APPS.keepTop || 0; size();
+    $("card").classList.remove("appsing"); draw(); list.scrollTop = APPS.keepTop || 0; size();
   }
   function appRow(a, on) {
     var r = h("div", "app-row"); r.appendChild(appBadge(a.name));
@@ -1934,10 +1936,6 @@
   function renderApps() {
     appsEl.innerHTML = "";
     var mine = connected(), cur = curProfile();
-    var top = h("div", "apps-top");
-    top.appendChild(h("h2", "pp-t", "Apps"));
-    var sub = h("p", "apps-sub"); sub.appendChild(avatar(cur, "sm")); sub.appendChild(document.createTextNode(" " + cur + " · " + mine.length + " connected")); top.appendChild(sub);
-    appsEl.appendChild(top);
     var cats = h("nav", "cats apps-cats");
     APP_CATS.forEach(function (c) { var b = h("button", APPS.cat === c[0] ? "on" : null, c[1]); b.type = "button"; b.dataset.appcat = c[0]; cats.appendChild(b); });
     appsEl.appendChild(cats);
