@@ -558,6 +558,14 @@
   .apps{padding-top:0}
   .head .hb.add{background:var(--vk-btn);color:var(--vk-icon);box-shadow:inset 0 0 0 1px var(--vk-chip-line);filter:none}
   .head .hb.add svg{stroke-width:2}
+  .apps{gap:10px;padding-bottom:0}
+  .apps-scroll{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--vk-line) transparent}
+  .apps-scroll .dt-sec+.dt-sec{margin-top:10px}
+  .apps-foot{margin:6px 6px 12px}
+  .apps-pages{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none}
+  .apps-pages::-webkit-scrollbar{display:none}
+  .apps-pg{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
+  .apps .bar{margin:2px 6px 12px}
 </style>
 </head>
 <body>
@@ -1917,6 +1925,8 @@
   function openApps() {
     if (!menu.hidden) closeMenu();
     if (PG.open) closePage();
+    APPS.h = list.offsetParent ? Math.round(list.getBoundingClientRect().height) : 0;
+    APPS.shellH = Math.round(document.querySelector(".shell").getBoundingClientRect().height);
     APPS.open = true; APPS.keepTop = list.scrollTop; $("store").setAttribute("aria-pressed", "true");
     APPS.keepQ = q.value; APPS.q = ""; q.value = ""; q.placeholder = "Search apps..."; q.setAttribute("aria-label", "Search apps");
     $("card").classList.add("appsing"); appsEl.hidden = false; renderApps();
@@ -1945,11 +1955,32 @@
       if (APPS.cat === "connected") return mine.indexOf(a.id) > -1;
       return APPS.cat === "all" || a.cat === APPS.cat;
     });
-    var on = match.filter(function (a) { return mine.indexOf(a.id) > -1; }), off = match.filter(function (a) { return mine.indexOf(a.id) < 0; });
-    if (on.length) { var s1 = sec("Connected"); on.forEach(function (a) { s1.appendChild(appRow(a, true)); }); appsEl.appendChild(s1); }
-    if (off.length && APPS.cat !== "connected") { var s2 = sec(on.length ? "Explore" : "Explore apps"); off.forEach(function (a) { s2.appendChild(appRow(a, false)); }); appsEl.appendChild(s2); }
-    if (!on.length && !off.length) appsEl.appendChild(h("p", "note", APPS.cat === "connected" ? "No apps connected to " + cur + " yet." : "No apps match. Try another word."));
-    appsEl.appendChild(h("p", "dt-sub apps-foot", "Voke's agent connects each app for you: you approve once, per profile."));
+    var on = match.filter(function (a) { return mine.indexOf(a.id) > -1; }), off = APPS.cat === "connected" ? [] : match.filter(function (a) { return mine.indexOf(a.id) < 0; });
+    if (!on.length && !off.length) {
+      var empty = h("div", "apps-scroll"); if (!paged) empty.style.height = (APPS.h || 368) + "px";
+      empty.appendChild(h("p", "note", APPS.cat === "connected" ? "No apps connected to " + cur + " yet." : "No apps match. Try another word."));
+      appsEl.appendChild(empty); size(); return;
+    }
+    // Same size as the plays list: desktop scrolls down inside the list's height, phones swipe pages of 5.
+    if (paged) {
+      var rows = on.map(function (a) { return appRow(a, true); }).concat(off.map(function (a) { return appRow(a, false); }));
+      var wrap = h("div", "apps-pages"), n = Math.ceil(rows.length / 5);
+      for (var i = 0; i < rows.length; i += 5) { var pg = h("div", "apps-pg"); rows.slice(i, i + 5).forEach(function (r) { pg.appendChild(r); }); wrap.appendChild(pg); }
+      appsEl.appendChild(wrap);
+      if (n > 1) {
+        var bar = h("div", "bar"), thumb = h("div", "thumb"); thumb.style.width = (100 / n) + "%"; bar.appendChild(thumb); appsEl.appendChild(bar);
+        wrap.addEventListener("scroll", function () { thumb.style.transform = "translateX(" + (wrap.scrollLeft / (wrap.clientWidth || 1) * bar.clientWidth / n) + "px)"; }, { passive: true });
+      }
+      // Phones: pages fill the same height the plays list had, so the card doesn't shrink.
+      var gap = (APPS.shellH || 0) - document.querySelector(".shell").getBoundingClientRect().height;
+      if (gap > 0) wrap.style.height = Math.round(wrap.getBoundingClientRect().height + gap) + "px";
+    } else {
+      var sc = h("div", "apps-scroll"); sc.style.height = (APPS.h || 368) + "px";
+      if (on.length) { var s1 = sec("Connected"); on.forEach(function (a) { s1.appendChild(appRow(a, true)); }); sc.appendChild(s1); }
+      if (off.length) { var s2 = sec("Explore"); off.forEach(function (a) { s2.appendChild(appRow(a, false)); }); sc.appendChild(s2); }
+      sc.appendChild(h("p", "dt-sub apps-foot", "Voke's agent connects each app for you: you approve once, per profile."));
+      appsEl.appendChild(sc);
+    }
     size();
   }
   appsEl.addEventListener("click", function (e) {
