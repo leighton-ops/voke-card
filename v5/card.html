@@ -665,7 +665,6 @@
   .cp-foot .pf-cta{width:100%}
   .cp-foot .cp-pub{width:100%;height:44px;font-size:15px}
   @media (max-width:520px){.cp-row{grid-template-columns:36px minmax(0,1fr) 58px 50px 16px;gap:4px;padding:5px}.cp-tool,.cp-tool .pp-app{width:36px;height:36px}.cp-in{font-size:13px;padding:5px}.cp-sm{font-size:12px}}
-  @media (min-width:521px){.cp-foot{flex-direction:row}.cp-foot>*{flex:1}.cp-foot .cp-pub{height:40px}}
   .cp-in{overflow:hidden}
   .cp-lbl{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:4px 2px -2px;font-size:13px;font-weight:600;color:var(--vk-name)}
   .cp-lbl small{font-size:12px;font-weight:400;color:var(--vk-meta)}
@@ -681,9 +680,9 @@
   .cp-foot{border-top:0;padding:14px 0 6px}
   .cp-foot button:disabled{opacity:.4;cursor:not-allowed}
   .cp-why{margin:0;text-align:center}
-  @media (min-width:521px){.cp-foot{flex-direction:row;flex-wrap:wrap}.cp-foot>button{flex:1}.cp-foot .cp-why{flex-basis:100%}}
   @media (max-width:520px){.cp-row{grid-template-columns:34px minmax(0,1fr) 52px 46px 24px;gap:4px;padding:5px}.cp-tool,.cp-tool .pp-app{width:34px;height:34px}.cp-ctl{flex-direction:column;gap:0}.cp-mini{width:22px;height:18px}.cp-thead span:nth-child(5){display:none}}
   @media (max-width:520px){.cp-thead{font-size:11px}.cp-thead span{white-space:nowrap}}
+  .cp-foot,.cp .cp-foot{flex-direction:column!important;flex-wrap:nowrap!important}.cp-foot>button{flex:none!important;width:100%}
 </style>
 </head>
 <body>
@@ -2028,14 +2027,15 @@
     fi.addEventListener("change", function () { var f = fi.files && fi.files[0]; if (f) readFile(f); });
     lw.appendChild(li); lw.appendChild(up); s2.appendChild(lw);
     var rec = h("button", "cp-rec", "Record playbook with Loom"); rec.type = "button"; rec.id = "cpLoom"; s2.appendChild(rec);
-    var tip = h("p", "pf-sub2"); tip.innerHTML = 'Don’t have Loom? <button type="button" class="pf-help cp-inl" id="cpLoomGet">Install Loom for free.</button> Pro tip: talk through each step while you record, then paste the link above when you’re done.';
+    var tip = h("p", "pf-sub2"); tip.innerHTML = 'Don’t have Loom? <button type="button" class="pf-help cp-inl" id="cpLoomGet">Install Loom for free.</button><br>Pro tip: talk through each step while you record, then paste the link above when you’re done.';
     s2.appendChild(tip);
     var hm = h("button", "pf-help cp-helpme", "Help me create a playbook"); hm.type = "button"; hm.id = "cpHelp"; s2.appendChild(hm);
     if (CP.status) s2.appendChild(h("p", "pf-status" + (CP.busy ? " busy" : ""), CP.status));
     var secs = [s1, s2];
-    // 3. Approve playbook: only once something is uploaded
+    // 3. Approve playbook: always a section; its steps table appears once something is uploaded
+    var s3 = h("div", "cp-sec"); s3.appendChild(h("p", "cp-h", "Approve playbook")); secs.push(s3);
+    if (!uploaded) s3.appendChild(h("p", "pf-sub2", "Upload a playbook above and its steps show up here to review."));
     if (uploaded) {
-      var s3 = h("div", "cp-sec"); s3.appendChild(h("p", "cp-h", "Approve playbook"));
       if (d.bundle) s3.appendChild(h("p", "pf-sub2", d.steps.length + " skills from " + d.bundle + ". Each is saved on its own and linked together as this one playbook."));
       else if (!d.steps.length) s3.appendChild(h("p", "pf-sub2", "Your AI drafts the steps from your " + (d.file ? "file" : "video") + " when you test it, or add them yourself."));
       var tb = h("div", "cp-table"), hd = h("div", "cp-row cp-thead");
@@ -2056,7 +2056,7 @@
         r.appendChild(ctl); tb.appendChild(r);
       });
       var add = h("button", "pf-add", "+ Add step"); add.type = "button"; add.id = "cpAdd";
-      s3.appendChild(tb); s3.appendChild(add); secs.push(s3);
+      s3.appendChild(tb); s3.appendChild(add);
     }
     // Test, then Publish: at the end of the form, usable once the info is complete
     var foot = h("div", "cp-foot"), ready = cpReady();
@@ -2064,7 +2064,7 @@
     var pb = h("button", "dt-run cp-pub", "Publish"); pb.type = "button"; pb.id = "cpPub"; pb.disabled = !(ready && d.tested);
     foot.appendChild(ts); foot.appendChild(pb);
     foot.appendChild(h("p", "pf-sub2 cp-why", !ready ? "Add a name, a description" + (d.paid ? ", a price" : "") + " and upload a playbook to test it." : !d.tested ? "Test it once before publishing." : "Tested. Publish when it did what you wanted."));
-    secs[secs.length - 1].appendChild(foot);
+    s3.appendChild(foot); // Test and Publish always sit in the Approve section
     if (paged) {
       var n = secs.length, wrap = h("div", "cp-pages"); secs.forEach(function (x) { var pg = h("div", "cp-pg"); pg.appendChild(x); wrap.appendChild(pg); }); cpEl.appendChild(wrap);
       var bar = h("div", "bar"), thumb = h("div", "thumb"); thumb.style.width = (100 / n) + "%"; bar.appendChild(thumb); cpEl.appendChild(bar);
